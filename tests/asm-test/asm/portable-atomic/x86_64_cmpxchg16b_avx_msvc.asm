@@ -1194,6 +1194,306 @@ asm_test::compare_exchange::u8::release_relaxed:
         setne             al
         ret
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::release_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::release_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f32::release_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::release_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::release_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange::f64::release_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         mov               eax, edx
         xor               edx, edx
@@ -2167,6 +2467,306 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         lock cmpxchg      byte ptr [rcx], r8b
         mov               edx, eax
         setne             al
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        vmovd             eax, xmm1
+        vmovd             r8d, xmm2
+        xor               edx, edx
+        lock cmpxchg      dword ptr [rcx], r8d
+        setne             dl
+        vmovd             xmm0, eax
+        mov               eax, edx
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
+        ret
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        vmovq             rax, xmm1
+        vmovq             r8, xmm2
+        xor               edx, edx
+        lock cmpxchg      qword ptr [rcx], r8
+        setne             dl
+        vmovq             xmm0, rax
+        mov               rax, rdx
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -4266,6 +4866,30 @@ asm_test::load::u8::relaxed:
         movzx             eax, byte ptr [rcx]
         ret
 
+asm_test::load::f32::seqcst:
+        vmovss            xmm0, dword ptr [rcx]
+        ret
+
+asm_test::load::f32::acquire:
+        vmovss            xmm0, dword ptr [rcx]
+        ret
+
+asm_test::load::f32::relaxed:
+        vmovss            xmm0, dword ptr [rcx]
+        ret
+
+asm_test::load::f64::seqcst:
+        vmovsd            xmm0, qword ptr [rcx]
+        ret
+
+asm_test::load::f64::acquire:
+        vmovsd            xmm0, qword ptr [rcx]
+        ret
+
+asm_test::load::f64::relaxed:
+        vmovsd            xmm0, qword ptr [rcx]
+        ret
+
 asm_test::load::u16::seqcst:
         movzx             eax, word ptr [rcx]
         ret
@@ -4361,6 +4985,66 @@ asm_test::swap::u8::relaxed:
 asm_test::swap::u8::release:
         mov               eax, edx
         xchg              byte ptr [rcx], al
+        ret
+
+asm_test::swap::f32::acqrel:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::swap::f32::seqcst:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::swap::f32::acquire:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::swap::f32::relaxed:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::swap::f32::release:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::swap::f64::acqrel:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::swap::f64::seqcst:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::swap::f64::acquire:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::swap::f64::relaxed:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::swap::f64::release:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        vmovq             xmm0, rax
         ret
 
 asm_test::swap::u16::acqrel:
@@ -4543,6 +5227,32 @@ asm_test::store::u8::relaxed:
 
 asm_test::store::u8::release:
         mov               byte ptr [rcx], dl
+        ret
+
+asm_test::store::f32::seqcst:
+        vmovd             eax, xmm1
+        xchg              dword ptr [rcx], eax
+        ret
+
+asm_test::store::f32::relaxed:
+        vmovss            dword ptr [rcx], xmm1
+        ret
+
+asm_test::store::f32::release:
+        vmovss            dword ptr [rcx], xmm1
+        ret
+
+asm_test::store::f64::seqcst:
+        vmovq             rax, xmm1
+        xchg              qword ptr [rcx], rax
+        ret
+
+asm_test::store::f64::relaxed:
+        vmovsd            qword ptr [rcx], xmm1
+        ret
+
+asm_test::store::f64::release:
+        vmovsd            qword ptr [rcx], xmm1
         ret
 
 asm_test::store::u16::seqcst:
@@ -4963,6 +5673,121 @@ asm_test::fetch_or::u128::release:
         mov               rbx, r11
         ret
 
+asm_test::fetch_abs::f32::acqrel:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               edx, eax
+        and               edx, 0x7fffffff
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_abs::f32::seqcst:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               edx, eax
+        and               edx, 0x7fffffff
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_abs::f32::acquire:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               edx, eax
+        and               edx, 0x7fffffff
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_abs::f32::relaxed:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               edx, eax
+        and               edx, 0x7fffffff
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_abs::f32::release:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               edx, eax
+        and               edx, 0x7fffffff
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_abs::f64::acqrel:
+        mov               rax, qword ptr [rcx]
+        movabs            rdx, 0x7fffffffffffffff
+        nop               dword ptr [rax]
+0:
+        mov               r8, rax
+        and               r8, rdx
+        lock cmpxchg      qword ptr [rcx], r8
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_abs::f64::seqcst:
+        mov               rax, qword ptr [rcx]
+        movabs            rdx, 0x7fffffffffffffff
+        nop               dword ptr [rax]
+0:
+        mov               r8, rax
+        and               r8, rdx
+        lock cmpxchg      qword ptr [rcx], r8
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_abs::f64::acquire:
+        mov               rax, qword ptr [rcx]
+        movabs            rdx, 0x7fffffffffffffff
+        nop               dword ptr [rax]
+0:
+        mov               r8, rax
+        and               r8, rdx
+        lock cmpxchg      qword ptr [rcx], r8
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_abs::f64::relaxed:
+        mov               rax, qword ptr [rcx]
+        movabs            rdx, 0x7fffffffffffffff
+        nop               dword ptr [rax]
+0:
+        mov               r8, rax
+        and               r8, rdx
+        lock cmpxchg      qword ptr [rcx], r8
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_abs::f64::release:
+        mov               rax, qword ptr [rcx]
+        movabs            rdx, 0x7fffffffffffffff
+        nop               dword ptr [rax]
+0:
+        mov               r8, rax
+        and               r8, rdx
+        lock cmpxchg      qword ptr [rcx], r8
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         mov               eax, edx
         lock xadd         byte ptr [rcx], al
@@ -4986,6 +5811,126 @@ asm_test::fetch_add::u8::relaxed:
 asm_test::fetch_add::u8::release:
         mov               eax, edx
         lock xadd         byte ptr [rcx], al
+        ret
+
+asm_test::fetch_add::f32::acqrel:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vaddss            xmm0, xmm1, xmm0
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_add::f32::seqcst:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vaddss            xmm0, xmm1, xmm0
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_add::f32::acquire:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vaddss            xmm0, xmm1, xmm0
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_add::f32::relaxed:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vaddss            xmm0, xmm1, xmm0
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_add::f32::release:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vaddss            xmm0, xmm1, xmm0
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_add::f64::acqrel:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vaddsd            xmm0, xmm1, xmm0
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_add::f64::seqcst:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vaddsd            xmm0, xmm1, xmm0
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_add::f64::acquire:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vaddsd            xmm0, xmm1, xmm0
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_add::f64::relaxed:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vaddsd            xmm0, xmm1, xmm0
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_add::f64::release:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vaddsd            xmm0, xmm1, xmm0
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
         ret
 
 asm_test::fetch_add::u16::acqrel:
@@ -5558,6 +6503,146 @@ asm_test::fetch_max::i8::release:
         jne               0b
         ret
 
+asm_test::fetch_max::f32::acqrel:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vmaxss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_max::f32::seqcst:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vmaxss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_max::f32::acquire:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vmaxss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_max::f32::relaxed:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vmaxss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_max::f32::release:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vmaxss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_max::f64::acqrel:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vmaxsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_max::f64::seqcst:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vmaxsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_max::f64::acquire:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vmaxsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_max::f64::relaxed:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vmaxsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_max::f64::release:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vmaxsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
 asm_test::fetch_max::i16::acqrel:
         movzx             eax, word ptr [rcx]
         nop               word ptr cs:[rax + rax]
@@ -5888,6 +6973,146 @@ asm_test::fetch_min::i8::release:
         jne               0b
         ret
 
+asm_test::fetch_min::f32::acqrel:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vminss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_min::f32::seqcst:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vminss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_min::f32::acquire:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vminss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_min::f32::relaxed:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vminss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_min::f32::release:
+        mov               eax, dword ptr [rcx]
+        vcmpunordss       xmm0, xmm1, xmm1
+        nop               word ptr [rax + rax]
+0:
+        vmovd             xmm2, eax
+        vminss            xmm3, xmm2, xmm1
+        vblendvps         xmm2, xmm3, xmm2, xmm0
+        vextractps        edx, xmm2, 0x0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_min::f64::acqrel:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vminsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_min::f64::seqcst:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vminsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_min::f64::acquire:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vminsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_min::f64::relaxed:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vminsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_min::f64::release:
+        mov               rax, qword ptr [rcx]
+        vcmpunordsd       xmm0, xmm1, xmm1
+        nop               dword ptr [rax + rax]
+0:
+        vmovq             xmm2, rax
+        vminsd            xmm3, xmm2, xmm1
+        vblendvpd         xmm2, xmm3, xmm2, xmm0
+        vmovq             rdx, xmm2
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
 asm_test::fetch_min::i16::acqrel:
         movzx             eax, word ptr [rcx]
         nop               word ptr cs:[rax + rax]
@@ -6201,6 +7426,66 @@ asm_test::fetch_neg::u8::release:
         neg               dl
         lock cmpxchg      byte ptr [rcx], dl
         jne               0b
+        ret
+
+asm_test::fetch_neg::f32::acqrel:
+        mov               eax, 0x80000000
+        lock xadd         dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_neg::f32::seqcst:
+        mov               eax, 0x80000000
+        lock xadd         dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_neg::f32::acquire:
+        mov               eax, 0x80000000
+        lock xadd         dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_neg::f32::relaxed:
+        mov               eax, 0x80000000
+        lock xadd         dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_neg::f32::release:
+        mov               eax, 0x80000000
+        lock xadd         dword ptr [rcx], eax
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_neg::f64::acqrel:
+        movabs            rax, -0x8000000000000000
+        lock xadd         qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_neg::f64::seqcst:
+        movabs            rax, -0x8000000000000000
+        lock xadd         qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_neg::f64::acquire:
+        movabs            rax, -0x8000000000000000
+        lock xadd         qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_neg::f64::relaxed:
+        movabs            rax, -0x8000000000000000
+        lock xadd         qword ptr [rcx], rax
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_neg::f64::release:
+        movabs            rax, -0x8000000000000000
+        lock xadd         qword ptr [rcx], rax
+        vmovq             xmm0, rax
         ret
 
 asm_test::fetch_neg::u16::acqrel:
@@ -6791,6 +8076,126 @@ asm_test::fetch_sub::u8::release:
         mov               eax, edx
         neg               al
         lock xadd         byte ptr [rcx], al
+        ret
+
+asm_test::fetch_sub::f32::acqrel:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vsubss            xmm0, xmm0, xmm1
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_sub::f32::seqcst:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vsubss            xmm0, xmm0, xmm1
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_sub::f32::acquire:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vsubss            xmm0, xmm0, xmm1
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_sub::f32::relaxed:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vsubss            xmm0, xmm0, xmm1
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_sub::f32::release:
+        mov               eax, dword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovd             xmm0, eax
+        vsubss            xmm0, xmm0, xmm1
+        vmovd             edx, xmm0
+        lock cmpxchg      dword ptr [rcx], edx
+        jne               0b
+        vmovd             xmm0, eax
+        ret
+
+asm_test::fetch_sub::f64::acqrel:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vsubsd            xmm0, xmm0, xmm1
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_sub::f64::seqcst:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vsubsd            xmm0, xmm0, xmm1
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_sub::f64::acquire:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vsubsd            xmm0, xmm0, xmm1
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_sub::f64::relaxed:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vsubsd            xmm0, xmm0, xmm1
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
+        ret
+
+asm_test::fetch_sub::f64::release:
+        mov               rax, qword ptr [rcx]
+        nop               word ptr cs:[rax + rax]
+0:
+        vmovq             xmm0, rax
+        vsubsd            xmm0, xmm0, xmm1
+        vmovq             rdx, xmm0
+        lock cmpxchg      qword ptr [rcx], rdx
+        jne               0b
+        vmovq             xmm0, rax
         ret
 
 asm_test::fetch_sub::u16::acqrel:

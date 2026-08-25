@@ -1656,6 +1656,366 @@ asm_test::compare_exchange::u8::release_relaxed:
         lmg               %r13,%r15,104(%r15)
         br                %r14
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         stmg              %r13,%r15,104(%r15)
         risbgnz           %r1,%r2,0,61
@@ -3184,6 +3544,366 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         lochie            %r2,1
         xilf              %r2,1
         lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        risblgz           %r0,%r0,0,31,32
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -7103,6 +7823,36 @@ asm_test::load::u8::relaxed:
         lb                %r2,0(%r2)
         br                %r14
 
+asm_test::load::f32::seqcst:
+        lfh               %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f32::acquire:
+        lfh               %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f32::relaxed:
+        lfh               %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f64::seqcst:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f64::acquire:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f64::relaxed:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::load::u16::seqcst:
         lh                %r2,0(%r2)
         br                %r14
@@ -7243,6 +7993,106 @@ asm_test::swap::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::swap::f32::acqrel:
+        lgdr              %r0,%f0
+        risblgz           %r1,%r0,0,31,32
+        l                 %r0,0(%r2)
+0:
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f32::seqcst:
+        lgdr              %r0,%f0
+        risblgz           %r1,%r0,0,31,32
+        l                 %r0,0(%r2)
+0:
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f32::acquire:
+        lgdr              %r0,%f0
+        risblgz           %r1,%r0,0,31,32
+        l                 %r0,0(%r2)
+0:
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f32::relaxed:
+        lgdr              %r0,%f0
+        risblgz           %r1,%r0,0,31,32
+        l                 %r0,0(%r2)
+0:
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f32::release:
+        lgdr              %r0,%f0
+        risblgz           %r1,%r0,0,31,32
+        l                 %r0,0(%r2)
+0:
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::acqrel:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::seqcst:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::acquire:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::relaxed:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::release:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::swap::u16::acqrel:
@@ -7556,6 +8406,38 @@ asm_test::store::u8::relaxed:
 
 asm_test::store::u8::release:
         stc               %r3,0(%r2)
+        br                %r14
+
+asm_test::store::f32::seqcst:
+        lgdr              %r0,%f0
+        stfh              %r0,0(%r2)
+        bnor              %r0
+        br                %r14
+
+asm_test::store::f32::relaxed:
+        lgdr              %r0,%f0
+        stfh              %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f32::release:
+        lgdr              %r0,%f0
+        stfh              %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f64::seqcst:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
+        bnor              %r0
+        br                %r14
+
+asm_test::store::f64::relaxed:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f64::release:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
         br                %r14
 
 asm_test::store::u16::seqcst:
@@ -7989,6 +8871,76 @@ asm_test::fetch_or::u128::release:
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
+asm_test::fetch_abs::f32::acqrel:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f32::seqcst:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f32::acquire:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f32::relaxed:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f32::release:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::acqrel:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::seqcst:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::acquire:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::relaxed:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::release:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::fetch_add::u8::acqrel:
         risbgnz           %r1,%r2,0,61
         l                 %r0,0(%r1)
@@ -8062,6 +9014,321 @@ asm_test::fetch_add::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::fetch_add::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f32::release:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        aebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        adbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_add::u16::acqrel:
@@ -8739,6 +10006,1316 @@ asm_test::fetch_max::i8::release:
         lmg               %r14,%r15,112(%r15)
         br                %r14
 
+asm_test::fetch_max::f32::acqrel:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f32::seqcst:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f32::acquire:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f32::relaxed:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f32::release:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jh                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::acqrel:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::seqcst:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::acquire:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::relaxed:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::release:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnh               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnh               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnh               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jh                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jh                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::fetch_max::i16::acqrel:
         stmg              %r14,%r15,112(%r15)
         risbgnz           %r1,%r2,0,61
@@ -9137,6 +11714,1316 @@ asm_test::fetch_min::i8::release:
         jl                0b
         rll               %r2,%r0,8(%r2)
         lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::fetch_min::f32::acqrel:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f32::seqcst:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f32::acquire:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f32::relaxed:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f32::release:
+        l                 %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+1:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               4f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               5f
+2:
+        cebr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                2b
+5:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                3b
+6:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+7:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               10f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               11f
+8:
+        cebr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                8b
+11:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                9b
+12:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+13:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               16f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               17f
+14:
+        cebr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                14b
+17:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                15b
+18:
+        ler               %f1,%f2
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                24f
+19:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f2,%r1
+        cebr              %f2,%f2
+        ler               %f1,%f0
+        jno               21f
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jno               22f
+20:
+        cebr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        ler               %f1,%f2
+        cebr              %f0,%f0
+        ler               %f2,%f1
+        jo                20b
+22:
+        ler               %f2,%f0
+        cebr              %f1,%f2
+        jl                0b
+23:
+        ler               %f1,%f2
+        j                 0b
+24:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::acqrel:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::seqcst:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::acquire:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::relaxed:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::release:
+        lg                %r0,0(%r2)
+        j                 1f
+0:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+1:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               4f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               5f
+2:
+        cdbr              %f1,%f2
+        jnl               6f
+3:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                7f
+        j                 24f
+4:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                2b
+5:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                3b
+6:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+7:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               10f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               11f
+8:
+        cdbr              %f1,%f2
+        jnl               12f
+9:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                13f
+        j                 24f
+10:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                8b
+11:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                9b
+12:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+13:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               16f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               17f
+14:
+        cdbr              %f1,%f2
+        jnl               18f
+15:
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                19f
+        j                 24f
+16:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                14b
+17:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                15b
+18:
+        ldr               %f1,%f2
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                24f
+19:
+        ldgr              %f2,%r0
+        cdbr              %f2,%f2
+        ldr               %f1,%f0
+        jno               21f
+        cdbr              %f0,%f0
+        ldr               %f2,%f1
+        jno               22f
+20:
+        cdbr              %f1,%f2
+        jl                0b
+        j                 23f
+21:
+        cdbr              %f0,%f0
+        ldr               %f1,%f2
+        ldr               %f2,%f1
+        jo                20b
+22:
+        ldr               %f2,%f0
+        cdbr              %f1,%f2
+        jl                0b
+23:
+        ldr               %f1,%f2
+        j                 0b
+24:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_min::i16::acqrel:
@@ -9812,6 +13699,71 @@ asm_test::fetch_neg::u8::release:
 11:
         lr                %r2,%r5
         lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::fetch_neg::f32::acqrel:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f32::seqcst:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f32::acquire:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f32::relaxed:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f32::release:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::acqrel:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::seqcst:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::acquire:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::relaxed:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::release:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_neg::u16::acqrel:
@@ -10887,6 +14839,321 @@ asm_test::fetch_sub::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::fetch_sub::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f32::release:
+        l                 %r0,0(%r2)
+0:
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        risbhgz           %r1,%r0,0,31,32
+        ldgr              %f1,%r1
+        sebr              %f1,%f0
+        lgdr              %r1,%f1
+        risblgz           %r1,%r1,0,31,32
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        risbhgz           %r0,%r0,0,31,32
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_sub::u16::acqrel:

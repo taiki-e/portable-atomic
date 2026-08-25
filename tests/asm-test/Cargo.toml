@@ -10,7 +10,7 @@ doctest = false
 core = []
 
 [dependencies]
-portable-atomic = { path = "../..", optional = true, default-features = false }
+portable-atomic = { path = "../..", optional = true, default-features = false, features = ["float"] }
 paste = "1"
 
 [dev-dependencies]

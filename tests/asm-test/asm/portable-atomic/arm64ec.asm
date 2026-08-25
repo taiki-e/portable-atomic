@@ -1180,6 +1180,582 @@
         ret
 
 .text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        fmov              x10, d1
+0:
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              1f
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
         mov               w8, w1
 0:
         ldaxrh            w1, [x0]
@@ -2707,6 +3283,576 @@
         clrex
         eor               w0, wzr, #0x1
         mov               w1, w8
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              w9, s0
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 1f
+        dmb               ish
+        mov               w9, #0x1                // =1
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+1:
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
+        ret
+
+.text:
+        fmov              x9, d0
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              0f
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              d0, x8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              d0, x8
+        eor               w0, wzr, #0x1
         ret
 
 .text:
@@ -5867,6 +7013,34 @@
         ret
 
 .text:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+.text:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               s0, [x0]
+        ret
+
+.text:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+.text:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               d0, [x0]
+        ret
+
+.text:
         ldarh             w0, [x0]
         ret
 
@@ -5983,6 +7157,98 @@
         ldxrb             w0, [x8]
         stlxrb            w9, w1, [x8]
         cbnz              w9, 0b
+        ret
+
+.text:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        dmb               ish
+        ret
+
+.text:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+        fmov              w9, s0
+0:
+        ldxr              w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+        fmov              w9, s0
+0:
+        ldxr              w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+        fmov              x8, d0
+0:
+        ldaxr             x9, [x0]
+        stlxr             w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+.text:
+        fmov              x9, d0
+0:
+        ldaxr             x8, [x0]
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        dmb               ish
+        ret
+
+.text:
+        fmov              x8, d0
+0:
+        ldaxr             x9, [x0]
+        stxr              w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+.text:
+        fmov              x8, d0
+0:
+        ldxr              x9, [x0]
+        stxr              w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+.text:
+        fmov              x8, d0
+0:
+        ldxr              x9, [x0]
+        stlxr             w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
         ret
 
 .text:
@@ -6211,6 +7477,36 @@
 
 .text:
         stlrb             w1, [x0]
+        ret
+
+.text:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        dmb               ish
+        ret
+
+.text:
+        str               s0, [x0]
+        ret
+
+.text:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        ret
+
+.text:
+        fmov              x8, d0
+        stlr              x8, [x0]
+        dmb               ish
+        ret
+
+.text:
+        str               d0, [x0]
+        ret
+
+.text:
+        fmov              x8, d0
+        stlr              x8, [x0]
         ret
 
 .text:
@@ -6575,6 +7871,98 @@
 
 .text:
 0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldxr              w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldxr              w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldxr              x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldxr              x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
         ldaxrb            w8, [x0]
         add               w9, w8, w1
         stlxrb            w10, w9, [x0]
@@ -6617,6 +8005,278 @@
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 .text:
@@ -7148,6 +8808,298 @@
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 .text:
@@ -7423,6 +9375,298 @@
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 .text:
@@ -7768,6 +10012,98 @@
         b                 1b
 4:
         mov               w0, w8
+        ret
+
+.text:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldxr              w8, [x0]
+        eor               w9, w8, #0x80000000
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldxr              w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        dmb               ish
+        ret
+
+.text:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldxr              x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+.text:
+0:
+        ldxr              x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
         ret
 
 .text:
@@ -8529,6 +10865,278 @@
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        dmb               ish
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+.text:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 .text:
@@ -9110,6 +11718,62 @@
         stp               q14, q15, [sp, #0x90]
         stp               x29, x30, [sp, #0xb0]
         add               x29, sp, #0xb0
+        fmov              s0, s1
+        fmov              s1, s2
+        blr               x9
+        adrp              x9, 0b
+        str               w0, [sp, #0x8]
+        str               s0, [sp, #0xc]
+        ldr               x8, [sp, #0x8]
+        ldr               x0, [x9]
+        ldp               x29, x30, [sp, #0xb0]
+        ldp               q14, q15, [sp, #0x90]
+        ldp               q12, q13, [sp, #0x70]
+        ldp               q10, q11, [sp, #0x50]
+        ldp               q8, q9, [sp, #0x30]
+        ldp               q6, q7, [sp, #0x10]
+        add               sp, sp, #0xc0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xc0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        str               x19, [sp, #0xa0]
+        stp               x29, x30, [sp, #0xa8]
+        add               x29, sp, #0xa8
+        fmov              d1, d3
+        fmov              d0, d2
+        mov               x19, x0
+        mov               x0, x1
+        blr               x9
+        adrp              x8, 0b
+        str               x0, [x19]
+        str               d0, [x19, #0x8]
+        ldr               x0, [x8]
+        mov               x8, x19
+        ldp               x29, x30, [sp, #0xa8]
+        ldr               x19, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xc0
+        br                x0
+
+.wowthk$aa:
+0:
+        sub               sp, sp, #0xc0
+        stp               q6, q7, [sp, #0x10]
+        stp               q8, q9, [sp, #0x30]
+        stp               q10, q11, [sp, #0x50]
+        stp               q12, q13, [sp, #0x70]
+        stp               q14, q15, [sp, #0x90]
+        stp               x29, x30, [sp, #0xb0]
+        add               x29, sp, #0xb0
         blr               x9
         adrp              x9, 0b
         strh              w0, [sp, #0xc]
@@ -9290,6 +11954,46 @@
 
 .wowthk$aa:
 0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
+
+.wowthk$aa:
+0:
         stp               q6, q7, [sp, #-0xc0]!
         stp               q8, q9, [sp, #0x20]
         stp               q10, q11, [sp, #0x40]
@@ -9312,4 +12016,88 @@
         ldp               q10, q11, [sp, #0x40]
         ldp               q8, q9, [sp, #0x20]
         ldp               q6, q7, [sp], #0xc0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        fmov              s0, s1
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        fmov              d0, d1
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        fmov              s0, s1
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
+        br                x0
+
+.wowthk$aa:
+0:
+        stp               q6, q7, [sp, #-0xb0]!
+        stp               q8, q9, [sp, #0x20]
+        stp               q10, q11, [sp, #0x40]
+        stp               q12, q13, [sp, #0x60]
+        stp               q14, q15, [sp, #0x80]
+        stp               x29, x30, [sp, #0xa0]
+        add               x29, sp, #0xa0
+        fmov              d0, d1
+        blr               x9
+        adrp              x8, 0b
+        ldr               x0, [x8]
+        ldp               x29, x30, [sp, #0xa0]
+        ldp               q14, q15, [sp, #0x80]
+        ldp               q12, q13, [sp, #0x60]
+        ldp               q10, q11, [sp, #0x40]
+        ldp               q8, q9, [sp, #0x20]
+        ldp               q6, q7, [sp], #0xb0
         br                x0

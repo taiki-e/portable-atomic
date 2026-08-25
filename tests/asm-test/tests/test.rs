@@ -29,6 +29,8 @@ fn test() {
             .rustc_args(["-C", "target-feature=+lse2,+lse128"]),
         Revision::new("aarch64_lse2_lse128_rcpc3", "aarch64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+lse2,+lse128,+rcpc3"]),
+        Revision::new("aarch64_lsfe", "aarch64-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+lsfe"]),
         // Arm64EC
         Revision::new("arm64ec", "arm64ec-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),

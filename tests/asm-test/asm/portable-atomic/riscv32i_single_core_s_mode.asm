@@ -819,6 +819,201 @@ asm_test::compare_exchange::u8::release_relaxed:
         mv                a1, a3
         ret
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::release_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::release_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange::f32::release_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         csrrci            a5, sstatus, 0x2
         lhu               a3, 0x0(a0)
@@ -1981,6 +2176,201 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         lbu               a3, 0x0(a0)
         bne               a3, a1, 0f
         sb                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
+0:
+        xor               a1, a3, a1
+        andi              a4, a4, 0x2
+        snez              a0, a1
+        csrs              sstatus, a4
+        mv                a1, a3
+        ret
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        csrrci            a4, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0f
+        sw                a2, 0x0(a0)
 0:
         xor               a1, a3, a1
         andi              a4, a4, 0x2
@@ -4104,6 +4494,21 @@ asm_test::load::u8::relaxed:
         lb                a0, 0x0(a0)
         ret
 
+asm_test::load::f32::seqcst:
+        fence             rw, rw
+        lw                a0, 0x0(a0)
+        fence             r, rw
+        ret
+
+asm_test::load::f32::acquire:
+        lw                a0, 0x0(a0)
+        fence             r, rw
+        ret
+
+asm_test::load::f32::relaxed:
+        lw                a0, 0x0(a0)
+        ret
+
 asm_test::load::u16::seqcst:
         fence             rw, rw
         lh                a0, 0x0(a0)
@@ -4195,6 +4600,51 @@ asm_test::swap::u8::release:
         csrrci            a3, sstatus, 0x2
         lbu               a2, 0x0(a0)
         sb                a1, 0x0(a0)
+        andi              a3, a3, 0x2
+        csrs              sstatus, a3
+        mv                a0, a2
+        ret
+
+asm_test::swap::f32::acqrel:
+        csrrci            a3, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        sw                a1, 0x0(a0)
+        andi              a3, a3, 0x2
+        csrs              sstatus, a3
+        mv                a0, a2
+        ret
+
+asm_test::swap::f32::seqcst:
+        csrrci            a3, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        sw                a1, 0x0(a0)
+        andi              a3, a3, 0x2
+        csrs              sstatus, a3
+        mv                a0, a2
+        ret
+
+asm_test::swap::f32::acquire:
+        csrrci            a3, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        sw                a1, 0x0(a0)
+        andi              a3, a3, 0x2
+        csrs              sstatus, a3
+        mv                a0, a2
+        ret
+
+asm_test::swap::f32::relaxed:
+        csrrci            a3, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        sw                a1, 0x0(a0)
+        andi              a3, a3, 0x2
+        csrs              sstatus, a3
+        mv                a0, a2
+        ret
+
+asm_test::swap::f32::release:
+        csrrci            a3, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        sw                a1, 0x0(a0)
         andi              a3, a3, 0x2
         csrs              sstatus, a3
         mv                a0, a2
@@ -4388,6 +4838,21 @@ asm_test::store::u8::relaxed:
 asm_test::store::u8::release:
         fence             rw, w
         sb                a1, 0x0(a0)
+        ret
+
+asm_test::store::f32::seqcst:
+        fence             rw, w
+        sw                a1, 0x0(a0)
+        fence             rw, rw
+        ret
+
+asm_test::store::f32::relaxed:
+        sw                a1, 0x0(a0)
+        ret
+
+asm_test::store::f32::release:
+        fence             rw, w
+        sw                a1, 0x0(a0)
         ret
 
 asm_test::store::u16::seqcst:
@@ -4635,6 +5100,61 @@ asm_test::fetch_or::bool::release:
         snez              a0, a3
         ret
 
+asm_test::fetch_abs::f32::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x2
+        slli              a3, a1, 0x1
+        srli              a3, a3, 0x1
+        sw                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_abs::f32::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x2
+        slli              a3, a1, 0x1
+        srli              a3, a3, 0x1
+        sw                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_abs::f32::acquire:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x2
+        slli              a3, a1, 0x1
+        srli              a3, a3, 0x1
+        sw                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_abs::f32::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x2
+        slli              a3, a1, 0x1
+        srli              a3, a3, 0x1
+        sw                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_abs::f32::release:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x2
+        slli              a3, a1, 0x1
+        srli              a3, a3, 0x1
+        sw                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         csrrci            a3, sstatus, 0x2
         lbu               a2, 0x0(a0)
@@ -4683,6 +5203,181 @@ asm_test::fetch_add::u8::release:
         sb                a1, 0x0(a0)
         csrs              sstatus, a3
         mv                a0, a2
+        ret
+
+asm_test::fetch_add::f32::acqrel:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        mv                a0, a1
+        beq               a2, s1, 1f
+0:
+        andi              a1, s2, 0x2
+        csrs              sstatus, a1
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a2
+        lw                a2, 0x0(s0)
+        bne               a2, s1, 0b
+1:
+        mv                a1, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_add::f32::seqcst:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        mv                a0, a1
+        beq               a2, s1, 1f
+0:
+        andi              a1, s2, 0x2
+        csrs              sstatus, a1
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a2
+        lw                a2, 0x0(s0)
+        bne               a2, s1, 0b
+1:
+        mv                a1, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_add::f32::acquire:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        mv                a0, a1
+        beq               a2, s1, 1f
+0:
+        andi              a1, s2, 0x2
+        csrs              sstatus, a1
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a2
+        lw                a2, 0x0(s0)
+        bne               a2, s1, 0b
+1:
+        mv                a1, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_add::f32::relaxed:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        mv                a0, a1
+        beq               a2, s1, 1f
+0:
+        andi              a1, s2, 0x2
+        csrs              sstatus, a1
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a2
+        lw                a2, 0x0(s0)
+        bne               a2, s1, 0b
+1:
+        mv                a1, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_add::f32::release:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a2, 0x0(a0)
+        mv                a0, a1
+        beq               a2, s1, 1f
+0:
+        andi              a1, s2, 0x2
+        csrs              sstatus, a1
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a2
+        lw                a2, 0x0(s0)
+        bne               a2, s1, 0b
+1:
+        mv                a1, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
         ret
 
 asm_test::fetch_add::u16::acqrel:
@@ -5045,6 +5740,176 @@ asm_test::fetch_max::i8::release:
         csrs              sstatus, a3
         ret
 
+asm_test::fetch_max::f32::acqrel:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_max::f32::seqcst:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_max::f32::acquire:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_max::f32::relaxed:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_max::f32::release:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
 asm_test::fetch_max::i16::acqrel:
         mv                a2, a0
         csrrci            a3, sstatus, 0x2
@@ -5225,6 +6090,176 @@ asm_test::fetch_min::i8::release:
         csrs              sstatus, a3
         ret
 
+asm_test::fetch_min::f32::acqrel:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_min::f32::seqcst:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_min::f32::acquire:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_min::f32::relaxed:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_min::f32::release:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
 asm_test::fetch_min::i16::acqrel:
         mv                a2, a0
         csrrci            a3, sstatus, 0x2
@@ -5391,6 +6426,61 @@ asm_test::fetch_neg::u8::release:
         andi              a2, a2, 0x2
         neg               a3, a1
         sb                a3, 0x0(a0)
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_neg::f32::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        lui               a3, 0x80000
+        xor               a3, a1, a3
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x2
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_neg::f32::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        lui               a3, 0x80000
+        xor               a3, a1, a3
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x2
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_neg::f32::acquire:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        lui               a3, 0x80000
+        xor               a3, a1, a3
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x2
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_neg::f32::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        lui               a3, 0x80000
+        xor               a3, a1, a3
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x2
+        csrs              sstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_neg::f32::release:
+        csrrci            a2, sstatus, 0x2
+        lw                a1, 0x0(a0)
+        lui               a3, 0x80000
+        xor               a3, a1, a3
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x2
         csrs              sstatus, a2
         mv                a0, a1
         ret
@@ -5743,6 +6833,176 @@ asm_test::fetch_sub::u8::release:
         sb                a1, 0x0(a0)
         csrs              sstatus, a3
         mv                a0, a2
+        ret
+
+asm_test::fetch_sub::f32::acqrel:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_sub::f32::seqcst:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_sub::f32::acquire:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_sub::f32::relaxed:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
+        ret
+
+asm_test::fetch_sub::f32::release:
+        addi              sp, sp, -0x10
+        sw                ra, 0xc(sp)
+        sw                s0, 0x8(sp)
+        sw                s1, 0x4(sp)
+        sw                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, sstatus, 0x2
+        lw                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a2, s2, 0x2
+        csrs              sstatus, a2
+        csrrci            s2, sstatus, 0x2
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x2
+        sw                a0, 0x0(s0)
+        csrs              sstatus, a1
+        mv                a0, s1
+        lw                ra, 0xc(sp)
+        lw                s0, 0x8(sp)
+        lw                s1, 0x4(sp)
+        lw                s2, 0x0(sp)
+        addi              sp, sp, 0x10
         ret
 
 asm_test::fetch_sub::u16::acqrel:

@@ -1599,6 +1599,776 @@ asm_test::compare_exchange::u8::release_relaxed:
         isel              3, 0, 3, 20
         blr
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        xscvdpspn         0, 1
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        xscvdpspn         0, 1
+        crset             20
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::release_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        xscvdpspn         0, 1
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        xscvdpspn         0, 1
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        xscvdpspn         0, 1
+        crset             20
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        xscvdpspn         0, 1
+        crset             20
+        mffprwz           5, 0
+        xscvdpspn         0, 2
+        mffprwz           6, 0
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 2f
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+1:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::f32::release_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f32::release_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           6, 0
+0:
+        stwcx.            6, 0, 3
+        bt+               2, 2f
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        sync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        mffprd            5, 1
+        mffprd            6, 2
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        mffprd            5, 1
+        mffprd            6, 2
+        crset             20
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::release_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+        crset             20
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        sync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        sync
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        mffprd            5, 1
+        mffprd            6, 2
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        mffprd            5, 1
+        mffprd            6, 2
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        mffprd            5, 1
+        mffprd            6, 2
+        crset             20
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        mffprd            5, 1
+        mffprd            6, 2
+        crset             20
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+1:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::release_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+        crset             20
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::f64::release_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mffprd            6, 2
+        lwsync
+        crset             20
+0:
+        stdcx.            6, 0, 3
+        bt+               2, 2f
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         clrlwi            6, 4, 16
         lharx             4, 0, 3
@@ -3602,6 +4372,674 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
 0:
         crclr             20
         li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        crclr             20
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 0f
+        xscvdpspn         0, 2
+        lwsync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        crclr             20
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 0f
+        xscvdpspn         0, 2
+        sync
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        crclr             20
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 0f
+        xscvdpspn         0, 2
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        lwsync
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        xscvdpspn         0, 1
+        lwarx             4, 0, 3
+        mffprwz           5, 0
+        cmplw             4, 5
+        bf-               2, 1f
+        xscvdpspn         0, 2
+        lwsync
+        crset             20
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+0:
+        mtfprd            0, 4
+        li                3, 1
+        isel              3, 0, 3, 20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+1:
+        crclr             20
+        b                 0b
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        sync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        sync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        sync
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        lwsync
+        crset             20
+0:
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        lwsync
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        mffprd            5, 1
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 0f
+        mffprd            5, 2
+        lwsync
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 0f
+        li                3, 1
+        mtfprd            1, 4
+        isel              3, 0, 3, 20
+        blr
+0:
+        crclr             20
+        li                3, 1
+        mtfprd            1, 4
         isel              3, 0, 3, 20
         blr
 
@@ -7223,6 +8661,60 @@ asm_test::load::u8::relaxed:
         lbz               3, 0(3)
         blr
 
+asm_test::load::f32::seqcst:
+        sync
+        lwz               3, 0(3)
+        mtfprd            0, 3
+        cmpd              7, 3, 3
+        bf-               30, 0f
+0:
+        isync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::load::f32::acquire:
+        lwz               3, 0(3)
+        mtfprd            0, 3
+        cmpd              7, 3, 3
+        bf-               30, 0f
+0:
+        isync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::load::f32::relaxed:
+        lwz               3, 0(3)
+        mtfprd            0, 3
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::load::f64::seqcst:
+        sync
+        ld                3, 0(3)
+        cmpd              7, 3, 3
+        mtfprd            1, 3
+        bf-               30, 0f
+0:
+        isync
+        blr
+
+asm_test::load::f64::acquire:
+        ld                3, 0(3)
+        cmpd              7, 3, 3
+        mtfprd            1, 3
+        bf-               30, 0f
+0:
+        isync
+        blr
+
+asm_test::load::f64::relaxed:
+        ld                3, 0(3)
+        mtfprd            1, 3
+        blr
+
 asm_test::load::u16::seqcst:
         sync
         lhz               3, 0(3)
@@ -7384,6 +8876,123 @@ asm_test::swap::u8::release:
         stbcx.            4, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::swap::f32::acqrel:
+        xscvdpspn         0, 1
+        lwsync
+        mffprwz           5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::swap::f32::seqcst:
+        xscvdpspn         0, 1
+        sync
+        mffprwz           5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::swap::f32::acquire:
+        xscvdpspn         0, 1
+        mffprwz           5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::swap::f32::relaxed:
+        xscvdpspn         0, 1
+        mffprwz           5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::swap::f32::release:
+        xscvdpspn         0, 1
+        lwsync
+        mffprwz           4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 5
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::swap::f64::acqrel:
+        mffprd            4, 1
+        lwsync
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        lwsync
+        blr
+
+asm_test::swap::f64::seqcst:
+        mffprd            4, 1
+        sync
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        lwsync
+        blr
+
+asm_test::swap::f64::acquire:
+        mffprd            5, 1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::swap::f64::relaxed:
+        mffprd            4, 1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        blr
+
+asm_test::swap::f64::release:
+        mffprd            4, 1
+        lwsync
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
         blr
 
 asm_test::swap::u16::acqrel:
@@ -7653,6 +9262,43 @@ asm_test::store::u8::relaxed:
 asm_test::store::u8::release:
         lwsync
         stb               4, 0(3)
+        blr
+
+asm_test::store::f32::seqcst:
+        xscvdpspn         0, 1
+        sync
+        mffprwz           4, 0
+        stw               4, 0(3)
+        blr
+
+asm_test::store::f32::relaxed:
+        xscvdpspn         0, 1
+        mffprwz           4, 0
+        stw               4, 0(3)
+        blr
+
+asm_test::store::f32::release:
+        xscvdpspn         0, 1
+        lwsync
+        mffprwz           4, 0
+        stw               4, 0(3)
+        blr
+
+asm_test::store::f64::seqcst:
+        mffprd            4, 1
+        sync
+        std               4, 0(3)
+        blr
+
+asm_test::store::f64::relaxed:
+        mffprd            4, 1
+        std               4, 0(3)
+        blr
+
+asm_test::store::f64::release:
+        mffprd            4, 1
+        lwsync
+        std               4, 0(3)
         blr
 
 asm_test::store::u16::seqcst:
@@ -8060,6 +9706,138 @@ asm_test::fetch_or::u128::release:
         mr                4, 6
         blr
 
+asm_test::fetch_abs::f32::acqrel:
+        lis               4, 32767
+        lwsync
+        ori               5, 4, 65535
+0:
+        lwarx             4, 0, 3
+        and               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_abs::f32::seqcst:
+        lis               4, 32767
+        sync
+        ori               5, 4, 65535
+0:
+        lwarx             4, 0, 3
+        and               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_abs::f32::acquire:
+        lis               4, 32767
+        ori               5, 4, 65535
+0:
+        lwarx             4, 0, 3
+        and               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_abs::f32::relaxed:
+        lis               4, 32767
+        ori               5, 4, 65535
+0:
+        lwarx             4, 0, 3
+        and               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_abs::f32::release:
+        lis               4, 32767
+        lwsync
+        ori               5, 4, 65535
+0:
+        lwarx             4, 0, 3
+        and               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_abs::f64::acqrel:
+        li                4, -1
+        lwsync
+        rldic             5, 4, 0, 1
+0:
+        ldarx             4, 0, 3
+        and               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_abs::f64::seqcst:
+        li                4, -1
+        sync
+        rldic             5, 4, 0, 1
+0:
+        ldarx             4, 0, 3
+        and               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_abs::f64::acquire:
+        li                4, -1
+        rldic             5, 4, 0, 1
+0:
+        ldarx             4, 0, 3
+        and               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_abs::f64::relaxed:
+        li                4, -1
+        rldic             4, 4, 0, 1
+0:
+        ldarx             5, 0, 3
+        and               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        blr
+
+asm_test::fetch_abs::f64::release:
+        li                4, -1
+        lwsync
+        rldic             4, 4, 0, 1
+0:
+        ldarx             5, 0, 3
+        and               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        blr
+
 asm_test::fetch_add::u8::acqrel:
         lwsync
 0:
@@ -8109,6 +9887,275 @@ asm_test::fetch_add::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_add::f32::acqrel:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xsaddsp           0, 1, 0
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::seqcst:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        sync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xsaddsp           0, 1, 0
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::acquire:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xsaddsp           0, 1, 0
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::relaxed:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        crset             20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xsaddsp           0, 1, 0
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::release:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        crset             20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xsaddsp           0, 1, 0
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f64::acqrel:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        xsadddp           0, 1, 0
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::seqcst:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        sync
+        xsadddp           0, 1, 0
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::acquire:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        xsadddp           0, 1, 0
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::relaxed:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        crset             20
+        xsadddp           0, 1, 0
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::release:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        crset             20
+        xsadddp           0, 1, 0
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
         blr
 
 asm_test::fetch_add::u16::acqrel:
@@ -8783,6 +10830,285 @@ asm_test::fetch_max::i8::release:
         mr                3, 5
         blr
 
+asm_test::fetch_max::f32::acqrel:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_max::f32::seqcst:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_max::f32::acquire:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_max::f32::relaxed:
+        lwz               5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_max::f32::release:
+        lwz               5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_max::f64::acqrel:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_max::f64::seqcst:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_max::f64::acquire:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_max::f64::relaxed:
+        ld                5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_max::f64::release:
+        ld                5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xsmaxdp           1, 1, 1
+        xsmaxdp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
 asm_test::fetch_max::i16::acqrel:
         lhz               5, 0(3)
         extsh             4, 4
@@ -9255,6 +11581,285 @@ asm_test::fetch_min::i8::release:
         mr                3, 5
         blr
 
+asm_test::fetch_min::f32::acqrel:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_min::f32::seqcst:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_min::f32::acquire:
+        lwz               4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_min::f32::relaxed:
+        lwz               5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_min::f32::release:
+        lwz               5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_min::f64::acqrel:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_min::f64::seqcst:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_min::f64::acquire:
+        ld                4, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_min::f64::relaxed:
+        ld                5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_min::f64::release:
+        ld                5, 0(3)
+        xsmaxdp           0, 1, 1
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xsmaxdp           1, 1, 1
+        xsmindp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
 asm_test::fetch_min::i16::acqrel:
         lhz               5, 0(3)
         extsh             4, 4
@@ -9715,6 +12320,133 @@ asm_test::fetch_neg::u8::release:
         b                 0b
 2:
         mr                3, 4
+        blr
+
+asm_test::fetch_neg::f32::acqrel:
+        lwsync
+        lis               5, -32768
+0:
+        lwarx             4, 0, 3
+        xor               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_neg::f32::seqcst:
+        sync
+        lis               5, -32768
+0:
+        lwarx             4, 0, 3
+        xor               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_neg::f32::acquire:
+        lis               5, -32768
+0:
+        lwarx             4, 0, 3
+        xor               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_neg::f32::relaxed:
+        lis               5, -32768
+0:
+        lwarx             4, 0, 3
+        xor               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_neg::f32::release:
+        lwsync
+        lis               5, -32768
+0:
+        lwarx             4, 0, 3
+        xor               6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_neg::f64::acqrel:
+        li                4, 1
+        lwsync
+        rldic             5, 4, 63, 0
+0:
+        ldarx             4, 0, 3
+        xor               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_neg::f64::seqcst:
+        li                4, 1
+        sync
+        rldic             5, 4, 63, 0
+0:
+        ldarx             4, 0, 3
+        xor               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_neg::f64::acquire:
+        li                4, 1
+        rldic             5, 4, 63, 0
+0:
+        ldarx             4, 0, 3
+        xor               6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 4
+        lwsync
+        blr
+
+asm_test::fetch_neg::f64::relaxed:
+        li                4, 1
+        rldic             4, 4, 63, 0
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
+        blr
+
+asm_test::fetch_neg::f64::release:
+        li                4, 1
+        lwsync
+        rldic             4, 4, 63, 0
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mtfprd            1, 5
         blr
 
 asm_test::fetch_neg::u16::acqrel:
@@ -10521,6 +13253,275 @@ asm_test::fetch_sub::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_sub::f32::acqrel:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xssubsp           0, 0, 1
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::seqcst:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        sync
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xssubsp           0, 0, 1
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::acquire:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xssubsp           0, 0, 1
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::relaxed:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        crset             20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xssubsp           0, 0, 1
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::release:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        crset             20
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         0, 0
+        xssubsp           0, 0, 1
+        xscvdpspn         0, 0
+        mffprwz           5, 0
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f64::acqrel:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        xssubdp           0, 0, 1
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::seqcst:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        sync
+        xssubdp           0, 0, 1
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::acquire:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        xssubdp           0, 0, 1
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::relaxed:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        crset             20
+        xssubdp           0, 0, 1
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::release:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            0, 5
+        lwsync
+        crset             20
+        xssubdp           0, 0, 1
+        mffprd            5, 0
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
         blr
 
 asm_test::fetch_sub::u16::acqrel:

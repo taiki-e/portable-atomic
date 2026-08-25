@@ -1069,6 +1069,336 @@ asm_test::compare_exchange::u8::release_relaxed:
         eor               w0, w9, #0x1
         ret
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        cas               w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casl              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::release_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        cas               x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::release_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange::f64::release_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casl              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         mov               w8, w1
         casalh            w8, w2, [x0]
@@ -1922,6 +2252,336 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         mov               w1, w8
         cset              w9, eq
         eor               w0, w9, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casa              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        cas               w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casal             w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        fmov              w8, s0
+        fmov              w9, s1
+        mov               w10, w8
+        casl              w10, w9, [x0]
+        cmp               w10, w8
+        fmov              s0, w10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casa              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        cas               x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casal             x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        fmov              x8, d0
+        fmov              x9, d1
+        mov               x10, x8
+        casl              x10, x9, [x0]
+        cmp               x10, x8
+        fmov              d0, x10
+        cset              w8, eq
+        eor               w0, w8, #0x1
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -3961,6 +4621,34 @@ asm_test::load::u8::relaxed:
         ldrb              w0, [x0]
         ret
 
+asm_test::load::f32::seqcst:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::load::f32::acquire:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::load::f32::relaxed:
+        ldr               s0, [x0]
+        ret
+
+asm_test::load::f64::seqcst:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::load::f64::acquire:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::load::f64::relaxed:
+        ldr               d0, [x0]
+        ret
+
 asm_test::load::u16::seqcst:
         ldarh             w0, [x0]
         ret
@@ -4057,6 +4745,66 @@ asm_test::swap::u8::relaxed:
 
 asm_test::swap::u8::release:
         swplb             w1, w0, [x0]
+        ret
+
+asm_test::swap::f32::acqrel:
+        fmov              w8, s0
+        swpal             w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::seqcst:
+        fmov              w8, s0
+        swpal             w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::acquire:
+        fmov              w8, s0
+        swpa              w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::relaxed:
+        fmov              w8, s0
+        swp               w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::release:
+        fmov              w8, s0
+        swpl              w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f64::acqrel:
+        fmov              x8, d0
+        swpal             x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::swap::f64::seqcst:
+        fmov              x8, d0
+        swpal             x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::swap::f64::acquire:
+        fmov              x8, d0
+        swpa              x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::swap::f64::relaxed:
+        fmov              x8, d0
+        swp               x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::swap::f64::release:
+        fmov              x8, d0
+        swpl              x8, x8, [x0]
+        fmov              d0, x8
         ret
 
 asm_test::swap::u16::acqrel:
@@ -4225,6 +4973,36 @@ asm_test::store::u8::relaxed:
 
 asm_test::store::u8::release:
         stlrb             w1, [x0]
+        ret
+
+asm_test::store::f32::seqcst:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        dmb               ish
+        ret
+
+asm_test::store::f32::relaxed:
+        str               s0, [x0]
+        ret
+
+asm_test::store::f32::release:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        ret
+
+asm_test::store::f64::seqcst:
+        fmov              x8, d0
+        stlr              x8, [x0]
+        dmb               ish
+        ret
+
+asm_test::store::f64::relaxed:
+        str               d0, [x0]
+        ret
+
+asm_test::store::f64::release:
+        fmov              x8, d0
+        stlr              x8, [x0]
         ret
 
 asm_test::store::u16::seqcst:
@@ -4497,6 +5275,66 @@ asm_test::fetch_or::u128::release:
         mov               x0, x6
         ret
 
+asm_test::fetch_abs::f32::acqrel:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldclral           w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::seqcst:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldclral           w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::acquire:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldclra            w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::relaxed:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldclr             w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::release:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldclrl            w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f64::acqrel:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldclral           x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::seqcst:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldclral           x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::acquire:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldclra            x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::relaxed:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldclr             x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::release:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldclrl            x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         ldaddalb          w1, w0, [x0]
         ret
@@ -4515,6 +5353,146 @@ asm_test::fetch_add::u8::relaxed:
 
 asm_test::fetch_add::u8::release:
         ldaddlb           w1, w0, [x0]
+        ret
+
+asm_test::fetch_add::f32::acqrel:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fadd              s1, s0, s1
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::seqcst:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fadd              s1, s0, s1
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::acquire:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fadd              s1, s0, s1
+        fmov              w10, s1
+        casa              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::relaxed:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fadd              s1, s0, s1
+        fmov              w10, s1
+        cas               w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::release:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fadd              s1, s0, s1
+        fmov              w10, s1
+        casl              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f64::acqrel:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fadd              d1, d0, d1
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::seqcst:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fadd              d1, d0, d1
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::acquire:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fadd              d1, d0, d1
+        fmov              x10, d1
+        casa              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::relaxed:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fadd              d1, d0, d1
+        fmov              x10, d1
+        cas               x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::release:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fadd              d1, d0, d1
+        fmov              x10, d1
+        casl              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
         ret
 
 asm_test::fetch_add::u16::acqrel:
@@ -4937,6 +5915,166 @@ asm_test::fetch_max::i8::release:
         mov               w0, w8
         ret
 
+asm_test::fetch_max::f32::acqrel:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::seqcst:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::acquire:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w10, s1
+        casa              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::relaxed:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w10, s1
+        cas               w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::release:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w10, s1
+        casl              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f64::acqrel:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::seqcst:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::acquire:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x10, d1
+        casa              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::relaxed:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x10, d1
+        cas               x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::release:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x10, d1
+        casl              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
 asm_test::fetch_max::i16::acqrel:
         ldrh              w8, [x0]
         sxth              w9, w1
@@ -5212,6 +6350,166 @@ asm_test::fetch_min::i8::release:
         mov               w0, w8
         ret
 
+asm_test::fetch_min::f32::acqrel:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::seqcst:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::acquire:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w10, s1
+        casa              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::relaxed:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w10, s1
+        cas               w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::release:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w10, s1
+        casl              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f64::acqrel:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::seqcst:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::acquire:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x10, d1
+        casa              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::relaxed:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x10, d1
+        cas               x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::release:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x10, d1
+        casl              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
 asm_test::fetch_min::i16::acqrel:
         ldrh              w8, [x0]
         sxth              w9, w1
@@ -5470,6 +6768,66 @@ asm_test::fetch_neg::u8::release:
         mov               w8, w9
         b.ne              0b
         mov               w0, w8
+        ret
+
+asm_test::fetch_neg::f32::acqrel:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldeoral           w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::seqcst:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldeoral           w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::acquire:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldeora            w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::relaxed:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldeor             w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::release:
+        mov               w8, #-0x80000000        // =-2147483648
+        ldeorl            w8, w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f64::acqrel:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldeoral           x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::seqcst:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldeoral           x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::acquire:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldeora            x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::relaxed:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldeor             x8, x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::release:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        ldeorl            x8, x8, [x0]
+        fmov              d0, x8
         ret
 
 asm_test::fetch_neg::u16::acqrel:
@@ -5960,6 +7318,146 @@ asm_test::fetch_sub::u8::relaxed:
 asm_test::fetch_sub::u8::release:
         neg               w8, w1
         ldaddlb           w8, w0, [x0]
+        ret
+
+asm_test::fetch_sub::f32::acqrel:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fsub              s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::seqcst:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fsub              s1, s1, s0
+        fmov              w10, s1
+        casal             w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::acquire:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fsub              s1, s1, s0
+        fmov              w10, s1
+        casa              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::relaxed:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fsub              s1, s1, s0
+        fmov              w10, s1
+        cas               w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::release:
+        ldr               w8, [x0]
+        mov               w9, w8
+0:
+        fmov              s1, w8
+        fsub              s1, s1, s0
+        fmov              w10, s1
+        casl              w9, w10, [x0]
+        cmp               w9, w8
+        mov               w8, w9
+        b.ne              0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f64::acqrel:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fsub              d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::seqcst:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fsub              d1, d1, d0
+        fmov              x10, d1
+        casal             x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::acquire:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fsub              d1, d1, d0
+        fmov              x10, d1
+        casa              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::relaxed:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fsub              d1, d1, d0
+        fmov              x10, d1
+        cas               x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::release:
+        ldr               x8, [x0]
+        mov               x9, x8
+0:
+        fmov              d1, x8
+        fsub              d1, d1, d0
+        fmov              x10, d1
+        casl              x9, x10, [x0]
+        cmp               x9, x8
+        mov               x8, x9
+        b.ne              0b
+        fmov              d0, x8
         ret
 
 asm_test::fetch_sub::u16::acqrel:

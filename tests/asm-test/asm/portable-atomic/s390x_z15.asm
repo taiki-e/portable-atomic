@@ -1656,6 +1656,321 @@ asm_test::compare_exchange::u8::release_relaxed:
         lmg               %r13,%r15,104(%r15)
         br                %r14
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f32::release_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange::f64::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         stmg              %r13,%r15,104(%r15)
         risbgnz           %r1,%r2,0,61
@@ -3184,6 +3499,321 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         lochie            %r2,1
         xilf              %r2,1
         lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        vlgvf             %r0,%v0,0
+        vlgvf             %r1,%v2,0
+        cs                %r0,%r1,0(%r2)
+        lhi               %r2,0
+        lochie            %r2,1
+        xilf              %r2,1
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        lgdr              %r0,%f0
+        lgdr              %r1,%f2
+        csg               %r0,%r1,0(%r2)
+        lhi               %r1,0
+        lochie            %r1,1
+        xilf              %r1,1
+        llgfr             %r2,%r1
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -7103,6 +7733,36 @@ asm_test::load::u8::relaxed:
         lb                %r2,0(%r2)
         br                %r14
 
+asm_test::load::f32::seqcst:
+        l                 %r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::load::f32::acquire:
+        l                 %r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::load::f32::relaxed:
+        l                 %r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::load::f64::seqcst:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f64::acquire:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::load::f64::relaxed:
+        lg                %r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::load::u16::seqcst:
         lh                %r2,0(%r2)
         br                %r14
@@ -7243,6 +7903,96 @@ asm_test::swap::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::swap::f32::acqrel:
+        l                 %r1,0(%r2)
+        vlgvf             %r0,%v0,0
+0:
+        cs                %r1,%r0,0(%r2)
+        jl                0b
+        vlvgf             %v0,%r1,0
+        br                %r14
+
+asm_test::swap::f32::seqcst:
+        l                 %r1,0(%r2)
+        vlgvf             %r0,%v0,0
+0:
+        cs                %r1,%r0,0(%r2)
+        jl                0b
+        vlvgf             %v0,%r1,0
+        br                %r14
+
+asm_test::swap::f32::acquire:
+        l                 %r1,0(%r2)
+        vlgvf             %r0,%v0,0
+0:
+        cs                %r1,%r0,0(%r2)
+        jl                0b
+        vlvgf             %v0,%r1,0
+        br                %r14
+
+asm_test::swap::f32::relaxed:
+        l                 %r1,0(%r2)
+        vlgvf             %r0,%v0,0
+0:
+        cs                %r1,%r0,0(%r2)
+        jl                0b
+        vlvgf             %v0,%r1,0
+        br                %r14
+
+asm_test::swap::f32::release:
+        l                 %r1,0(%r2)
+        vlgvf             %r0,%v0,0
+0:
+        cs                %r1,%r0,0(%r2)
+        jl                0b
+        vlvgf             %v0,%r1,0
+        br                %r14
+
+asm_test::swap::f64::acqrel:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::seqcst:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::acquire:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::relaxed:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::swap::f64::release:
+        lg                %r0,0(%r2)
+        lgdr              %r1,%f0
+0:
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::swap::u16::acqrel:
@@ -7556,6 +8306,38 @@ asm_test::store::u8::relaxed:
 
 asm_test::store::u8::release:
         stc               %r3,0(%r2)
+        br                %r14
+
+asm_test::store::f32::seqcst:
+        vlgvf             %r0,%v0,0
+        st                %r0,0(%r2)
+        bnor              %r0
+        br                %r14
+
+asm_test::store::f32::relaxed:
+        vlgvf             %r0,%v0,0
+        st                %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f32::release:
+        vlgvf             %r0,%v0,0
+        st                %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f64::seqcst:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
+        bnor              %r0
+        br                %r14
+
+asm_test::store::f64::relaxed:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
+        br                %r14
+
+asm_test::store::f64::release:
+        lgdr              %r0,%f0
+        stg               %r0,0(%r2)
         br                %r14
 
 asm_test::store::u16::seqcst:
@@ -7989,6 +8771,71 @@ asm_test::fetch_or::u128::release:
         lmg               %r12,%r15,96(%r15)
         br                %r14
 
+asm_test::fetch_abs::f32::acqrel:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_abs::f32::seqcst:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_abs::f32::acquire:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_abs::f32::relaxed:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_abs::f32::release:
+        iilf              %r0,2147483647
+        lan               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_abs::f64::acqrel:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::seqcst:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::acquire:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::relaxed:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_abs::f64::release:
+        llihf             %r0,2147483647
+        oilf              %r0,4294967295
+        lang              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::fetch_add::u8::acqrel:
         risbgnz           %r1,%r2,0,61
         l                 %r0,0(%r1)
@@ -8062,6 +8909,276 @@ asm_test::fetch_add::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::fetch_add::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_add::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_add::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_add::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_add::f32::release:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfasb             %v1,%v0,%v1
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_add::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_add::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfadb             %v1,%v0,%v1
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_add::u16::acqrel:
@@ -8739,6 +9856,276 @@ asm_test::fetch_max::i8::release:
         lmg               %r14,%r15,112(%r15)
         br                %r14
 
+asm_test::fetch_max::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_max::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_max::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_max::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_max::f32::release:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfmaxsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_max::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_max::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmaxdb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
 asm_test::fetch_max::i16::acqrel:
         stmg              %r14,%r15,112(%r15)
         risbgnz           %r1,%r2,0,61
@@ -9137,6 +10524,276 @@ asm_test::fetch_min::i8::release:
         jl                0b
         rll               %r2,%r0,8(%r2)
         lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::fetch_min::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_min::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_min::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_min::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_min::f32::release:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        wfminsb           %v1,%v1,%v0,4
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_min::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_min::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        wfmindb           %v1,%v1,%v0,4
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_min::i16::acqrel:
@@ -9812,6 +11469,66 @@ asm_test::fetch_neg::u8::release:
 11:
         lr                %r2,%r5
         lmg               %r13,%r15,104(%r15)
+        br                %r14
+
+asm_test::fetch_neg::f32::acqrel:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_neg::f32::seqcst:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_neg::f32::acquire:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_neg::f32::relaxed:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_neg::f32::release:
+        llilh             %r0,32768
+        lax               %r0,%r0,0(%r2)
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_neg::f64::acqrel:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::seqcst:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::acquire:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::relaxed:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_neg::f64::release:
+        llihh             %r0,32768
+        laxg              %r0,%r0,0(%r2)
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_neg::u16::acqrel:
@@ -10887,6 +12604,276 @@ asm_test::fetch_sub::u8::release:
         cs                %r0,%r5,0(%r1)
         jl                0b
         rll               %r2,%r0,8(%r2)
+        br                %r14
+
+asm_test::fetch_sub::f32::acqrel:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_sub::f32::seqcst:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_sub::f32::acquire:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_sub::f32::relaxed:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_sub::f32::release:
+        l                 %r0,0(%r2)
+0:
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        je                1f
+        vlvgf             %v1,%r0,0
+        sebr              %f1,%f0
+        vlgvf             %r1,%v1,0
+        cs                %r0,%r1,0(%r2)
+        jl                0b
+1:
+        vlvgf             %v0,%r0,0
+        br                %r14
+
+asm_test::fetch_sub::f64::acqrel:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::seqcst:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::acquire:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::relaxed:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
+        br                %r14
+
+asm_test::fetch_sub::f64::release:
+        lg                %r0,0(%r2)
+0:
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        je                1f
+        ldgr              %f1,%r0
+        sdbr              %f1,%f0
+        lgdr              %r1,%f1
+        csg               %r0,%r1,0(%r2)
+        jl                0b
+1:
+        ldgr              %f0,%r0
         br                %r14
 
 asm_test::fetch_sub::u16::acqrel:

@@ -1159,6 +1159,576 @@ asm_test::compare_exchange::u8::release_relaxed:
         clrex
         ret
 
+asm_test::compare_exchange::f32::acqrel_seqcst:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_seqcst:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_acquire:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_acquire:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f32::release_relaxed:
+        fmov              w9, s0
+        fmov              w10, s1
+0:
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              1f
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        mov               w9, #0x1                // =1
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+1:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange::f64::acqrel_seqcst:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::seqcst_seqcst:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::acqrel_acquire:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::acqrel_relaxed:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::acquire_seqcst:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::relaxed_seqcst:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::release_seqcst:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::seqcst_acquire:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::seqcst_relaxed:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::acquire_acquire:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stxr              w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::acquire_relaxed:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stxr              w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::relaxed_acquire:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stxr              w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::relaxed_relaxed:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldxr              x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stxr              w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::release_acquire:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange::f64::release_relaxed:
+        fmov              x10, d0
+        fmov              x11, d1
+0:
+        ldxr              x9, [x0]
+        cmp               x9, x10
+        b.ne              1f
+        stlxr             w12, x11, [x0]
+        cbnz              w12, 0b
+        mov               w10, #0x1               // =1
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+1:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
 asm_test::compare_exchange::u16::acqrel_seqcst:
         mov               w8, w1
 0:
@@ -2672,6 +3242,546 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         clrex
         eor               w0, wzr, #0x1
         mov               w1, w8
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        fmov              w9, s0
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+        fmov              w9, s0
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+        fmov              w9, s0
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              0f
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cmp               w10, #0x0
+        cset              w9, eq
+        fmov              s0, w8
+        eor               w0, w9, #0x1
+        ret
+0:
+        clrex
+        fmov              s0, w8
+        eor               w0, wzr, #0x1
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_seqcst:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_seqcst:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_acquire:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::acqrel_relaxed:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_seqcst:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_seqcst:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::release_seqcst:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_acquire:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::seqcst_relaxed:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_acquire:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stxr              w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::acquire_relaxed:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stxr              w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_acquire:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stxr              w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::relaxed_relaxed:
+        fmov              x10, d0
+        ldxr              x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stxr              w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::release_acquire:
+        fmov              x10, d0
+        ldaxr             x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
+        ret
+
+asm_test::compare_exchange_weak::f64::release_relaxed:
+        fmov              x10, d0
+        ldxr              x9, [x0]
+        cmp               x9, x10
+        b.ne              0f
+        fmov              x10, d1
+        stlxr             w11, x10, [x0]
+        cmp               w11, #0x0
+        cset              w10, eq
+        eor               w10, w10, #0x1
+        stp               x10, x9, [x8]
+        ret
+0:
+        clrex
+        eor               w10, wzr, #0x1
+        stp               x10, x9, [x8]
         ret
 
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -5726,6 +6836,34 @@ asm_test::load::u8::relaxed:
         ldrb              w0, [x0]
         ret
 
+asm_test::load::f32::seqcst:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::load::f32::acquire:
+        ldar              w8, [x0]
+        fmov              s0, w8
+        ret
+
+asm_test::load::f32::relaxed:
+        ldr               s0, [x0]
+        ret
+
+asm_test::load::f64::seqcst:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::load::f64::acquire:
+        ldar              x8, [x0]
+        fmov              d0, x8
+        ret
+
+asm_test::load::f64::relaxed:
+        ldr               d0, [x0]
+        ret
+
 asm_test::load::u16::seqcst:
         ldarh             w0, [x0]
         ret
@@ -5842,6 +6980,96 @@ asm_test::swap::u8::release:
         ldxrb             w0, [x8]
         stlxrb            w9, w1, [x8]
         cbnz              w9, 0b
+        ret
+
+asm_test::swap::f32::acqrel:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::seqcst:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::acquire:
+        fmov              w9, s0
+0:
+        ldaxr             w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::relaxed:
+        fmov              w9, s0
+0:
+        ldxr              w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f32::release:
+        fmov              w9, s0
+0:
+        ldxr              w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::swap::f64::acqrel:
+        fmov              x8, d0
+0:
+        ldaxr             x9, [x0]
+        stlxr             w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+asm_test::swap::f64::seqcst:
+        fmov              x8, d0
+0:
+        ldaxr             x9, [x0]
+        stlxr             w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+asm_test::swap::f64::acquire:
+        fmov              x8, d0
+0:
+        ldaxr             x9, [x0]
+        stxr              w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+asm_test::swap::f64::relaxed:
+        fmov              x8, d0
+0:
+        ldxr              x9, [x0]
+        stxr              w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
+        ret
+
+asm_test::swap::f64::release:
+        fmov              x8, d0
+0:
+        ldxr              x9, [x0]
+        stlxr             w10, x8, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x9
         ret
 
 asm_test::swap::u16::acqrel:
@@ -6064,6 +7292,34 @@ asm_test::store::u8::relaxed:
 
 asm_test::store::u8::release:
         stlrb             w1, [x0]
+        ret
+
+asm_test::store::f32::seqcst:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        ret
+
+asm_test::store::f32::relaxed:
+        str               s0, [x0]
+        ret
+
+asm_test::store::f32::release:
+        fmov              w8, s0
+        stlr              w8, [x0]
+        ret
+
+asm_test::store::f64::seqcst:
+        fmov              x8, d0
+        stlr              x8, [x0]
+        ret
+
+asm_test::store::f64::relaxed:
+        str               d0, [x0]
+        ret
+
+asm_test::store::f64::release:
+        fmov              x8, d0
+        stlr              x8, [x0]
         ret
 
 asm_test::store::u16::seqcst:
@@ -6415,6 +7671,96 @@ asm_test::fetch_or::u128::release:
         stp               x9, x10, [x8]
         ret
 
+asm_test::fetch_abs::f32::acqrel:
+0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::seqcst:
+0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::acquire:
+0:
+        ldaxr             w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::relaxed:
+0:
+        ldxr              w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f32::release:
+0:
+        ldxr              w8, [x0]
+        and               w9, w8, #0x7fffffff
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_abs::f64::acqrel:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::seqcst:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::acquire:
+0:
+        ldaxr             x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::relaxed:
+0:
+        ldxr              x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_abs::f64::release:
+0:
+        ldxr              x8, [x0]
+        and               x9, x8, #0x7fffffffffffffff
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
 asm_test::fetch_add::u8::acqrel:
 0:
         ldaxrb            w8, [x0]
@@ -6458,6 +7804,276 @@ asm_test::fetch_add::u8::release:
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+asm_test::fetch_add::f32::acqrel:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::seqcst:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::acquire:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::relaxed:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f32::release:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fadd              s1, s0, s1
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_add::f64::acqrel:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::seqcst:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::acquire:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::relaxed:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_add::f64::release:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fadd              d1, d0, d1
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 asm_test::fetch_add::u16::acqrel:
@@ -6980,6 +8596,296 @@ asm_test::fetch_max::i8::release:
         mov               w0, w8
         ret
 
+asm_test::fetch_max::f32::acqrel:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::seqcst:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::acquire:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::relaxed:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f32::release:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fmaxnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_max::f64::acqrel:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::seqcst:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::acquire:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::relaxed:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_max::f64::release:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fmaxnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
 asm_test::fetch_max::i16::acqrel:
 0:
         ldaxrh            w9, [x0]
@@ -7248,6 +9154,296 @@ asm_test::fetch_min::i8::release:
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+asm_test::fetch_min::f32::acqrel:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::seqcst:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::acquire:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::relaxed:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f32::release:
+        fminnm            s0, s0, s0
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fminnm            s1, s1, s1
+        fminnm            s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_min::f64::acqrel:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::seqcst:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::acquire:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::relaxed:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_min::f64::release:
+        fminnm            d0, d0, d0
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fminnm            d1, d1, d1
+        fminnm            d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 asm_test::fetch_min::i16::acqrel:
@@ -7588,6 +9784,96 @@ asm_test::fetch_neg::u8::release:
         b                 1b
 4:
         mov               w0, w8
+        ret
+
+asm_test::fetch_neg::f32::acqrel:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::seqcst:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::acquire:
+0:
+        ldaxr             w8, [x0]
+        eor               w9, w8, #0x80000000
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::relaxed:
+0:
+        ldxr              w8, [x0]
+        eor               w9, w8, #0x80000000
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f32::release:
+0:
+        ldxr              w8, [x0]
+        eor               w9, w8, #0x80000000
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_neg::f64::acqrel:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::seqcst:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::acquire:
+0:
+        ldaxr             x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::relaxed:
+0:
+        ldxr              x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_neg::f64::release:
+0:
+        ldxr              x8, [x0]
+        eor               x9, x8, #0x8000000000000000
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        fmov              d0, x8
         ret
 
 asm_test::fetch_neg::u16::acqrel:
@@ -8338,6 +10624,276 @@ asm_test::fetch_sub::u8::release:
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
+        ret
+
+asm_test::fetch_sub::f32::acqrel:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::seqcst:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::acquire:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldaxr             w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::relaxed:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stxr              w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f32::release:
+        ldr               w8, [x0]
+0:
+        mov               w9, w8
+        ldxr              w8, [x0]
+        cmp               w8, w9
+        b.ne              2f
+        fmov              s1, w9
+        fsub              s1, s1, s0
+        fmov              w9, s1
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              s0, w8
+        ret
+
+asm_test::fetch_sub::f64::acqrel:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::seqcst:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::acquire:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldaxr             x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::relaxed:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stxr              w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
+        ret
+
+asm_test::fetch_sub::f64::release:
+        ldr               x8, [x0]
+0:
+        mov               x9, x8
+        ldxr              x8, [x0]
+        cmp               x8, x9
+        b.ne              2f
+        fmov              d1, x9
+        fsub              d1, d1, d0
+        fmov              x9, d1
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 3f
+        mov               w9, #0x1                // =1
+1:
+        cbz               w9, 0b
+        b                 4f
+2:
+        mov               w9, wzr
+        clrex
+        b                 1b
+3:
+        mov               w9, wzr
+        b                 1b
+4:
+        fmov              d0, x8
         ret
 
 asm_test::fetch_sub::u16::acqrel:

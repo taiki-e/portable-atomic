@@ -4,7 +4,7 @@
 #![allow(unused, internal_features, unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
 #![cfg_attr(feature = "core", feature(cfg_target_has_atomic, core_intrinsics))]
 
-// TODO: bit_* (for x86 opt), float (for aarch64 opt)
+// TODO: bit_* (for x86 opt)
 
 // -----------------------------------------------------------------------------
 // feature = "portable-atomic"
@@ -53,19 +53,24 @@ pub mod load {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -97,19 +102,24 @@ pub mod store {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -151,19 +161,24 @@ pub mod swap {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -220,19 +235,24 @@ pub mod compare_exchange {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -289,19 +309,24 @@ pub mod compare_exchange_weak {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -342,19 +367,24 @@ pub mod fetch_add {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -448,19 +478,24 @@ pub mod fetch_sub {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -1040,19 +1075,24 @@ pub mod fetch_neg {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(u16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(u32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(u64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(u64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(u128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -1117,6 +1157,56 @@ pub mod neg {
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
 ))]
+pub mod fetch_abs {
+    macro_rules! fetch_abs {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                a.fetch_abs(core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
+    macro_rules! t {
+        ($t:ident) => {
+            paste::paste! {
+                pub mod $t {
+                    type T = $t;
+                    type A = &'static portable_atomic::[<Atomic $t:camel>];
+                    fetch_abs!(relaxed, Relaxed);
+                    fetch_abs!(acquire, Acquire);
+                    fetch_abs!(release, Release);
+                    fetch_abs!(acqrel, AcqRel);
+                    fetch_abs!(seqcst, SeqCst);
+                }
+            }
+        };
+    }
+    portable_atomic::cfg_has_atomic_16! {
+        // t!(f16);
+    }
+    portable_atomic::cfg_has_atomic_32! {
+        t!(f32);
+    }
+    portable_atomic::cfg_has_atomic_64! {
+        t!(f64);
+    }
+    // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
+    // portable_atomic::cfg_no_atomic_64! {
+    //     t!(f64);
+    // }
+    portable_atomic::cfg_has_atomic_128! {
+        // t!(f128);
+    }
+}
+#[cfg(feature = "portable-atomic")]
+#[cfg(any(
+    target_has_atomic = "ptr",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_feature = "zalrsc",
+    target_feature = "zacas",
+    portable_atomic_unsafe_assume_single_core,
+))]
 pub mod fetch_max {
     macro_rules! fetch_max {
         ($name:ident, $order:ident) => {
@@ -1146,19 +1236,24 @@ pub mod fetch_max {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(i16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(i32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(i64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(i64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(i128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]
@@ -1252,19 +1347,24 @@ pub mod fetch_min {
     }
     portable_atomic::cfg_has_atomic_16! {
         t!(i16);
+        // t!(f16);
     }
     portable_atomic::cfg_has_atomic_32! {
         t!(i32);
+        t!(f32);
     }
     portable_atomic::cfg_has_atomic_64! {
         t!(i64);
+        t!(f64);
     }
     // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
     // portable_atomic::cfg_no_atomic_64! {
     //     t!(i64);
+    //     t!(f64);
     // }
     portable_atomic::cfg_has_atomic_128! {
         t!(i128);
+        // t!(f128);
     }
 }
 #[cfg(feature = "portable-atomic")]

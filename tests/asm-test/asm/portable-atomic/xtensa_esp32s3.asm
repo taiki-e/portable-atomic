@@ -3776,6 +3776,465 @@ asm_test::compare_exchange::u8::release_relaxed:
         l32r              a8, 74 <asm_test::compare_exchange::u8::release_relaxed+0x74> (ff81ffff <asm_test::compare_exchange::u8::release_relaxed+0xff81ffff>)
         callx8            a8
 
+.literal.asm_test::compare_exchange::f32::acqrel_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acqrel_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acqrel_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acqrel_seqcst+0x8> (ffff8105 <asm_test::compare_exchange::f32::acqrel_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::acqrel_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange::f32::acqrel_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::acqrel_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange::f32::acqrel_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::seqcst_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::seqcst_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::seqcst_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::seqcst_seqcst+0x8> (ffff8105 <asm_test::compare_exchange::f32::seqcst_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::seqcst_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange::f32::seqcst_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::seqcst_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange::f32::seqcst_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::acqrel_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acqrel_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acqrel_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acqrel_acquire+0x8> (ffff8105 <asm_test::compare_exchange::f32::acqrel_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::acqrel_acquire+0x28> (a1f01d04 <asm_test::compare_exchange::f32::acqrel_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::acqrel_acquire+0x2c> (ff81ffff <asm_test::compare_exchange::f32::acqrel_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::acqrel_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acqrel_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acqrel_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acqrel_relaxed+0x8> (ffff8105 <asm_test::compare_exchange::f32::acqrel_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::acqrel_relaxed+0x28> (a1f01d04 <asm_test::compare_exchange::f32::acqrel_relaxed+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::acqrel_relaxed+0x2c> (ff81ffff <asm_test::compare_exchange::f32::acqrel_relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::acquire_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acquire_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acquire_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acquire_seqcst+0x8> (ffff8105 <asm_test::compare_exchange::f32::acquire_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::acquire_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange::f32::acquire_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::acquire_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange::f32::acquire_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::relaxed_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::relaxed_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::relaxed_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::relaxed_seqcst+0x8> (ffff8105 <asm_test::compare_exchange::f32::relaxed_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::relaxed_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange::f32::relaxed_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::relaxed_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange::f32::relaxed_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::release_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::release_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::release_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::release_seqcst+0x8> (ffff8105 <asm_test::compare_exchange::f32::release_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::release_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange::f32::release_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::release_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange::f32::release_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::seqcst_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::seqcst_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::seqcst_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::seqcst_acquire+0x8> (ffff8105 <asm_test::compare_exchange::f32::seqcst_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::seqcst_acquire+0x28> (a1f01d04 <asm_test::compare_exchange::f32::seqcst_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::seqcst_acquire+0x2c> (ff81ffff <asm_test::compare_exchange::f32::seqcst_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::seqcst_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::seqcst_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::seqcst_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::seqcst_relaxed+0x8> (ffff8105 <asm_test::compare_exchange::f32::seqcst_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::seqcst_relaxed+0x28> (a1f01d04 <asm_test::compare_exchange::f32::seqcst_relaxed+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::seqcst_relaxed+0x2c> (ff81ffff <asm_test::compare_exchange::f32::seqcst_relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::acquire_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acquire_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acquire_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acquire_acquire+0x8> (ffff8105 <asm_test::compare_exchange::f32::acquire_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange::f32::acquire_acquire+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange::f32::acquire_acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::acquire_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::acquire_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::acquire_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::acquire_relaxed+0x8> (ffff8105 <asm_test::compare_exchange::f32::acquire_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange::f32::acquire_relaxed+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange::f32::acquire_relaxed+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::relaxed_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::relaxed_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::relaxed_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::relaxed_acquire+0x8> (ffff8105 <asm_test::compare_exchange::f32::relaxed_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange::f32::relaxed_acquire+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange::f32::relaxed_acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::relaxed_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::relaxed_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::relaxed_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::relaxed_relaxed+0x8> (ffff8105 <asm_test::compare_exchange::f32::relaxed_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 24 <asm_test::compare_exchange::f32::relaxed_relaxed+0x24> (ffffa1f0 <asm_test::compare_exchange::f32::relaxed_relaxed+0xffffa1f0>)
+        l32r              a8, fffc0028 <asm_test::compare_exchange::f32::relaxed_relaxed+0xfffc0028>
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::release_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::release_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::release_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::release_acquire+0x8> (ffff8105 <asm_test::compare_exchange::f32::release_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange::f32::release_acquire+0x28> (a1f01d04 <asm_test::compare_exchange::f32::release_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange::f32::release_acquire+0x2c> (ff81ffff <asm_test::compare_exchange::f32::release_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange::f32::release_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange::f32::release_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange::f32::release_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange::f32::release_relaxed+0x8> (ffff8105 <asm_test::compare_exchange::f32::release_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange::f32::release_relaxed+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange::f32::release_relaxed+0x810000a1>)
+        callx8            a8
+
 .literal.asm_test::compare_exchange::u16::acqrel_seqcst:
         ill
         movi.n            a15, 63
@@ -6945,6 +7404,465 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
 4:
         l32r              a10, 64 <asm_test::compare_exchange_weak::u8::release_relaxed+0x64> (a1f01d91 <asm_test::compare_exchange_weak::u8::release_relaxed+0xa1f01d91>)
         l32r              a8, 68 <asm_test::compare_exchange_weak::u8::release_relaxed+0x68> (ff81ffff <asm_test::compare_exchange_weak::u8::release_relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acqrel_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::acqrel_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::seqcst_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::seqcst_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acqrel_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acqrel_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acqrel_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acqrel_acquire+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acqrel_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::acqrel_acquire+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::acqrel_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::acqrel_acquire+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::acqrel_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acqrel_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::acqrel_relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acquire_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acquire_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acquire_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acquire_seqcst+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acquire_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::acquire_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::acquire_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::acquire_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::acquire_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::relaxed_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::relaxed_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::release_seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::release_seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::release_seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::release_seqcst+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::release_seqcst+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::release_seqcst+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::release_seqcst+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::release_seqcst+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::release_seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::seqcst_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::seqcst_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::seqcst_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::seqcst_acquire+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::seqcst_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::seqcst_acquire+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::seqcst_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::seqcst_acquire+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::seqcst_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::seqcst_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::seqcst_relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acquire_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acquire_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acquire_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acquire_acquire+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acquire_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange_weak::f32::acquire_acquire+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange_weak::f32::acquire_acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::acquire_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::acquire_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::acquire_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::acquire_relaxed+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::acquire_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange_weak::f32::acquire_relaxed+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange_weak::f32::acquire_relaxed+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::relaxed_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::relaxed_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::relaxed_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::relaxed_acquire+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::relaxed_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange_weak::f32::relaxed_acquire+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange_weak::f32::relaxed_acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::relaxed_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 24 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0x24> (ffffa1f0 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0xffffa1f0>)
+        l32r              a8, fffc0028 <asm_test::compare_exchange_weak::f32::relaxed_relaxed+0xfffc0028>
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::release_acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::release_acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::release_acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::release_acquire+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::release_acquire+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        memw
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, 28 <asm_test::compare_exchange_weak::f32::release_acquire+0x28> (a1f01d04 <asm_test::compare_exchange_weak::f32::release_acquire+0xa1f01d04>)
+        l32r              a8, 2c <asm_test::compare_exchange_weak::f32::release_acquire+0x2c> (ff81ffff <asm_test::compare_exchange_weak::f32::release_acquire+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::compare_exchange_weak::f32::release_relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::compare_exchange_weak::f32::release_relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::compare_exchange_weak::f32::release_relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::compare_exchange_weak::f32::release_relaxed+0x8> (ffff8105 <asm_test::compare_exchange_weak::f32::release_relaxed+0xffff8105>)
+        bgeu              a8, a2, 3f
+1:
+        memw
+        wsr.scompare1     a3
+        s32c1i            a4, a2, 0
+        movi.n            a8, 1
+        mov.n             a9, a8
+        beq               a4, a3, 2f
+        movi.n            a9, 0
+2:
+        xor               a2, a9, a8
+        mov.n             a3, a4
+        retw.n
+3:
+        l32r              a10, fffc0028 <asm_test::compare_exchange_weak::f32::release_relaxed+0xfffc0028>
+        l32r              a8, 3b (810000a1 <asm_test::compare_exchange_weak::f32::release_relaxed+0x810000a1>)
         callx8            a8
 
 .literal.asm_test::compare_exchange_weak::u16::acqrel_seqcst:
@@ -14976,6 +15894,23 @@ asm_test::load::u8::relaxed:
         l8ui              a2, a2, 0
         retw.n
 
+asm_test::load::f32::seqcst:
+        entry             a1, 32
+        l32i.n            a2, a2, 0
+        memw
+        retw.n
+
+asm_test::load::f32::acquire:
+        entry             a1, 32
+        l32i.n            a2, a2, 0
+        memw
+        retw.n
+
+asm_test::load::f32::relaxed:
+        entry             a1, 32
+        l32i.n            a2, a2, 0
+        retw.n
+
 asm_test::load::u16::seqcst:
         entry             a1, 32
         l16ui             a2, a2, 0
@@ -15305,6 +16240,199 @@ asm_test::swap::u8::release:
 6:
         l32r              a10, 5b (ffa1f01d <asm_test::swap::u8::release+0xffa1f01d>)
         l32r              a8, 64 <asm_test::swap::u8::release+0x64> (ffff81ff <asm_test::swap::u8::release+0xffff81ff>)
+        callx8            a8
+
+.literal.asm_test::swap::f32::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::swap::f32::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::swap::f32::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::swap::f32::acqrel+0x8> (ffff8105 <asm_test::swap::f32::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        wsr.scompare1     a11
+        mov.n             a8, a3
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 38 <asm_test::swap::f32::acqrel+0x38> (ffffa1f0 <asm_test::swap::f32::acqrel+0xffffa1f0>)
+        l32r              a8, fffc003c <asm_test::swap::f32::acqrel+0xfffc003c>
+        callx8            a8
+
+.literal.asm_test::swap::f32::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::swap::f32::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::swap::f32::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::swap::f32::seqcst+0x8> (ffff8105 <asm_test::swap::f32::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        wsr.scompare1     a11
+        mov.n             a8, a3
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 38 <asm_test::swap::f32::seqcst+0x38> (ffffa1f0 <asm_test::swap::f32::seqcst+0xffffa1f0>)
+        l32r              a8, fffc003c <asm_test::swap::f32::seqcst+0xfffc003c>
+        callx8            a8
+
+.literal.asm_test::swap::f32::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::swap::f32::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::swap::f32::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::swap::f32::acquire+0x8> (ffff8105 <asm_test::swap::f32::acquire+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        wsr.scompare1     a11
+        mov.n             a8, a3
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::swap::f32::acquire+0xffa1f01d>)
+        l32r              a8, 38 <asm_test::swap::f32::acquire+0x38> (ffff81ff <asm_test::swap::f32::acquire+0xffff81ff>)
+        callx8            a8
+
+.literal.asm_test::swap::f32::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::swap::f32::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::swap::f32::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::swap::f32::relaxed+0x8> (ffff8105 <asm_test::swap::f32::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        wsr.scompare1     a11
+        mov.n             a8, a3
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 30 <asm_test::swap::f32::relaxed+0x30> (a1f01d08 <asm_test::swap::f32::relaxed+0xa1f01d08>)
+        l32r              a8, 34 <asm_test::swap::f32::relaxed+0x34> (ff81ffff <asm_test::swap::f32::relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::swap::f32::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+
+asm_test::swap::f32::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::swap::f32::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::swap::f32::release+0x8> (ffff8105 <asm_test::swap::f32::release+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        wsr.scompare1     a11
+        mov.n             a8, a3
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::swap::f32::release+0xffa1f01d>)
+        l32r              a8, 38 <asm_test::swap::f32::release+0x38> (ffff81ff <asm_test::swap::f32::release+0xffff81ff>)
         callx8            a8
 
 .literal.asm_test::swap::u16::acqrel:
@@ -16080,6 +17208,24 @@ asm_test::store::u8::release:
         entry             a1, 32
         memw
         s8i               a3, a2, 0
+        retw.n
+
+asm_test::store::f32::seqcst:
+        entry             a1, 32
+        memw
+        s32i.n            a3, a2, 0
+        memw
+        retw.n
+
+asm_test::store::f32::relaxed:
+        entry             a1, 32
+        s32i.n            a3, a2, 0
+        retw.n
+
+asm_test::store::f32::release:
+        entry             a1, 32
+        memw
+        s32i.n            a3, a2, 0
         retw.n
 
 asm_test::store::u16::seqcst:
@@ -17084,6 +18230,209 @@ asm_test::fetch_or::bool::release:
         l32r              a8, 5c <asm_test::fetch_or::bool::release+0x5c> (ff81ffff <asm_test::fetch_or::bool::release+0xff81ffff>)
         callx8            a8
 
+.literal.asm_test::fetch_abs::f32::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+        ill
+
+asm_test::fetch_abs::f32::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_abs::f32::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_abs::f32::acqrel+0x8> (ffff8105 <asm_test::fetch_abs::f32::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_abs::f32::acqrel+0xfffc0020>
+        and               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_abs::f32::acqrel+0x3c> (ffffa1f0 <asm_test::fetch_abs::f32::acqrel+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_abs::f32::acqrel+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_abs::f32::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+        ill
+
+asm_test::fetch_abs::f32::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_abs::f32::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_abs::f32::seqcst+0x8> (ffff8105 <asm_test::fetch_abs::f32::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_abs::f32::seqcst+0xfffc0020>
+        and               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_abs::f32::seqcst+0x3c> (ffffa1f0 <asm_test::fetch_abs::f32::seqcst+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_abs::f32::seqcst+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_abs::f32::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+        ill
+
+asm_test::fetch_abs::f32::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_abs::f32::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_abs::f32::acquire+0x8> (ffff8105 <asm_test::fetch_abs::f32::acquire+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, 1c <asm_test::fetch_abs::f32::acquire+0x1c> (ffff8115 <asm_test::fetch_abs::f32::acquire+0xffff8115>)
+        and               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::fetch_abs::f32::acquire+0xffa1f01d>)
+        l32r              a8, 3c <asm_test::fetch_abs::f32::acquire+0x3c> (ffff81ff <asm_test::fetch_abs::f32::acquire+0xffff81ff>)
+        callx8            a8
+
+.literal.asm_test::fetch_abs::f32::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+        ill
+
+asm_test::fetch_abs::f32::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_abs::f32::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_abs::f32::relaxed+0x8> (ffff8105 <asm_test::fetch_abs::f32::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, 1c <asm_test::fetch_abs::f32::relaxed+0x1c> (ffff8115 <asm_test::fetch_abs::f32::relaxed+0xffff8115>)
+        and               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 34 <asm_test::fetch_abs::f32::relaxed+0x34> (a1f01d08 <asm_test::fetch_abs::f32::relaxed+0xa1f01d08>)
+        l32r              a8, 38 <asm_test::fetch_abs::f32::relaxed+0x38> (ff81ffff <asm_test::fetch_abs::f32::relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_abs::f32::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; excw }
+        ill
+        ill
+
+asm_test::fetch_abs::f32::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_abs::f32::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_abs::f32::release+0x8> (ffff8105 <asm_test::fetch_abs::f32::release+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_abs::f32::release+0xfffc0020>
+        and               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::fetch_abs::f32::release+0xffa1f01d>)
+        l32r              a8, 3c <asm_test::fetch_abs::f32::release+0x3c> (ffff81ff <asm_test::fetch_abs::f32::release+0xffff81ff>)
+        callx8            a8
+
 .literal.asm_test::fetch_add::u8::acqrel:
         ill
         movi.n            a15, 63
@@ -17360,6 +18709,207 @@ asm_test::fetch_add::u8::release:
 5:
         l32r              a10, 64 <asm_test::fetch_add::u8::release+0x64> (a1f01d91 <asm_test::fetch_add::u8::release+0xa1f01d91>)
         l32r              a8, 68 <asm_test::fetch_add::u8::release+0x68> (ff81ffff <asm_test::fetch_add::u8::release+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_add::f32::acqrel:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_add::f32::acqrel:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_add::f32::acqrel+0x4> (ffff8102 <asm_test::fetch_add::f32::acqrel+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_add::f32::acqrel+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        add.s             f9, f8, f9
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 40 <asm_test::fetch_add::f32::acqrel+0x40> (a1f01d08 <asm_test::fetch_add::f32::acqrel+0xa1f01d08>)
+        l32r              a8, 44 <asm_test::fetch_add::f32::acqrel+0x44> (ff81ffff <asm_test::fetch_add::f32::acqrel+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_add::f32::seqcst:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_add::f32::seqcst:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_add::f32::seqcst+0x4> (ffff8102 <asm_test::fetch_add::f32::seqcst+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_add::f32::seqcst+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        add.s             f9, f8, f9
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 40 <asm_test::fetch_add::f32::seqcst+0x40> (a1f01d08 <asm_test::fetch_add::f32::seqcst+0xa1f01d08>)
+        l32r              a8, 44 <asm_test::fetch_add::f32::seqcst+0x44> (ff81ffff <asm_test::fetch_add::f32::seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_add::f32::acquire:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_add::f32::acquire:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_add::f32::acquire+0x4> (ffff8102 <asm_test::fetch_add::f32::acquire+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_add::f32::acquire+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        add.s             f9, f8, f9
+        rfr               a8, f9
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, fffc0040 <asm_test::fetch_add::f32::acquire+0xfffc0040>
+        l32r              a8, 5b (810000a1 <asm_test::fetch_add::f32::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::fetch_add::f32::relaxed:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_add::f32::relaxed:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_add::f32::relaxed+0x4> (ffff8102 <asm_test::fetch_add::f32::relaxed+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_add::f32::relaxed+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        add.s             f9, f8, f9
+        rfr               a8, f9
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_add::f32::relaxed+0x3c> (ffffa1f0 <asm_test::fetch_add::f32::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_add::f32::relaxed+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_add::f32::release:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_add::f32::release:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_add::f32::release+0x4> (ffff8102 <asm_test::fetch_add::f32::release+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_add::f32::release+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        add.s             f9, f8, f9
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, fffc0040 <asm_test::fetch_add::f32::release+0xfffc0040>
+        l32r              a8, 5b (810000a1 <asm_test::fetch_add::f32::release+0x810000a1>)
         callx8            a8
 
 .literal.asm_test::fetch_add::u16::acqrel:
@@ -19160,6 +20710,268 @@ asm_test::fetch_max::i8::release:
         l32r              a8, fffc0074 <asm_test::fetch_max::i8::release+0xfffc0074>
         callx8            a8
 
+.literal.asm_test::fetch_max::f32::acqrel:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_max::f32::acqrel:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_max::f32::acqrel+0x4> (ffff8102 <asm_test::fetch_max::f32::acqrel+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_max::f32::acqrel+0x81053287>)
+        bltu              a2, a8, 7f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ult.s             b0, f8, f9
+        mov.n             a12, a3
+        bf                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+        retw.n
+7:
+        l32r              a10, 50 <asm_test::fetch_max::f32::acqrel+0x50> (ffffa1f0 <asm_test::fetch_max::f32::acqrel+0xffffa1f0>)
+        l32r              a8, fffc0054 <asm_test::fetch_max::f32::acqrel+0xfffc0054>
+        callx8            a8
+
+.literal.asm_test::fetch_max::f32::seqcst:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_max::f32::seqcst:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_max::f32::seqcst+0x4> (ffff8102 <asm_test::fetch_max::f32::seqcst+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_max::f32::seqcst+0x81053287>)
+        bltu              a2, a8, 7f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ult.s             b0, f8, f9
+        mov.n             a12, a3
+        bf                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+        retw.n
+7:
+        l32r              a10, 50 <asm_test::fetch_max::f32::seqcst+0x50> (ffffa1f0 <asm_test::fetch_max::f32::seqcst+0xffffa1f0>)
+        l32r              a8, fffc0054 <asm_test::fetch_max::f32::seqcst+0xfffc0054>
+        callx8            a8
+
+.literal.asm_test::fetch_max::f32::acquire:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_max::f32::acquire:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_max::f32::acquire+0x4> (ffff8102 <asm_test::fetch_max::f32::acquire+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_max::f32::acquire+0x81053287>)
+        bltu              a2, a8, 9f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 8f
+3:
+        wfr               f9, a9
+        ult.s             b0, f8, f9
+        mov.n             a12, a3
+        bt                b0, 5f
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bf                b0, 6f
+4:
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        j                 7f
+5:
+        mov.n             a12, a9
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 4b
+6:
+        mov.n             a8, a12
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+7:
+        mov.n             a12, a10
+        j                 2b
+8:
+        mov.n             a2, a8
+        retw.n
+9:
+        l32r              a10, fffc0064 <asm_test::fetch_max::f32::acquire+0xfffc0064>
+        l32r              a8, 9b (810000a1 <asm_test::fetch_max::f32::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::fetch_max::f32::relaxed:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_max::f32::relaxed:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_max::f32::relaxed+0x4> (ffff8102 <asm_test::fetch_max::f32::relaxed+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_max::f32::relaxed+0x81053287>)
+        bltu              a2, a8, 9f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 8f
+3:
+        wfr               f9, a9
+        ult.s             b0, f8, f9
+        mov.n             a12, a3
+        bt                b0, 5f
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bf                b0, 6f
+4:
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        j                 7f
+5:
+        mov.n             a12, a9
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 4b
+6:
+        mov.n             a8, a12
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+7:
+        mov.n             a12, a10
+        j                 2b
+8:
+        mov.n             a2, a8
+        retw.n
+9:
+        l32r              a10, 60 <asm_test::fetch_max::f32::relaxed+0x60> (ffffa1f0 <asm_test::fetch_max::f32::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0064 <asm_test::fetch_max::f32::relaxed+0xfffc0064>
+        callx8            a8
+
+.literal.asm_test::fetch_max::f32::release:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_max::f32::release:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_max::f32::release+0x4> (ffff8102 <asm_test::fetch_max::f32::release+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_max::f32::release+0x81053287>)
+        bltu              a2, a8, 8f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ult.s             b0, f8, f9
+        mov.n             a12, a3
+        bf                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+7:
+        retw.n
+8:
+        l32r              a10, 7b (ffa1f01d <asm_test::fetch_max::f32::release+0xffa1f01d>)
+        l32r              a8, 50 <asm_test::fetch_max::f32::release+0x50> (ffff81ff <asm_test::fetch_max::f32::release+0xffff81ff>)
+        callx8            a8
+
 .literal.asm_test::fetch_max::i16::acqrel:
         ill
         movi.n            a15, 63
@@ -19949,6 +21761,268 @@ asm_test::fetch_min::i8::release:
 5:
         l32r              a10, 70 <asm_test::fetch_min::i8::release+0x70> (ffffa1f0 <asm_test::fetch_min::i8::release+0xffffa1f0>)
         l32r              a8, fffc0074 <asm_test::fetch_min::i8::release+0xfffc0074>
+        callx8            a8
+
+.literal.asm_test::fetch_min::f32::acqrel:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_min::f32::acqrel:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_min::f32::acqrel+0x4> (ffff8102 <asm_test::fetch_min::f32::acqrel+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_min::f32::acqrel+0x81053287>)
+        bltu              a2, a8, 7f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ole.s             b0, f8, f9
+        mov.n             a12, a3
+        bt                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+        retw.n
+7:
+        l32r              a10, 50 <asm_test::fetch_min::f32::acqrel+0x50> (ffffa1f0 <asm_test::fetch_min::f32::acqrel+0xffffa1f0>)
+        l32r              a8, fffc0054 <asm_test::fetch_min::f32::acqrel+0xfffc0054>
+        callx8            a8
+
+.literal.asm_test::fetch_min::f32::seqcst:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_min::f32::seqcst:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_min::f32::seqcst+0x4> (ffff8102 <asm_test::fetch_min::f32::seqcst+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_min::f32::seqcst+0x81053287>)
+        bltu              a2, a8, 7f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ole.s             b0, f8, f9
+        mov.n             a12, a3
+        bt                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+        retw.n
+7:
+        l32r              a10, 50 <asm_test::fetch_min::f32::seqcst+0x50> (ffffa1f0 <asm_test::fetch_min::f32::seqcst+0xffffa1f0>)
+        l32r              a8, fffc0054 <asm_test::fetch_min::f32::seqcst+0xfffc0054>
+        callx8            a8
+
+.literal.asm_test::fetch_min::f32::acquire:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_min::f32::acquire:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_min::f32::acquire+0x4> (ffff8102 <asm_test::fetch_min::f32::acquire+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_min::f32::acquire+0x81053287>)
+        bltu              a2, a8, 9f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 8f
+3:
+        wfr               f9, a9
+        ole.s             b0, f8, f9
+        mov.n             a12, a3
+        bf                b0, 5f
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bf                b0, 6f
+4:
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        j                 7f
+5:
+        mov.n             a12, a9
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 4b
+6:
+        mov.n             a8, a12
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+7:
+        mov.n             a12, a10
+        j                 2b
+8:
+        mov.n             a2, a8
+        retw.n
+9:
+        l32r              a10, fffc0064 <asm_test::fetch_min::f32::acquire+0xfffc0064>
+        l32r              a8, 9b (810000a1 <asm_test::fetch_min::f32::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::fetch_min::f32::relaxed:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_min::f32::relaxed:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_min::f32::relaxed+0x4> (ffff8102 <asm_test::fetch_min::f32::relaxed+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_min::f32::relaxed+0x81053287>)
+        bltu              a2, a8, 9f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 8f
+3:
+        wfr               f9, a9
+        ole.s             b0, f8, f9
+        mov.n             a12, a3
+        bf                b0, 5f
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bf                b0, 6f
+4:
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        j                 7f
+5:
+        mov.n             a12, a9
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 4b
+6:
+        mov.n             a8, a12
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+7:
+        mov.n             a12, a10
+        j                 2b
+8:
+        mov.n             a2, a8
+        retw.n
+9:
+        l32r              a10, 60 <asm_test::fetch_min::f32::relaxed+0x60> (ffffa1f0 <asm_test::fetch_min::f32::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0064 <asm_test::fetch_min::f32::relaxed+0xfffc0064>
+        callx8            a8
+
+.literal.asm_test::fetch_min::f32::release:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_min::f32::release:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_min::f32::release+0x4> (ffff8102 <asm_test::fetch_min::f32::release+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_min::f32::release+0x81053287>)
+        bltu              a2, a8, 8f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 6f
+3:
+        wfr               f9, a9
+        ole.s             b0, f8, f9
+        mov.n             a12, a3
+        bt                b0, 4f
+        mov.n             a12, a9
+4:
+        un.s              b0, f9, f9
+        mov.n             a8, a3
+        bt                b0, 5f
+        mov.n             a8, a12
+5:
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+6:
+        mov.n             a2, a8
+7:
+        retw.n
+8:
+        l32r              a10, 7b (ffa1f01d <asm_test::fetch_min::f32::release+0xffa1f01d>)
+        l32r              a8, 50 <asm_test::fetch_min::f32::release+0x50> (ffff81ff <asm_test::fetch_min::f32::release+0xffff81ff>)
         callx8            a8
 
 .literal.asm_test::fetch_min::i16::acqrel:
@@ -20744,6 +22818,209 @@ asm_test::fetch_neg::u8::release:
 5:
         l32r              a10, 74 <asm_test::fetch_neg::u8::release+0x74> (a1f01dff <asm_test::fetch_neg::u8::release+0xa1f01dff>)
         l32r              a8, 78 <asm_test::fetch_neg::u8::release+0x78> (ff81ffff <asm_test::fetch_neg::u8::release+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_neg::f32::acqrel:
+        ill
+        movi.n            a15, 63
+        {                 excw; bbci.w18	a0, 0, 9 <.literal.asm_test::fetch_neg::f32::acqrel+0x9> }
+        ill
+        ill
+
+asm_test::fetch_neg::f32::acqrel:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_neg::f32::acqrel+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_neg::f32::acqrel+0x8> (ffff8105 <asm_test::fetch_neg::f32::acqrel+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_neg::f32::acqrel+0xfffc0020>
+        xor               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_neg::f32::acqrel+0x3c> (ffffa1f0 <asm_test::fetch_neg::f32::acqrel+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_neg::f32::acqrel+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_neg::f32::seqcst:
+        ill
+        movi.n            a15, 63
+        {                 excw; bbci.w18	a0, 0, 9 <.literal.asm_test::fetch_neg::f32::seqcst+0x9> }
+        ill
+        ill
+
+asm_test::fetch_neg::f32::seqcst:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_neg::f32::seqcst+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_neg::f32::seqcst+0x8> (ffff8105 <asm_test::fetch_neg::f32::seqcst+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_neg::f32::seqcst+0xfffc0020>
+        xor               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_neg::f32::seqcst+0x3c> (ffffa1f0 <asm_test::fetch_neg::f32::seqcst+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_neg::f32::seqcst+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_neg::f32::acquire:
+        ill
+        movi.n            a15, 63
+        {                 excw; bbci.w18	a0, 0, 9 <.literal.asm_test::fetch_neg::f32::acquire+0x9> }
+        ill
+        ill
+
+asm_test::fetch_neg::f32::acquire:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_neg::f32::acquire+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_neg::f32::acquire+0x8> (ffff8105 <asm_test::fetch_neg::f32::acquire+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, 1c <asm_test::fetch_neg::f32::acquire+0x1c> (ffff8115 <asm_test::fetch_neg::f32::acquire+0xffff8115>)
+        xor               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        memw
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::fetch_neg::f32::acquire+0xffa1f01d>)
+        l32r              a8, 3c <asm_test::fetch_neg::f32::acquire+0x3c> (ffff81ff <asm_test::fetch_neg::f32::acquire+0xffff81ff>)
+        callx8            a8
+
+.literal.asm_test::fetch_neg::f32::relaxed:
+        ill
+        movi.n            a15, 63
+        {                 excw; bbci.w18	a0, 0, 9 <.literal.asm_test::fetch_neg::f32::relaxed+0x9> }
+        ill
+        ill
+
+asm_test::fetch_neg::f32::relaxed:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_neg::f32::relaxed+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_neg::f32::relaxed+0x8> (ffff8105 <asm_test::fetch_neg::f32::relaxed+0xffff8105>)
+        bgeu              a8, a2, 5f
+1:
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, 1c <asm_test::fetch_neg::f32::relaxed+0x1c> (ffff8115 <asm_test::fetch_neg::f32::relaxed+0xffff8115>)
+        xor               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 34 <asm_test::fetch_neg::f32::relaxed+0x34> (a1f01d08 <asm_test::fetch_neg::f32::relaxed+0xa1f01d08>)
+        l32r              a8, 38 <asm_test::fetch_neg::f32::relaxed+0x38> (ff81ffff <asm_test::fetch_neg::f32::relaxed+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_neg::f32::release:
+        ill
+        movi.n            a15, 63
+        {                 excw; bbci.w18	a0, 0, 9 <.literal.asm_test::fetch_neg::f32::release+0x9> }
+        ill
+        ill
+
+asm_test::fetch_neg::f32::release:
+0:
+        entry             a1, 32
+        l32r              a8, 0b (81004136 <asm_test::fetch_neg::f32::release+0x81004136>)
+        bltu              a2, a8, 1f
+        l32r              a8, 8 <asm_test::fetch_neg::f32::release+0x8> (ffff8105 <asm_test::fetch_neg::f32::release+0xffff8105>)
+        bgeu              a8, a2, 6f
+1:
+        memw
+        l32i.n            a11, a2, 0
+        movi.n            a9, 0
+        movi.n            a10, 1
+        j                 3f
+2:
+        mov.n             a11, a8
+        beqi              a12, 1, 4f
+3:
+        l32r              a8, fffc0020 <asm_test::fetch_neg::f32::release+0xfffc0020>
+        xor               a8, a11, a8
+        wsr.scompare1     a11
+        s32c1i            a8, a2, 0
+        mov.n             a12, a10
+        beq               a8, a11, 2b
+        mov.n             a12, a9
+        j                 2b
+4:
+        mov.n             a2, a8
+5:
+        retw.n
+6:
+        l32r              a10, 5b (ffa1f01d <asm_test::fetch_neg::f32::release+0xffa1f01d>)
+        l32r              a8, 3c <asm_test::fetch_neg::f32::release+0x3c> (ffff81ff <asm_test::fetch_neg::f32::release+0xffff81ff>)
         callx8            a8
 
 .literal.asm_test::fetch_neg::u16::acqrel:
@@ -22458,6 +24735,207 @@ asm_test::fetch_sub::u8::release:
 5:
         l32r              a10, fffc0068 <asm_test::fetch_sub::u8::release+0xfffc0068>
         l32r              a8, 5b (810000a1 <asm_test::fetch_sub::u8::release+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::fetch_sub::f32::acqrel:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_sub::f32::acqrel:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_sub::f32::acqrel+0x4> (ffff8102 <asm_test::fetch_sub::f32::acqrel+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_sub::f32::acqrel+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        sub.s             f9, f9, f8
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 40 <asm_test::fetch_sub::f32::acqrel+0x40> (a1f01d08 <asm_test::fetch_sub::f32::acqrel+0xa1f01d08>)
+        l32r              a8, 44 <asm_test::fetch_sub::f32::acqrel+0x44> (ff81ffff <asm_test::fetch_sub::f32::acqrel+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_sub::f32::seqcst:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_sub::f32::seqcst:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_sub::f32::seqcst+0x4> (ffff8102 <asm_test::fetch_sub::f32::seqcst+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_sub::f32::seqcst+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        sub.s             f9, f9, f8
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 40 <asm_test::fetch_sub::f32::seqcst+0x40> (a1f01d08 <asm_test::fetch_sub::f32::seqcst+0xa1f01d08>)
+        l32r              a8, 44 <asm_test::fetch_sub::f32::seqcst+0x44> (ff81ffff <asm_test::fetch_sub::f32::seqcst+0xff81ffff>)
+        callx8            a8
+
+.literal.asm_test::fetch_sub::f32::acquire:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_sub::f32::acquire:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_sub::f32::acquire+0x4> (ffff8102 <asm_test::fetch_sub::f32::acquire+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_sub::f32::acquire+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        memw
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        sub.s             f9, f9, f8
+        rfr               a8, f9
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, fffc0040 <asm_test::fetch_sub::f32::acquire+0xfffc0040>
+        l32r              a8, 5b (810000a1 <asm_test::fetch_sub::f32::acquire+0x810000a1>)
+        callx8            a8
+
+.literal.asm_test::fetch_sub::f32::relaxed:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_sub::f32::relaxed:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_sub::f32::relaxed+0x4> (ffff8102 <asm_test::fetch_sub::f32::relaxed+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_sub::f32::relaxed+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        sub.s             f9, f9, f8
+        rfr               a8, f9
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, 3c <asm_test::fetch_sub::f32::relaxed+0x3c> (ffffa1f0 <asm_test::fetch_sub::f32::relaxed+0xffffa1f0>)
+        l32r              a8, fffc0040 <asm_test::fetch_sub::f32::relaxed+0xfffc0040>
+        callx8            a8
+
+.literal.asm_test::fetch_sub::f32::release:
+        ill
+        movi.n            a0, 48
+        excw
+
+asm_test::fetch_sub::f32::release:
+        entry             a1, 32
+        l32i.n            a9, a2, 0
+        l32r              a8, 4 <asm_test::fetch_sub::f32::release+0x4> (ffff8102 <asm_test::fetch_sub::f32::release+0xffff8102>)
+0:
+        bltu              a2, a8, 1f
+        l32r              a8, 0b (81053287 <asm_test::fetch_sub::f32::release+0x81053287>)
+        bltu              a2, a8, 5f
+1:
+        wfr               f8, a3
+        movi.n            a10, 0
+        movi.n            a11, 1
+        j                 3f
+2:
+        mov.n             a9, a8
+        bnez              a12, 4f
+3:
+        wfr               f9, a9
+        sub.s             f9, f9, f8
+        rfr               a8, f9
+        memw
+        wsr.scompare1     a9
+        s32c1i            a8, a2, 0
+        mov.n             a12, a11
+        beq               a8, a9, 2b
+        mov.n             a12, a10
+        j                 2b
+4:
+        mov.n             a2, a8
+        retw.n
+5:
+        l32r              a10, fffc0040 <asm_test::fetch_sub::f32::release+0xfffc0040>
+        l32r              a8, 5b (810000a1 <asm_test::fetch_sub::f32::release+0x810000a1>)
         callx8            a8
 
 .literal.asm_test::fetch_sub::u16::acqrel:
