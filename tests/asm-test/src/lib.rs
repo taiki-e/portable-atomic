@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 #![no_std]
-#![allow(unused, internal_features, unsafe_op_in_unsafe_fn)]
+#![allow(unused, internal_features, unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
 #![cfg_attr(feature = "core", feature(cfg_target_has_atomic, core_intrinsics))]
 
 // TODO: bit_* (for x86 opt), float (for aarch64 opt)
@@ -11,45 +11,38 @@
 
 #[cfg(feature = "portable-atomic")]
 pub mod fence {
-    use core::sync::atomic::Ordering;
-    #[inline(never)]
-    pub unsafe fn acquire() {
-        portable_atomic::fence(Ordering::Acquire);
+    macro_rules! fence {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name() {
+                portable_atomic::fence(core::sync::atomic::Ordering::$order);
+            }
+        };
     }
-    #[inline(never)]
-    pub unsafe fn release() {
-        portable_atomic::fence(Ordering::Release);
-    }
-    #[inline(never)]
-    pub unsafe fn acqrel() {
-        portable_atomic::fence(Ordering::AcqRel);
-    }
-    #[inline(never)]
-    pub unsafe fn seqcst() {
-        portable_atomic::fence(Ordering::SeqCst);
-    }
+    fence!(acquire, Acquire);
+    fence!(release, Release);
+    fence!(acqrel, AcqRel);
+    fence!(seqcst, SeqCst);
 }
 #[cfg(feature = "portable-atomic")]
 pub mod load {
+    macro_rules! load {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                a.load(core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A) -> T {
-                        a.load(Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A) -> T {
-                        a.load(Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A) -> T {
-                        a.load(Ordering::SeqCst)
-                    }
+                    load!(relaxed, Relaxed);
+                    load!(acquire, Acquire);
+                    load!(seqcst, SeqCst);
                 }
             }
         };
@@ -77,25 +70,23 @@ pub mod load {
 }
 #[cfg(feature = "portable-atomic")]
 pub mod store {
+    macro_rules! store {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.store(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.store(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.store(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.store(val, Ordering::SeqCst);
-                    }
+                    store!(relaxed, Relaxed);
+                    store!(release, Release);
+                    store!(seqcst, SeqCst);
                 }
             }
         };
@@ -131,33 +122,25 @@ pub mod store {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod swap {
+    macro_rules! swap {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.swap(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.swap(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.swap(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.swap(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.swap(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.swap(val, Ordering::SeqCst)
-                    }
+                    swap!(relaxed, Relaxed);
+                    swap!(acquire, Acquire);
+                    swap!(release, Release);
+                    swap!(acqrel, AcqRel);
+                    swap!(seqcst, SeqCst);
                 }
             }
         };
@@ -193,148 +176,40 @@ pub mod swap {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod compare_exchange {
+    macro_rules! cmpxchg {
+        ($name:ident, $success:ident, $failure:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, old: T, new: T) -> Result<T, T> {
+                a.compare_exchange(
+                    old,
+                    new,
+                    core::sync::atomic::Ordering::$success,
+                    core::sync::atomic::Ordering::$failure,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn relaxed_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn relaxed_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        )
-                    }
+                    cmpxchg!(relaxed_relaxed, Relaxed, Relaxed);
+                    cmpxchg!(relaxed_acquire, Relaxed, Acquire);
+                    cmpxchg!(relaxed_seqcst, Relaxed, SeqCst);
+                    cmpxchg!(acquire_relaxed, Acquire, Relaxed);
+                    cmpxchg!(acquire_acquire, Acquire, Acquire);
+                    cmpxchg!(acquire_seqcst, Acquire, SeqCst);
+                    cmpxchg!(release_relaxed, Release, Relaxed);
+                    cmpxchg!(release_acquire, Release, Acquire);
+                    cmpxchg!(release_seqcst, Release, SeqCst);
+                    cmpxchg!(acqrel_relaxed, AcqRel, Relaxed);
+                    cmpxchg!(acqrel_acquire, AcqRel, Acquire);
+                    cmpxchg!(acqrel_seqcst, AcqRel, SeqCst);
+                    cmpxchg!(seqcst_relaxed, SeqCst, Relaxed);
+                    cmpxchg!(seqcst_acquire, SeqCst, Acquire);
+                    cmpxchg!(seqcst_seqcst, SeqCst, SeqCst);
                 }
             }
         };
@@ -370,148 +245,40 @@ pub mod compare_exchange {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod compare_exchange_weak {
+    macro_rules! cmpxchg_weak {
+        ($name:ident, $success:ident, $failure:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, old: T, new: T) -> Result<T, T> {
+                a.compare_exchange_weak(
+                    old,
+                    new,
+                    core::sync::atomic::Ordering::$success,
+                    core::sync::atomic::Ordering::$failure,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn relaxed_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn relaxed_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Relaxed,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Acquire,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::Release,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::AcqRel,
-                            Ordering::SeqCst,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::Relaxed,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::Acquire,
-                        )
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                        a.compare_exchange_weak(
-                            old,
-                            new,
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        )
-                    }
+                    cmpxchg_weak!(relaxed_relaxed, Relaxed, Relaxed);
+                    cmpxchg_weak!(relaxed_acquire, Relaxed, Acquire);
+                    cmpxchg_weak!(relaxed_seqcst, Relaxed, SeqCst);
+                    cmpxchg_weak!(acquire_relaxed, Acquire, Relaxed);
+                    cmpxchg_weak!(acquire_acquire, Acquire, Acquire);
+                    cmpxchg_weak!(acquire_seqcst, Acquire, SeqCst);
+                    cmpxchg_weak!(release_relaxed, Release, Relaxed);
+                    cmpxchg_weak!(release_acquire, Release, Acquire);
+                    cmpxchg_weak!(release_seqcst, Release, SeqCst);
+                    cmpxchg_weak!(acqrel_relaxed, AcqRel, Relaxed);
+                    cmpxchg_weak!(acqrel_acquire, AcqRel, Acquire);
+                    cmpxchg_weak!(acqrel_seqcst, AcqRel, SeqCst);
+                    cmpxchg_weak!(seqcst_relaxed, SeqCst, Relaxed);
+                    cmpxchg_weak!(seqcst_acquire, SeqCst, Acquire);
+                    cmpxchg_weak!(seqcst_seqcst, SeqCst, SeqCst);
                 }
             }
         };
@@ -547,33 +314,25 @@ pub mod compare_exchange_weak {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_add {
+    macro_rules! fetch_add {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_add(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_add(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_add(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_add(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_add(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_add(val, Ordering::SeqCst)
-                    }
+                    fetch_add!(relaxed, Relaxed);
+                    fetch_add!(acquire, Acquire);
+                    fetch_add!(release, Release);
+                    fetch_add!(acqrel, AcqRel);
+                    fetch_add!(seqcst, SeqCst);
                 }
             }
         };
@@ -608,33 +367,25 @@ pub mod fetch_add {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod add {
+    macro_rules! add {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.add(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.add(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) {
-                        a.add(val, Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.add(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) {
-                        a.add(val, Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.add(val, Ordering::SeqCst);
-                    }
+                    add!(relaxed, Relaxed);
+                    add!(acquire, Acquire);
+                    add!(release, Release);
+                    add!(acqrel, AcqRel);
+                    add!(seqcst, SeqCst);
                 }
             }
         };
@@ -669,33 +420,25 @@ pub mod add {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_sub {
+    macro_rules! fetch_sub {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_sub(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_sub(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_sub(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_sub(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_sub(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_sub(val, Ordering::SeqCst)
-                    }
+                    fetch_sub!(relaxed, Relaxed);
+                    fetch_sub!(acquire, Acquire);
+                    fetch_sub!(release, Release);
+                    fetch_sub!(acqrel, AcqRel);
+                    fetch_sub!(seqcst, SeqCst);
                 }
             }
         };
@@ -730,33 +473,25 @@ pub mod fetch_sub {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod sub {
+    macro_rules! sub {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.sub(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.sub(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) {
-                        a.sub(val, Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.sub(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) {
-                        a.sub(val, Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.sub(val, Ordering::SeqCst);
-                    }
+                    sub!(relaxed, Relaxed);
+                    sub!(acquire, Acquire);
+                    sub!(release, Release);
+                    sub!(acqrel, AcqRel);
+                    sub!(seqcst, SeqCst);
                 }
             }
         };
@@ -791,33 +526,25 @@ pub mod sub {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_and {
+    macro_rules! fetch_and {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_and(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_and(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_and(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_and(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_and(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_and(val, Ordering::SeqCst)
-                    }
+                    fetch_and!(relaxed, Relaxed);
+                    fetch_and!(acquire, Acquire);
+                    fetch_and!(release, Release);
+                    fetch_and!(acqrel, AcqRel);
+                    fetch_and!(seqcst, SeqCst);
                 }
             }
         };
@@ -853,33 +580,25 @@ pub mod fetch_and {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod and {
+    macro_rules! and {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.and(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.and(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) {
-                        a.and(val, Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.and(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) {
-                        a.and(val, Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.and(val, Ordering::SeqCst);
-                    }
+                    and!(relaxed, Relaxed);
+                    and!(acquire, Acquire);
+                    and!(release, Release);
+                    and!(acqrel, AcqRel);
+                    and!(seqcst, SeqCst);
                 }
             }
         };
@@ -915,33 +634,25 @@ pub mod and {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_nand {
+    macro_rules! fetch_nand {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_nand(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_nand(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_nand(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_nand(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_nand(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_nand(val, Ordering::SeqCst)
-                    }
+                    fetch_nand!(relaxed, Relaxed);
+                    fetch_nand!(acquire, Acquire);
+                    fetch_nand!(release, Release);
+                    fetch_nand!(acqrel, AcqRel);
+                    fetch_nand!(seqcst, SeqCst);
                 }
             }
         };
@@ -977,33 +688,25 @@ pub mod fetch_nand {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_or {
+    macro_rules! fetch_or {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_or(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_or(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_or(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_or(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_or(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_or(val, Ordering::SeqCst)
-                    }
+                    fetch_or!(relaxed, Relaxed);
+                    fetch_or!(acquire, Acquire);
+                    fetch_or!(release, Release);
+                    fetch_or!(acqrel, AcqRel);
+                    fetch_or!(seqcst, SeqCst);
                 }
             }
         };
@@ -1039,33 +742,25 @@ pub mod fetch_or {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod or {
+    macro_rules! or {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.or(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.or(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) {
-                        a.or(val, Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.or(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) {
-                        a.or(val, Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.or(val, Ordering::SeqCst);
-                    }
+                    or!(relaxed, Relaxed);
+                    or!(acquire, Acquire);
+                    or!(release, Release);
+                    or!(acqrel, AcqRel);
+                    or!(seqcst, SeqCst);
                 }
             }
         };
@@ -1101,33 +796,25 @@ pub mod or {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_xor {
+    macro_rules! fetch_xor {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_xor(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_xor(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_xor(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_xor(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_xor(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_xor(val, Ordering::SeqCst)
-                    }
+                    fetch_xor!(relaxed, Relaxed);
+                    fetch_xor!(acquire, Acquire);
+                    fetch_xor!(release, Release);
+                    fetch_xor!(acqrel, AcqRel);
+                    fetch_xor!(seqcst, SeqCst);
                 }
             }
         };
@@ -1163,33 +850,25 @@ pub mod fetch_xor {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod xor {
+    macro_rules! xor {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                a.xor(val, core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) {
-                        a.xor(val, Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) {
-                        a.xor(val, Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) {
-                        a.xor(val, Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) {
-                        a.xor(val, Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) {
-                        a.xor(val, Ordering::SeqCst);
-                    }
+                    xor!(relaxed, Relaxed);
+                    xor!(acquire, Acquire);
+                    xor!(release, Release);
+                    xor!(acqrel, AcqRel);
+                    xor!(seqcst, SeqCst);
                 }
             }
         };
@@ -1225,33 +904,25 @@ pub mod xor {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_not {
+    macro_rules! fetch_not {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                a.fetch_not(core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A) -> T {
-                        a.fetch_not(Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A) -> T {
-                        a.fetch_not(Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A) -> T {
-                        a.fetch_not(Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A) -> T {
-                        a.fetch_not(Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A) -> T {
-                        a.fetch_not(Ordering::SeqCst)
-                    }
+                    fetch_not!(relaxed, Relaxed);
+                    fetch_not!(acquire, Acquire);
+                    fetch_not!(release, Release);
+                    fetch_not!(acqrel, AcqRel);
+                    fetch_not!(seqcst, SeqCst);
                 }
             }
         };
@@ -1287,33 +958,25 @@ pub mod fetch_not {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod not {
+    macro_rules! not {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) {
+                a.not(core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A) {
-                        a.not(Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A) {
-                        a.not(Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A) {
-                        a.not(Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A) {
-                        a.not(Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A) {
-                        a.not(Ordering::SeqCst);
-                    }
+                    not!(relaxed, Relaxed);
+                    not!(acquire, Acquire);
+                    not!(release, Release);
+                    not!(acqrel, AcqRel);
+                    not!(seqcst, SeqCst);
                 }
             }
         };
@@ -1349,33 +1012,25 @@ pub mod not {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_neg {
+    macro_rules! fetch_neg {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                a.fetch_neg(core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A) -> T {
-                        a.fetch_neg(Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A) -> T {
-                        a.fetch_neg(Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A) -> T {
-                        a.fetch_neg(Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A) -> T {
-                        a.fetch_neg(Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A) -> T {
-                        a.fetch_neg(Ordering::SeqCst)
-                    }
+                    fetch_neg!(relaxed, Relaxed);
+                    fetch_neg!(acquire, Acquire);
+                    fetch_neg!(release, Release);
+                    fetch_neg!(acqrel, AcqRel);
+                    fetch_neg!(seqcst, SeqCst);
                 }
             }
         };
@@ -1410,33 +1065,25 @@ pub mod fetch_neg {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod neg {
+    macro_rules! neg {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) {
+                a.neg(core::sync::atomic::Ordering::$order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A) {
-                        a.neg(Ordering::Relaxed);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A) {
-                        a.neg(Ordering::Acquire);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A) {
-                        a.neg(Ordering::Release);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A) {
-                        a.neg(Ordering::AcqRel);
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A) {
-                        a.neg(Ordering::SeqCst);
-                    }
+                    neg!(relaxed, Relaxed);
+                    neg!(acquire, Acquire);
+                    neg!(release, Release);
+                    neg!(acqrel, AcqRel);
+                    neg!(seqcst, SeqCst);
                 }
             }
         };
@@ -1471,33 +1118,25 @@ pub mod neg {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_max {
+    macro_rules! fetch_max {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_max(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::SeqCst)
-                    }
+                    fetch_max!(relaxed, Relaxed);
+                    fetch_max!(acquire, Acquire);
+                    fetch_max!(release, Release);
+                    fetch_max!(acqrel, AcqRel);
+                    fetch_max!(seqcst, SeqCst);
                 }
             }
         };
@@ -1532,33 +1171,25 @@ pub mod fetch_max {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_umax {
+    macro_rules! fetch_umax {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_max(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_max(val, Ordering::SeqCst)
-                    }
+                    fetch_umax!(relaxed, Relaxed);
+                    fetch_umax!(acquire, Acquire);
+                    fetch_umax!(release, Release);
+                    fetch_umax!(acqrel, AcqRel);
+                    fetch_umax!(seqcst, SeqCst);
                 }
             }
         };
@@ -1593,33 +1224,25 @@ pub mod fetch_umax {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_min {
+    macro_rules! fetch_min {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_min(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::SeqCst)
-                    }
+                    fetch_min!(relaxed, Relaxed);
+                    fetch_min!(acquire, Acquire);
+                    fetch_min!(release, Release);
+                    fetch_min!(acqrel, AcqRel);
+                    fetch_min!(seqcst, SeqCst);
                 }
             }
         };
@@ -1654,33 +1277,25 @@ pub mod fetch_min {
     portable_atomic_unsafe_assume_single_core,
 ))]
 pub mod fetch_umin {
+    macro_rules! fetch_umin {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                a.fetch_min(val, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             paste::paste! {
                 pub mod $t {
-                    use core::sync::atomic::Ordering;
                     type T = $t;
                     type A = &'static portable_atomic::[<Atomic $t:camel>];
-                    #[inline(never)]
-                    pub unsafe fn relaxed(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Relaxed)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acquire(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Acquire)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn release(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::Release)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn acqrel(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::AcqRel)
-                    }
-                    #[inline(never)]
-                    pub unsafe fn seqcst(a: A, val: T) -> T {
-                        a.fetch_min(val, Ordering::SeqCst)
-                    }
+                    fetch_umin!(relaxed, Relaxed);
+                    fetch_umin!(acquire, Acquire);
+                    fetch_umin!(release, Release);
+                    fetch_umin!(acqrel, AcqRel);
+                    fetch_umin!(seqcst, SeqCst);
                 }
             }
         };
@@ -1708,34 +1323,63 @@ pub mod fetch_umin {
 
 // -----------------------------------------------------------------------------
 // feature = "core"
+
 #[cfg(feature = "core")]
 #[cfg(not(target_arch = "xtensa"))]
 macro_rules! atomic_load {
     ($ptr:ident, $order:ident) => {
-        core::intrinsics::atomic_load::<_, { AtomicOrdering::$order }, /* VOLATILE */ false>($ptr)
+        core::intrinsics::atomic_load::<
+            _,
+            { core::intrinsics::AtomicOrdering::$order },
+            /* VOLATILE */ false,
+        >($ptr)
     };
 }
 #[cfg(feature = "core")]
 #[cfg(target_arch = "xtensa")] // xtensa toolchain is based on stable
 macro_rules! atomic_load {
     ($ptr:ident, $order:ident) => {
-        core::intrinsics::atomic_load::<_, { AtomicOrdering::$order }>($ptr)
+        core::intrinsics::atomic_load::<_, { core::intrinsics::AtomicOrdering::$order }>($ptr)
     };
 }
 #[cfg(feature = "core")]
 #[cfg(not(target_arch = "xtensa"))]
 macro_rules! atomic_store {
     ($ptr:ident, $val:ident, $order:ident) => {
-        core::intrinsics::atomic_store::<_, { AtomicOrdering::$order }, /* VOLATILE */ false>(
+        core::intrinsics::atomic_store::<
+            _,
+            { core::intrinsics::AtomicOrdering::$order },
+            /* VOLATILE */ false,
+        >($ptr, $val)
+    };
+}
+#[cfg(feature = "core")]
+#[cfg(target_arch = "xtensa")] // xtensa toolchain is based on stable
+macro_rules! atomic_store {
+    ($ptr:ident, $val:ident, $order:ident) => {
+        core::intrinsics::atomic_store::<_, { core::intrinsics::AtomicOrdering::$order }>(
             $ptr, $val,
         )
     };
 }
 #[cfg(feature = "core")]
-#[cfg(target_arch = "xtensa")] // xtensa toolchain is based on stable
-macro_rules! atomic_store {
-    ($ptr:ident, $val:ident, $order:ident) => {
-        core::intrinsics::atomic_store::<_, { AtomicOrdering::$order }>($ptr, $val)
+macro_rules! atomic_cxchg {
+    ($ptr:ident, $old:ident, $new:ident, $success:ident, $failure:ident) => {
+        core::intrinsics::atomic_cxchg::<
+            _,
+            { core::intrinsics::AtomicOrdering::$success },
+            { core::intrinsics::AtomicOrdering::$failure },
+        >($ptr, $old, $new)
+    };
+}
+#[cfg(feature = "core")]
+macro_rules! atomic_cxchgweak {
+    ($ptr:ident, $old:ident, $new:ident, $success:ident, $failure:ident) => {
+        core::intrinsics::atomic_cxchgweak::<
+            _,
+            { core::intrinsics::AtomicOrdering::$success },
+            { core::intrinsics::AtomicOrdering::$failure },
+        >($ptr, $old, $new)
     };
 }
 
@@ -1743,7 +1387,6 @@ macro_rules! atomic_store {
 macro_rules! atomic_update {
     ($t:ident) => {
         mod $t {
-            use core::intrinsics::AtomicOrdering;
             pub(crate) use core::sync::atomic::Ordering;
             #[inline(always)]
             pub(crate) unsafe fn atomic_update<F>(dst: *mut $t, order: Ordering, mut f: F) -> $t
@@ -1756,31 +1399,11 @@ macro_rules! atomic_update {
                 loop {
                     let next = f(old);
                     let (x, ok) = match order {
-                        Ordering::Relaxed => core::intrinsics::atomic_cxchgweak::<
-                            _,
-                            { AtomicOrdering::Relaxed },
-                            { AtomicOrdering::Relaxed },
-                        >(dst, old, next),
-                        Ordering::Acquire => core::intrinsics::atomic_cxchgweak::<
-                            _,
-                            { AtomicOrdering::Acquire },
-                            { AtomicOrdering::Relaxed },
-                        >(dst, old, next),
-                        Ordering::Release => core::intrinsics::atomic_cxchgweak::<
-                            _,
-                            { AtomicOrdering::Release },
-                            { AtomicOrdering::Relaxed },
-                        >(dst, old, next),
-                        Ordering::AcqRel => core::intrinsics::atomic_cxchgweak::<
-                            _,
-                            { AtomicOrdering::AcqRel },
-                            { AtomicOrdering::Relaxed },
-                        >(dst, old, next),
-                        Ordering::SeqCst => core::intrinsics::atomic_cxchgweak::<
-                            _,
-                            { AtomicOrdering::SeqCst },
-                            { AtomicOrdering::Relaxed },
-                        >(dst, old, next),
+                        Ordering::Relaxed => atomic_cxchgweak!(dst, old, next, Relaxed, Relaxed),
+                        Ordering::Acquire => atomic_cxchgweak!(dst, old, next, Acquire, Relaxed),
+                        Ordering::Release => atomic_cxchgweak!(dst, old, next, Release, Relaxed),
+                        Ordering::AcqRel => atomic_cxchgweak!(dst, old, next, AcqRel, Relaxed),
+                        Ordering::SeqCst => atomic_cxchgweak!(dst, old, next, SeqCst, Relaxed),
                         _ => unreachable!(),
                     };
                     if ok {
@@ -1816,44 +1439,37 @@ atomic_update!(u128);
 #[cfg(feature = "core")]
 #[cfg(not(target_arch = "msp430"))]
 pub mod fence {
-    use core::sync::atomic::Ordering;
-    #[inline(never)]
-    pub unsafe fn acquire() {
-        core::sync::atomic::fence(Ordering::Acquire);
+    macro_rules! fence {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name() {
+                core::sync::atomic::fence(core::sync::atomic::Ordering::$order);
+            }
+        };
     }
-    #[inline(never)]
-    pub unsafe fn release() {
-        core::sync::atomic::fence(Ordering::Release);
-    }
-    #[inline(never)]
-    pub unsafe fn acqrel() {
-        core::sync::atomic::fence(Ordering::AcqRel);
-    }
-    #[inline(never)]
-    pub unsafe fn seqcst() {
-        core::sync::atomic::fence(Ordering::SeqCst);
-    }
+    fence!(acquire, Acquire);
+    fence!(release, Release);
+    fence!(acqrel, AcqRel);
+    fence!(seqcst, SeqCst);
 }
 #[cfg(feature = "core")]
 pub mod load {
+    macro_rules! load {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                atomic_load!(a, $order)
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A) -> T {
-                    atomic_load!(a, Relaxed)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A) -> T {
-                    atomic_load!(a, Acquire)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A) -> T {
-                    atomic_load!(a, SeqCst)
-                }
+                load!(relaxed, Relaxed);
+                load!(acquire, Acquire);
+                load!(seqcst, SeqCst);
             }
         };
     }
@@ -1876,24 +1492,22 @@ pub mod load {
 }
 #[cfg(feature = "core")]
 pub mod store {
+    macro_rules! store {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) {
+                atomic_store!(a, val, $order);
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) {
-                    atomic_store!(a, val, Relaxed);
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) {
-                    atomic_store!(a, val, Release);
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) {
-                    atomic_store!(a, val, SeqCst);
-                }
+                store!(relaxed, Relaxed);
+                store!(release, Release);
+                store!(seqcst, SeqCst);
             }
         };
     }
@@ -1916,32 +1530,26 @@ pub mod store {
 }
 #[cfg(feature = "core")]
 pub mod swap {
+    macro_rules! swap {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_xchg::<_, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xchg::<_, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xchg::<_, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xchg::<_, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xchg::<_, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xchg::<_, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                swap!(relaxed, Relaxed);
+                swap!(acquire, Acquire);
+                swap!(release, Release);
+                swap!(acqrel, AcqRel);
+                swap!(seqcst, SeqCst);
             }
         };
     }
@@ -1964,147 +1572,35 @@ pub mod swap {
 }
 #[cfg(feature = "core")]
 pub mod compare_exchange {
+    macro_rules! cmpxchg {
+        ($name:ident, $success:ident, $failure:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, old: T, new: T) -> Result<T, T> {
+                let (val, ok) = atomic_cxchg!(a, old, new, $success, $failure);
+                if ok { Ok(val) } else { Err(val) }
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn relaxed_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn relaxed_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchg::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
+                cmpxchg!(relaxed_relaxed, Relaxed, Relaxed);
+                cmpxchg!(relaxed_acquire, Relaxed, Acquire);
+                cmpxchg!(relaxed_seqcst, Relaxed, SeqCst);
+                cmpxchg!(acquire_relaxed, Acquire, Relaxed);
+                cmpxchg!(acquire_acquire, Acquire, Acquire);
+                cmpxchg!(acquire_seqcst, Acquire, SeqCst);
+                cmpxchg!(release_relaxed, Release, Relaxed);
+                cmpxchg!(release_acquire, Release, Acquire);
+                cmpxchg!(release_seqcst, Release, SeqCst);
+                cmpxchg!(acqrel_relaxed, AcqRel, Relaxed);
+                cmpxchg!(acqrel_acquire, AcqRel, Acquire);
+                cmpxchg!(acqrel_seqcst, AcqRel, SeqCst);
+                cmpxchg!(seqcst_relaxed, SeqCst, Relaxed);
+                cmpxchg!(seqcst_acquire, SeqCst, Acquire);
+                cmpxchg!(seqcst_seqcst, SeqCst, SeqCst);
             }
         };
     }
@@ -2127,147 +1623,35 @@ pub mod compare_exchange {
 }
 #[cfg(feature = "core")]
 pub mod compare_exchange_weak {
+    macro_rules! cmpxchg_weak {
+        ($name:ident, $success:ident, $failure:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, old: T, new: T) -> Result<T, T> {
+                let (val, ok) = atomic_cxchgweak!(a, old, new, $success, $failure);
+                if ok { Ok(val) } else { Err(val) }
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn relaxed_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn relaxed_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Relaxed },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acquire_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Acquire },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn release_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::Release },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::AcqRel },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_relaxed(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::Relaxed },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_acquire(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::Acquire },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst_seqcst(a: A, old: T, new: T) -> Result<T, T> {
-                    let (val, ok) = core::intrinsics::atomic_cxchgweak::<
-                        _,
-                        { AtomicOrdering::SeqCst },
-                        { AtomicOrdering::SeqCst },
-                    >(a, old, new);
-                    if ok { Ok(val) } else { Err(val) }
-                }
+                cmpxchg_weak!(relaxed_relaxed, Relaxed, Relaxed);
+                cmpxchg_weak!(relaxed_acquire, Relaxed, Acquire);
+                cmpxchg_weak!(relaxed_seqcst, Relaxed, SeqCst);
+                cmpxchg_weak!(acquire_relaxed, Acquire, Relaxed);
+                cmpxchg_weak!(acquire_acquire, Acquire, Acquire);
+                cmpxchg_weak!(acquire_seqcst, Acquire, SeqCst);
+                cmpxchg_weak!(release_relaxed, Release, Relaxed);
+                cmpxchg_weak!(release_acquire, Release, Acquire);
+                cmpxchg_weak!(release_seqcst, Release, SeqCst);
+                cmpxchg_weak!(acqrel_relaxed, AcqRel, Relaxed);
+                cmpxchg_weak!(acqrel_acquire, AcqRel, Acquire);
+                cmpxchg_weak!(acqrel_seqcst, AcqRel, SeqCst);
+                cmpxchg_weak!(seqcst_relaxed, SeqCst, Relaxed);
+                cmpxchg_weak!(seqcst_acquire, SeqCst, Acquire);
+                cmpxchg_weak!(seqcst_seqcst, SeqCst, SeqCst);
             }
         };
     }
@@ -2290,32 +1674,26 @@ pub mod compare_exchange_weak {
 }
 #[cfg(feature = "core")]
 pub mod fetch_add {
+    macro_rules! fetch_add {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_xadd::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xadd::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xadd::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xadd::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xadd::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xadd::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_add!(relaxed, Relaxed);
+                fetch_add!(acquire, Acquire);
+                fetch_add!(release, Release);
+                fetch_add!(acqrel, AcqRel);
+                fetch_add!(seqcst, SeqCst);
             }
         };
     }
@@ -2338,32 +1716,26 @@ pub mod fetch_add {
 }
 #[cfg(feature = "core")]
 pub mod fetch_sub {
+    macro_rules! fetch_sub {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_xsub::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xsub::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xsub::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xsub::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xsub::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xsub::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_sub!(relaxed, Relaxed);
+                fetch_sub!(acquire, Acquire);
+                fetch_sub!(release, Release);
+                fetch_sub!(acqrel, AcqRel);
+                fetch_sub!(seqcst, SeqCst);
             }
         };
     }
@@ -2386,32 +1758,26 @@ pub mod fetch_sub {
 }
 #[cfg(feature = "core")]
 pub mod fetch_and {
+    macro_rules! fetch_and {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_and::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_and::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_and::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_and::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_and::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_and::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_and!(relaxed, Relaxed);
+                fetch_and!(acquire, Acquire);
+                fetch_and!(release, Release);
+                fetch_and!(acqrel, AcqRel);
+                fetch_and!(seqcst, SeqCst);
             }
         };
     }
@@ -2434,32 +1800,26 @@ pub mod fetch_and {
 }
 #[cfg(feature = "core")]
 pub mod fetch_nand {
+    macro_rules! fetch_nand {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_nand::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_nand::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_nand::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_nand::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_nand::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_nand::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_nand!(relaxed, Relaxed);
+                fetch_nand!(acquire, Acquire);
+                fetch_nand!(release, Release);
+                fetch_nand!(acqrel, AcqRel);
+                fetch_nand!(seqcst, SeqCst);
             }
         };
     }
@@ -2482,32 +1842,26 @@ pub mod fetch_nand {
 }
 #[cfg(feature = "core")]
 pub mod fetch_or {
+    macro_rules! fetch_or {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_or::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_or::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_or::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_or::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_or::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_or::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_or!(relaxed, Relaxed);
+                fetch_or!(acquire, Acquire);
+                fetch_or!(release, Release);
+                fetch_or!(acqrel, AcqRel);
+                fetch_or!(seqcst, SeqCst);
             }
         };
     }
@@ -2530,32 +1884,26 @@ pub mod fetch_or {
 }
 #[cfg(feature = "core")]
 pub mod fetch_xor {
+    macro_rules! fetch_xor {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_xor::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_xor!(relaxed, Relaxed);
+                fetch_xor!(acquire, Acquire);
+                fetch_xor!(release, Release);
+                fetch_xor!(acqrel, AcqRel);
+                fetch_xor!(seqcst, SeqCst);
             }
         };
     }
@@ -2578,32 +1926,27 @@ pub mod fetch_xor {
 }
 #[cfg(feature = "core")]
 pub mod fetch_not {
+    macro_rules! fetch_not {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A) -> T {
+                core::intrinsics::atomic_xor::<_, _, { core::intrinsics::AtomicOrdering::$order }>(
+                    a,
+                    T::MAX,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Relaxed }>(a, T::MAX)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Acquire }>(a, T::MAX)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::Release }>(a, T::MAX)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::AcqRel }>(a, T::MAX)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A) -> T {
-                    core::intrinsics::atomic_xor::<_, _, { AtomicOrdering::SeqCst }>(a, T::MAX)
-                }
+                fetch_not!(relaxed, Relaxed);
+                fetch_not!(acquire, Acquire);
+                fetch_not!(release, Release);
+                fetch_not!(acqrel, AcqRel);
+                fetch_not!(seqcst, SeqCst);
             }
         };
     }
@@ -2674,32 +2017,26 @@ pub mod fetch_neg {
 }
 #[cfg(feature = "core")]
 pub mod fetch_max {
+    macro_rules! fetch_max {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_max::<_, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_max::<_, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_max::<_, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_max::<_, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_max::<_, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_max::<_, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_max!(relaxed, Relaxed);
+                fetch_max!(acquire, Acquire);
+                fetch_max!(release, Release);
+                fetch_max!(acqrel, AcqRel);
+                fetch_max!(seqcst, SeqCst);
             }
         };
     }
@@ -2764,32 +2101,26 @@ pub mod fetch_max {
 }
 #[cfg(feature = "core")]
 pub mod fetch_umax {
+    macro_rules! fetch_umax {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_umax::<_, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umax::<_, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umax::<_, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umax::<_, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umax::<_, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umax::<_, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_umax!(relaxed, Relaxed);
+                fetch_umax!(acquire, Acquire);
+                fetch_umax!(release, Release);
+                fetch_umax!(acqrel, AcqRel);
+                fetch_umax!(seqcst, SeqCst);
             }
         };
     }
@@ -2843,32 +2174,26 @@ pub mod fetch_umax {
 }
 #[cfg(feature = "core")]
 pub mod fetch_min {
+    macro_rules! fetch_min {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_min::<_, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_min::<_, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_min::<_, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_min::<_, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_min::<_, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_min::<_, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_min!(relaxed, Relaxed);
+                fetch_min!(acquire, Acquire);
+                fetch_min!(release, Release);
+                fetch_min!(acqrel, AcqRel);
+                fetch_min!(seqcst, SeqCst);
             }
         };
     }
@@ -2933,32 +2258,26 @@ pub mod fetch_min {
 }
 #[cfg(feature = "core")]
 pub mod fetch_umin {
+    macro_rules! fetch_umin {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, val: T) -> T {
+                core::intrinsics::atomic_umin::<_, { core::intrinsics::AtomicOrdering::$order }>(
+                    a, val,
+                )
+            }
+        };
+    }
     macro_rules! t {
         ($t:ident) => {
             pub mod $t {
-                use core::intrinsics::AtomicOrdering;
                 type T = $t;
                 type A = *mut T;
-                #[inline(never)]
-                pub unsafe fn relaxed(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umin::<_, { AtomicOrdering::Relaxed }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acquire(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umin::<_, { AtomicOrdering::Acquire }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn release(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umin::<_, { AtomicOrdering::Release }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn acqrel(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umin::<_, { AtomicOrdering::AcqRel }>(a, val)
-                }
-                #[inline(never)]
-                pub unsafe fn seqcst(a: A, val: T) -> T {
-                    core::intrinsics::atomic_umin::<_, { AtomicOrdering::SeqCst }>(a, val)
-                }
+                fetch_umin!(relaxed, Relaxed);
+                fetch_umin!(acquire, Acquire);
+                fetch_umin!(release, Release);
+                fetch_umin!(acqrel, AcqRel);
+                fetch_umin!(seqcst, SeqCst);
             }
         };
     }
