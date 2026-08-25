@@ -1111,7 +1111,7 @@ jobs:
             chmod +x "${HOME}"/aarch64-l4re-gcc/bin/l4image
             printf '%s\n' "${HOME}"/aarch64-l4re-gcc/bin >>"${GITHUB_PATH}"
           elif [[ "${RUST}" == "stable" ]]; then
-            retry espup install --targets esp32s2
+            retry espup install --targets esp32,esp32s2,esp32s3
           fi
           retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 https://github.com/taiki-e/qemu/releases/download/patched-11.0.0/qemu-ubuntu-24.04.tar.xz \
             | tar xJf -
@@ -1149,13 +1149,13 @@ jobs:
         env:
           ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
       # TODO: xtensa-esp32-none-elf/xtensa-esp32s3-none-elf with assume-privileged
-      - run: tools/build.sh +esp xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
+      - run: tools/build.sh +esp xtensa-esp32-none-elf xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
         if: matrix.rust == 'stable'
-      - run: tools/build.sh +esp xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
+      - run: tools/build.sh +esp xtensa-esp32-none-elf xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
         env:
           TESTS: 1
         if: matrix.rust == 'stable'
-      - run: tools/no-std.sh +esp xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
+      - run: tools/no-std.sh +esp xtensa-esp32-none-elf xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
         if: matrix.rust == 'stable'
 
   miri:
@@ -1350,7 +1350,7 @@ jobs:
             done
             "$@"
           }
-          retry espup install --targets esp32s2,esp32s3
+          retry espup install --targets esp32,esp32s2,esp32s3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: cargo test --manifest-path tests/asm-test/Cargo.toml
