@@ -47,10 +47,10 @@ pub(crate) fn disable() -> State {
             options(nostack),
         );
         #[cfg(portable_atomic_no_asm)]
-        {
-            llvm_asm!("in $0, 0x3F" : "=r"(sreg) ::: "volatile");
-            llvm_asm!("cli" ::: "memory" : "volatile");
-        }
+        llvm_asm!(
+            "in $0, 0x3F
+             cli"
+            : "=r"(sreg) :: "memory" : "volatile");
     }
     sreg
 }

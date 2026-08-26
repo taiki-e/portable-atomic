@@ -48,10 +48,10 @@ pub(crate) fn disable() -> State {
             options(nostack),
         );
         #[cfg(portable_atomic_no_asm)]
-        {
-            llvm_asm!("mov r2, $0" : "=r"(sr) ::: "volatile");
-            llvm_asm!("dint { nop" ::: "memory" : "volatile");
-        }
+        llvm_asm!(
+            "mov r2, $0
+             dint { nop"
+            : "=r"(sr) :: "memory" : "volatile");
     }
     sr
 }
