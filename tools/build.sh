@@ -341,12 +341,12 @@ build() {
       esac
       args+=(-Z build-std="core")
     elif is_no_std "${target}"; then
-      args+=(-Z build-std="core,alloc")
+      args+=(-Z build-std="core")
     elif [[ "${rustc_minor_version}" -lt 59 ]]; then
       # On most targets, building std with the version before backtrace-sys was removed is painful.
       # https://github.com/rust-lang/rust/commit/c058a8b8dc5dea0ed9b33e14da9e317e2749fcd7
       # On musl, building std with pre-1.59 nightly requires musl toolchain.
-      args+=(-Z build-std="core,alloc")
+      args+=(-Z build-std="core")
       args+=(--exclude-features "std")
     elif grep -Eq '^panic="abort"' <<<"${cfgs}"; then
       args+=(-Z build-std="panic_abort,std")

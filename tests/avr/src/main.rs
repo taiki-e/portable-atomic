@@ -2,7 +2,7 @@
 
 #![no_main]
 #![no_std]
-#![warn(unsafe_op_in_unsafe_fn)]
+// #![warn(unsafe_op_in_unsafe_fn)] unsafe_op_in_unsafe_fn requires Rust 1.52
 #![allow(clippy::undocumented_unsafe_blocks, clippy::wildcard_imports)]
 
 #[macro_use]
@@ -24,6 +24,7 @@ fn main() -> ! {
         }};
     }
 
+    #[allow(unused_macros)]
     macro_rules! test_atomic_int {
         ($int_type:ident) => {
             paste::paste! {
@@ -36,6 +37,7 @@ fn main() -> ! {
             }
         };
     }
+    #[allow(unused_macros)]
     macro_rules! test_atomic_float {
         ($float_type:ident) => {
             paste::paste! {
@@ -48,6 +50,7 @@ fn main() -> ! {
             }
         };
     }
+    #[cfg(feature = "bool")]
     macro_rules! test_atomic_bool {
         () => {
             fn test_atomic_bool() {
@@ -58,6 +61,7 @@ fn main() -> ! {
             print_str!("ok\n");
         };
     }
+    #[cfg(feature = "ptr")]
     macro_rules! test_atomic_ptr {
         () => {
             fn test_atomic_ptr() {
@@ -74,24 +78,40 @@ fn main() -> ! {
         compiler_fence(order);
     }
     hint::spin_loop();
+    #[cfg(feature = "bool")]
     test_atomic_bool!();
+    #[cfg(feature = "ptr")]
     test_atomic_ptr!();
+    #[cfg(feature = "isize")]
     test_atomic_int!(isize);
+    #[cfg(feature = "usize")]
     test_atomic_int!(usize);
+    #[cfg(feature = "i8")]
     test_atomic_int!(i8);
+    #[cfg(feature = "u8")]
     test_atomic_int!(u8);
+    #[cfg(feature = "i16")]
     test_atomic_int!(i16);
+    #[cfg(feature = "u16")]
     test_atomic_int!(u16);
+    #[cfg(feature = "i32")]
     test_atomic_int!(i32);
+    #[cfg(feature = "u32")]
     test_atomic_int!(u32);
+    #[cfg(feature = "i64")]
     test_atomic_int!(i64);
+    #[cfg(feature = "u64")]
     test_atomic_int!(u64);
+    #[cfg(feature = "i128")]
     test_atomic_int!(i128);
+    #[cfg(feature = "u128")]
     test_atomic_int!(u128);
     // TODO
     if cfg!(all(not(debug_assertions), not(qemu))) {
+        #[cfg(feature = "f32")]
         test_atomic_float!(f32);
         // TODO: undefined reference to `__{ne,ge}df2' in LLVM 17 (nightly-2023-08-09)
+        // #[cfg(feature = "f64")]
         // test_atomic_float!(f64);
     }
 
@@ -122,7 +142,7 @@ fn panic(info: &core::panic::PanicInfo<'_>) -> ! {
                 let _ = writeln!(serial, $($tt)*);
             }};
         }
-        println!("{info}");
+        println!("{}", info);
     }
     sim::exit(1)
 }

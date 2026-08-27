@@ -1,0 +1,11 @@
+diff --git a/src/int/mul.rs b/src/int/mul.rs
+--- a/src/int/mul.rs
++++ b/src/int/mul.rs
+@@ -98,6 +98,7 @@ fn $fn(lhs: $iD, rhs: $iD) -> ($iD, bool) {
+ impl_signed_mulo!(i128_overflowing_mul, i128, u128);
+ 
+ intrinsics! {
++    #[cfg(not(target_arch = "msp430"))]
+     #[maybe_use_optimized_c_shim]
+     #[arm_aeabi_alias = __aeabi_lmul]
+     pub extern "C" fn __muldi3(a: u64, b: u64) -> u64 {

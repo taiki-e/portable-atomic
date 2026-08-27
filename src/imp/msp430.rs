@@ -23,6 +23,8 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
+#![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
+
 #[cfg(not(portable_atomic_no_asm))]
 use core::arch::asm;
 #[cfg(not(feature = "critical-section"))]

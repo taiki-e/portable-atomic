@@ -1,12 +1,14 @@
+cargo-features = ["resolver"]
+
 [package]
-name = "msp430-test"
+name = "avr-test-old-nightly"
 version = "0.0.0"
-edition = "2021"
-rust-version = "1.59" # Prevent clippy from suggesting a code that requires a new version.
+edition = "2018"
+rust-version = "1.50" # Prevent clippy from suggesting a code that requires a new version.
 publish = false
 
 [features]
-default = ["bool", "ptr", "isize", "usize", "i8", "u8"]
+default = ["bool", "ptr", "isize", "usize", "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64"]
 # NB: Sync feature list with tools/no-std.sh
 bool = []
 ptr = []
@@ -28,9 +30,16 @@ f64 = ["portable-atomic/float"]
 [dependencies]
 portable-atomic = { path = "../.." }
 
-msp430-rt = "=0.4.1"
-msp430f5529 = { features = ["rt"], git = "https://github.com/taiki-e/msp430f5529.git", rev = "23946ef9bb0365caabd2c30ad14c2c9ab2d425c7" }
+arduino-hal = { features = ["arduino-mega2560"], git = "https://github.com/taiki-e/avr-hal.git", rev = "82316f40625f5284482adae4d7f1920d3058d0aa" }
 paste = "1"
+
+# For MSRV
+[target.'cfg(any())'.dependencies]
+avr-device = "=0.3.2"
+nb = "=0.1.2"
+proc-macro2 = "=1.0.65"
+quote = "=1.0.30"
+unicode-ident = "=1.0.22"
 
 [lints]
 workspace = true
@@ -48,6 +57,7 @@ non_ascii_idents = "warn"
 rust_2018_idioms = "warn"
 single_use_lifetimes = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(qemu)',
 ] }
 # unnameable_types = "warn"
 # unreachable_pub = "warn"
@@ -90,16 +100,11 @@ too_many_lines = { level = "allow", priority = 1 }
 type_complexity = { level = "allow", priority = 1 }
 
 [profile.dev]
-codegen-units = 1
 lto = true
 opt-level = "s"
 panic = "abort"
 
 [profile.release]
-codegen-units = 1
 lto = true
 opt-level = "s"
 panic = "abort"
-
-[patch.crates-io]
-msp430-rt = { git = "https://github.com/taiki-e/msp430-rt.git", rev = "68bbd8bc175e955d6a23870ff48a46e4fb098724" } # lower MSRV

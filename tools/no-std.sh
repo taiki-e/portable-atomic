@@ -228,6 +228,7 @@ run() {
       ;;
   esac
   local args=("${target_flags[@]}")
+  local release=''
   if grep -Eq "^${target}$" <<<"${rustup_target_list}"; then
     retry rustup ${pre_args[@]+"${pre_args[@]}"} target add "${target}" &>/dev/null
   elif [[ -n "${nightly}" ]]; then
@@ -261,6 +262,13 @@ run() {
   case "${target}" in
     armv4t* | thumbv4t*)
       test_dir=tests/gba
+      case "${commit_date}" in
+        2022-08-11)
+          # gba uses a lot of features unavailable on this version.
+          printf '%s\n' "testing target '${target}' is not supported on this version (skipped)"
+          return 0
+          ;;
+      esac
       linker=link.ld
       target_rustflags+=" -C link-arg=-T${linker}"
       ;;
@@ -269,11 +277,28 @@ run() {
       ;;
     arm* | thumb* | riscv*)
       test_dir=tests/no-std-qemu
+      case "${commit_date}" in
+        2022-08-11)
+          case "${target}" in
+            riscv32gc-unknown-none-elf)
+              # cannot link object files with different floating-point ABI
+              info "target '${target}' in broken on this version (skipped)"
+              return 0
+              ;;
+          esac
+          ;;
+      esac
       linker=link.x
       target_rustflags+=" -C link-arg=-T${linker}"
       ;;
     avr*)
       test_dir=tests/avr
+      case "${commit_date}" in
+        2020-12-25)
+          test_dir=tests/avr-old-nightly
+          release=1
+          ;;
+      esac
       export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh simavr ${target}"
       if [[ "${target}" == "avr-none" ]]; then
         # "error: target requires explicitly specifying a cpu with `-C target-cpu`"
@@ -281,8 +306,14 @@ run() {
       fi
       ;;
     msp430*)
+      test_dir=tests/msp430
       case "${commit_date}" in
-        2023-08-23)
+        2021-12-14)
+          # We also need to patch compiler_builtins to fix linker error (see .github/workflows/ci.yml).
+          test_dir=tests/msp430-old-nightly
+          release=1
+          ;;
+        2022* | 2023-08-23)
           # multiple definition of `__muldi3'
           info "target '${target}' in broken on this version (skipped)"
           return 0
@@ -293,7 +324,6 @@ run() {
           return 0
           ;;
       esac
-      test_dir=tests/msp430
       export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh mspdebug ${target}"
       # Refs: https://github.com/rust-embedded/msp430-quickstart/blob/535cd3c810ec6096a1dd0546ea290ed94aa6fd01/.cargo/config
       linker=link.x
@@ -342,28 +372,34 @@ EOF
     *) bail "unrecognized target '${target}'" ;;
   esac
   case "${target}" in
-    msp430*) ;;
+    avr* | msp430*) ;;
     *) args+=(--all-features) ;;
   esac
 
   (
     cd -- "${test_dir}"
-    CARGO_TARGET_DIR="${target_dir}/no-std-test" \
-      RUSTFLAGS="${target_rustflags}" \
-      x_cargo "${args[@]}" "$@"
+    if [[ -z "${release}" ]]; then
+      CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+        RUSTFLAGS="${target_rustflags}" \
+        x_cargo "${args[@]}" "$@"
+    fi
     CARGO_TARGET_DIR="${target_dir}/no-std-test" \
       RUSTFLAGS="${target_rustflags}" \
       x_cargo "${args[@]}" --release "$@"
     if [[ -n "${assume_single_core_target_rustflags}" ]]; then
-      CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
-        RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
-        x_cargo "${args[@]}" "$@"
+      if [[ -z "${release}" ]]; then
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
+          RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
+          x_cargo "${args[@]}" "$@"
+      fi
       CARGO_TARGET_DIR="${target_dir}/no-std-test-single-core" \
         RUSTFLAGS="${target_rustflags}${assume_single_core_target_rustflags}" \
         x_cargo "${args[@]}" --release "$@"
-      CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
-        RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
-        x_cargo "${args[@]}" "$@"
+      if [[ -z "${release}" ]]; then
+        CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
+          RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
+          x_cargo "${args[@]}" "$@"
+      fi
       CARGO_TARGET_DIR="${target_dir}/no-std-test-privileged" \
         RUSTFLAGS="${target_rustflags}${assume_privileged_target_rustflags}" \
         x_cargo "${args[@]}" --release "$@"
@@ -464,33 +500,82 @@ EOF
         fi
         ;;
       avr*)
+        # Note: We cannot test everything at once due to size.
+        # non-128-bit integers are covered by the run with the default feature.
+        # integers can be grouped because they are small enough.
+        # NB: Sync feature list with tests/avr/Cargo.toml
+        for feature in i128,u128 f32,f64; do
+          # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+          #     RUSTFLAGS="${target_rustflags}" \
+          #     x_cargo "${args[@]}" --no-default-features --features "${feature}" "$@"
+          CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            RUSTFLAGS="${target_rustflags}" \
+            x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
+        done
+
         # Run with qemu-system-avr.
         subcmd=run
         export "CARGO_TARGET_${target_upper}_RUNNER"="${workspace_dir}/tools/runner.sh qemu-system ${target}"
-        CARGO_TARGET_DIR="${target_dir}/no-std-test" \
-          RUSTFLAGS="${target_rustflags} --cfg qemu" \
-          x_cargo "${args[@]}" "$@"
+        if [[ -z "${release}" ]]; then
+
+          CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            RUSTFLAGS="${target_rustflags} --cfg qemu" \
+            x_cargo "${args[@]}" "$@"
+        fi
         CARGO_TARGET_DIR="${target_dir}/no-std-test" \
           RUSTFLAGS="${target_rustflags} --cfg qemu" \
           x_cargo "${args[@]}" --release "$@"
+        for feature in i128,u128 f32,f64; do
+          # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+          #     RUSTFLAGS="${target_rustflags} --cfg qemu" \
+          #     x_cargo "${args[@]}" --no-default-features --features "${feature}" "$@"
+          CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            RUSTFLAGS="${target_rustflags} --cfg qemu" \
+            x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
+        done
 
         # Run with wokwi-cli.
         # TODO(avr): run test with wokwi on CI
         if type -P "${WOKWI_CLI:-wokwi-cli}" >/dev/null; then
           subcmd=run
           setup_wokwi "${target}" "${test_dir}" "mega"
-          CARGO_TARGET_DIR="${target_dir}/no-std-test" \
-            RUSTFLAGS="${target_rustflags}" \
-            x_cargo "${args[@]}" "$@"
+          if [[ -z "${release}" ]]; then
+            CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+              RUSTFLAGS="${target_rustflags}" \
+              x_cargo "${args[@]}" "$@"
+          fi
           CARGO_TARGET_DIR="${target_dir}/no-std-test" \
             RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --release "$@"
+          for feature in i128,u128 f32,f64; do
+            # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+            #     RUSTFLAGS="${target_rustflags}" \
+            #     x_cargo "${args[@]}" --no-default-features --features "${feature}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test" \
+              RUSTFLAGS="${target_rustflags}" \
+              x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
+          done
+          rmw=' -C target-feature=+rmw'
+          case "${commit_date}" in
+            # CARGO_ENCODED_RUSTFLAGS is available since Cargo 1.55.
+            2020-12-25) rmw+=' --cfg portable_atomic_target_feature="rmw"' ;;
+          esac
+          if [[ -z "${release}" ]]; then
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-rmw" \
+              RUSTFLAGS="${target_rustflags}${rmw}" \
+              x_cargo "${args[@]}" "$@"
+          fi
           CARGO_TARGET_DIR="${target_dir}/no-std-test-rmw" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+rmw" \
-            x_cargo "${args[@]}" "$@"
-          CARGO_TARGET_DIR="${target_dir}/no-std-test-rmw" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+rmw" \
+            RUSTFLAGS="${target_rustflags}${rmw}" \
             x_cargo "${args[@]}" --release "$@"
+          for feature in i128,u128 f32,f64; do
+            # CARGO_TARGET_DIR="${target_dir}/no-std-test-rmw" \
+            #     RUSTFLAGS="${target_rustflags}${rmw}" \
+            #     x_cargo "${args[@]}" --no-default-features --features "${feature}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-std-test-rmw" \
+              RUSTFLAGS="${target_rustflags}${rmw}" \
+              x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"
+          done
         else
           info "no-std test for ${target} requires wokwi-cli (switched to build-only)"
         fi
@@ -507,7 +592,7 @@ EOF
           esac
           # CARGO_TARGET_DIR="${target_dir}/no-std-test" \
           #     RUSTFLAGS="${target_rustflags}" \
-          #     x_cargo "${args[@]}" --features "${feature}" "$@"
+          #     x_cargo "${args[@]}" --no-default-features --features "${feature}" "$@"
           CARGO_TARGET_DIR="${target_dir}/no-std-test" \
             RUSTFLAGS="${target_rustflags}" \
             x_cargo "${args[@]}" --no-default-features --features "${feature}" --release "$@"

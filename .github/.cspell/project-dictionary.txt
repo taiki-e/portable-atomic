@@ -1,6 +1,7 @@
 ACCDATA
 addc
 adde
+aeabi
 aghi
 alcgr
 algr
@@ -140,6 +141,7 @@ mspdebug
 mstatus
 mstatush
 muldi
+mulo
 mvfr
 mysim
 negs

@@ -1052,7 +1052,7 @@ jobs:
           # - '1.98' # LLVM 22
           - stable
           # - beta
-          # - nightly-2022-08-12 # Rust 1.65, LLVM 14
+          - nightly-2022-08-12 # Rust 1.65, LLVM 14
           # - nightly-2023-03-25 # Rust 1.70, LLVM 15
           # - nightly-2023-08-08 # Rust 1.73, LLVM 16
           # - nightly-2024-02-13 # Rust 1.78, LLVM 17
@@ -1132,22 +1132,81 @@ jobs:
           rev: 5fb928adb8757f73a370dbf329761b392693997d
         env:
           RUSTFLAGS: -W warnings
-        if: startsWith(matrix.rust, 'nightly')
+        if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.rust, 'nightly-2022')
       # syn 2.0.107 & quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
       # unicode-ident 1.0.23 requires Rust 1.71.
       # cortex-m-rt 0.7.6 requires Rust 1.85.
       - run: |
-          cargo generate-lockfile
-          cargo update -p proc-macro2 --precise 1.0.103
-          cargo update -p quote --precise 1.0.41
-          cargo update -p syn@2.0.119 --precise 2.0.106
-          cargo update -p unicode-ident --precise 1.0.22
-          cargo update -p cortex-m-rt --precise 0.7.5
-        working-directory: tests/no-std-qemu
-        if: startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, '1.7') || startsWith(matrix.rust, '1.8')
+          tests=(tests/no-std-qemu)
+          if [[ "${RUST}" == 'nightly'* ]]; then
+            tests+=(tests/avr)
+          fi
+          for t in "${tests[@]}"; do
+            (
+              cd -- "${t}"
+              cargo generate-lockfile
+              cargo update -p proc-macro2 --precise 1.0.103
+              cargo update -p quote --precise 1.0.41
+              cargo update -p unicode-ident --precise 1.0.22
+            )
+          done
+          (
+            cd -- tests/no-std-qemu
+            cargo update -p syn@2.0.119 --precise 2.0.106
+            cargo update -p cortex-m-rt --precise 0.7.5
+          )
+        env:
+          RUST: ${{ matrix.rust }}
+        if: startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, '1.7') || startsWith(matrix.rust, '1.8') || startsWith(matrix.rust, 'nightly-2022')
       - run: tools/no-std.sh
         env:
           ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
+      - run: |
+          retry() {
+            for i in {1..10}; do
+              if "$@"; then
+                return 0
+              else
+                sleep "${i}"
+              fi
+            done
+            "$@"
+          }
+          toolchains=(
+            nightly-2020-12-26 # LLVM 11 (last version that we use llvm_asm and can test AVR)
+            nightly-2021-12-15 # LLVM 13 (last version that we use llvm_asm)
+          )
+          for toolchain in "${toolchains[@]}"; do
+            retry rustup toolchain add "${toolchain}" --component rust-src --no-self-update
+          done
+          patch="${PWD}/tests/msp430-old-nightly/old_compiler_builtins.diff"
+          (
+            mkdir -p -- "${RUNNER_TEMP}"/fetch/src
+            cd -- "${RUNNER_TEMP}"/fetch
+            printf '' >src/lib.rs
+            cat >Cargo.toml <<EOF
+          [package]
+          name = "fetch-deps"
+          version = "0.0.0"
+          edition = "2021"
+          [dependencies]
+          compiler_builtins = "=0.1.55"
+          EOF
+            # shellcheck disable=SC2329 # false positive
+            fetch_metadata() {
+              metadata=$(cargo +nightly-2021-12-15 metadata --format-version=1)
+            }
+            retry fetch_metadata
+            compiler_builtins_manifest_path="$(
+              jq -er '.packages[] | select(.name == "compiler_builtins" and .version == "0.1.55") | .manifest_path' <<<"${metadata}"
+            )"
+            cd -- "$(dirname -- "${compiler_builtins_manifest_path}")"
+            patch -p1 <"${patch}"
+          )
+          rm -rf -- "${RUNNER_TEMP}"/fetch
+          tools/no-std.sh +nightly-2020-12-26 avr-none
+          tools/no-std.sh +nightly-2021-12-15 msp430-none-elf
+        if: matrix.rust == 'nightly-2022-08-12'
       # TODO: xtensa-esp32-none-elf/xtensa-esp32s3-none-elf with assume-privileged
       - run: tools/build.sh +esp xtensa-esp32-none-elf xtensa-esp32s2-none-elf xtensa-esp32s3-none-elf
         if: matrix.rust == 'stable'
