@@ -101,8 +101,12 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_arch,values("loongarch32"))', # 1.89+ https://github.com/rust-lang/rust/pull/142053
     'cfg(target_os,values("trusty"))', # 1.82+ https://github.com/rust-lang/rust/pull/129490
     'cfg(target_os,values("psx"))', # 1.84+ https://github.com/rust-lang/rust/pull/131168
+    'cfg(target_os,values("cygwin"))', # 1.86+ https://github.com/rust-lang/rust/pull/134999
     'cfg(target_os,values("zos"))', # https://github.com/rust-lang/compiler-team/issues/992
     'cfg(target_env,values("psx"))', # pre-1.84 https://github.com/rust-lang/rust/pull/131168
+    'cfg(target_abi,values("pauthtest"))', # 1.98+ https://github.com/rust-lang/rust/pull/155722
+    'cfg(target_abi,values("purecap"))', # https://github.com/kent-weak-memory/rust
+    'cfg(target_abi,values("fdpic"))', # https://github.com/llvm/llvm-project/issues/146959
     'cfg(target_feature,values("lse2","lse128","rcpc3"))', # 1.82+ https://github.com/rust-lang/rust/pull/128192
     'cfg(target_feature,values("quadword-atomics"))', # 1.83+ https://github.com/rust-lang/rust/pull/130873
     'cfg(target_feature,values("zaamo","zabha"))', # 1.83+ https://github.com/rust-lang/rust/pull/130877
@@ -112,7 +116,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_pointer_width,values("128"))',
     # Known custom cfgs, excluding those that may be set by build script.
     # Public APIs, considered unstable unless documented as stable in readme.
-    'cfg(portable_atomic_no_outline_atomics,portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
+    'cfg(portable_atomic_outline_atomics,portable_atomic_unstable_f16,portable_atomic_unstable_f128)',
     # Not public API.
     'cfg(portable_atomic_test_detect_false,portable_atomic_test_no_std_static_assert_ffi,qemu,valgrind,valgrind_cross)',
 ] }

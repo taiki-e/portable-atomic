@@ -482,28 +482,15 @@ cfg_sel!({
                     all(
                         target_os = "linux",
                         any(
-                            all(
-                                target_env = "gnu",
-                                any(target_endian = "little", not(target_feature = "crt-static")),
-                            ),
-                            all(
-                                target_env = "musl",
-                                any(not(target_feature = "crt-static"), feature = "std"),
-                            ),
+                            target_env = "gnu",
+                            target_env = "musl",
                             target_env = "ohos",
-                            all(target_env = "uclibc", not(target_feature = "crt-static")),
+                            target_env = "uclibc",
                             portable_atomic_outline_atomics,
                         ),
                     ),
                     target_os = "android",
-                    all(
-                        target_os = "freebsd",
-                        any(
-                            target_endian = "little",
-                            not(target_feature = "crt-static"),
-                            portable_atomic_outline_atomics,
-                        ),
-                    ),
+                    target_os = "freebsd",
                     target_os = "openbsd",
                     all(
                         target_os = "aix",
