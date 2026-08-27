@@ -375,23 +375,12 @@ items!({
                     atomic_int!(base, $atomic_type, $int_type, $align);
                     impl_default_bit_opts!($atomic_type, $int_type);
                     // load/store
-                    cfg_sel!({
-                        // AVR with very old rustc
-                        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
-                        {
-                            atomic_base!(emulate_load_store, $atomic_type, $int_type);
-                        }
-                        #[cfg(else)]
-                        {
-                            atomic_base!(native_load_store, $atomic_type, $int_type);
-                        }
-                    });
+                    atomic_base!(native_load_store, $atomic_type, $int_type);
                     // RMW
                     cfg_sel!({
                         // AVR 8-bit RMW with RMW instructions
                         #[cfg(all(
                             target_arch = "avr",
-                            not(portable_atomic_no_asm),
                             any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                         ))]
                         {
@@ -554,10 +543,7 @@ items!({
         // CAS together with atomic load/store. The load/store will not be
         // called while interrupts are disabled, and since the load/store is
         // atomic, it is not affected by interrupts even if interrupts are enabled.
-        #[cfg(not(any(
-            all(target_arch = "avr", portable_atomic_no_asm),
-            feature = "critical-section",
-        )))]
+        #[cfg(not(feature = "critical-section"))]
         use self::arch::atomic;
 
         #[cfg(target_pointer_width = "16")]
@@ -583,14 +569,8 @@ items!({
         #[cfg(target_pointer_width = "128")]
         atomic_int!(load_store_atomic, AtomicUsize, usize, 16);
 
-        #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
         atomic_int!(load_store_atomic[sub_word], AtomicI8, i8, 1);
-        #[cfg(not(all(target_arch = "avr", portable_atomic_no_asm)))]
         atomic_int!(load_store_atomic[sub_word], AtomicU8, u8, 1);
-        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
-        atomic_int!(all_critical_session, AtomicI8, i8, 1);
-        #[cfg(all(target_arch = "avr", portable_atomic_no_asm))]
-        atomic_int!(all_critical_session, AtomicU8, u8, 1);
         #[cfg(not(target_arch = "avr"))]
         atomic_int!(load_store_atomic[sub_word], AtomicI16, i16, 2);
         #[cfg(not(target_arch = "avr"))]

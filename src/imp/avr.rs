@@ -21,7 +21,11 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-use core::{arch::asm, cell::UnsafeCell, sync::atomic::Ordering};
+#![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
+
+#[cfg(not(portable_atomic_no_asm))]
+use core::arch::asm;
+use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 macro_rules! atomic8 {
     ($atomic_type:ident, $value_type:ty) => {
@@ -46,12 +50,17 @@ macro_rules! atomic8 {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     let out;
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "ld {out}, Z", // atomic { out = *Z }
                         out = out(reg) out,
                         in("Z") src,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "ld $0, Z"
+                        : "=r"(out) : "Z"(src) : "memory" : "volatile");
                     out
                 }
             }
@@ -64,12 +73,17 @@ macro_rules! atomic8 {
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "st Z, {val}", // atomic { *Z = val }
                         val = in(reg) val,
                         in("Z") dst,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "st Z, $0"
+                        :: "r"(val), "Z"(dst) : "memory" : "volatile");
                 }
             }
         }
@@ -84,12 +98,17 @@ macro_rules! atomic8 {
                 // pointer passed in is valid because we got it from a reference.
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "xch Z, {val}", // atomic { _x = *Z; *Z = val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "xch Z, $0"
+                        : "=r"(out) : "Z"(dst), "0"(val) : "memory" : "volatile");
                 }
                 out
             }
@@ -97,17 +116,23 @@ macro_rules! atomic8 {
             #[inline]
             pub(crate) fn fetch_and(&self, val: $value_type, _order: Ordering) -> $value_type {
                 let dst = self.v.get();
+                let val = !val;
                 let out;
                 // SAFETY: any data races are prevented by atomic intrinsics and the raw
                 // pointer passed in is valid because we got it from a reference.
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "lac Z, {val}", // atomic { _x = *Z; *Z &= !val; val = _x }
-                        val = inout(reg) !val => out,
+                        val = inout(reg) val => out,
                         in("Z") dst,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "lac Z, $0"
+                        : "=r"(out) : "Z"(dst), "0"(val) : "memory" : "volatile");
                 }
                 out
             }
@@ -120,12 +145,17 @@ macro_rules! atomic8 {
                 // pointer passed in is valid because we got it from a reference.
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "las Z, {val}", // atomic { _x = *Z; *Z |= val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "las Z, $0"
+                        : "=r"(out) : "Z"(dst), "0"(val) : "memory" : "volatile");
                 }
                 out
             }
@@ -138,12 +168,17 @@ macro_rules! atomic8 {
                 // pointer passed in is valid because we got it from a reference.
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
+                    #[cfg(not(portable_atomic_no_asm))]
                     asm!(
                         "lat Z, {val}", // atomic { _x = *Z; *Z ^= val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
                         options(nostack, preserves_flags),
                     );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "lat Z, $0"
+                        : "=r"(out) : "Z"(dst), "0"(val) : "memory" : "volatile");
                 }
                 out
             }
