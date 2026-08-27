@@ -47,8 +47,8 @@ compile_error!(
     "internal error: unreachable since 128-bit target either has atomic CAS for the pointer width or does not have CAS"
 );
 
-mod cache_padded;
-mod utils;
+pub(crate) mod cache_padded; // pub(crate) for benchmark
+pub(crate) mod utils; // pub(crate) for benchmark
 
 // Use "wide" sequence lock if the pointer width <= 32 for preventing its counter against wrap
 // around.

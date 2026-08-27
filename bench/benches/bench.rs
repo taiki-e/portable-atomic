@@ -5,6 +5,7 @@
     internal_features,
     unexpected_cfgs,
     unused_extern_crates,
+    unused_features,
     clippy::duplicate_mod,
     clippy::duplicated_attributes,
     clippy::inline_always,
@@ -21,6 +22,7 @@ use std::{
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
+#[allow(unused_macros)]
 #[macro_use]
 #[path = "../../src/cfgs.rs"]
 mod cfgs;
@@ -53,13 +55,14 @@ use core::sync::atomic::fence;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use self::imp::x86::fence;
-#[cfg(any(
-    target_arch = "x86_64",
-    all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
-))]
-#[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/atomic128/intrinsics.rs"]
-mod intrinsics;
+// TODO: update to new intrinsics
+// #[cfg(any(
+//     target_arch = "x86_64",
+//     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
+// ))]
+// #[allow(dead_code, unused_imports)]
+// #[path = "../../src/imp/atomic128/intrinsics.rs"]
+// mod intrinsics;
 #[allow(dead_code, unused_imports)]
 #[path = "../../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
@@ -371,22 +374,22 @@ macro_rules! benches {
 mod bench {
     use super::*;
 
-    #[cfg(any(
-        target_arch = "x86_64",
-        all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
-    ))]
-    impl_atomic!(intrinsics::AtomicU128, u128);
+    // #[cfg(any(
+    //     target_arch = "x86_64",
+    //     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
+    // ))]
+    // impl_atomic!(intrinsics::AtomicU128, u128);
     impl_atomic!(imp::AtomicU128, u128);
     impl_atomic!(seqlock_fallback::AtomicU128, u128);
     impl_atomic!(spinlock_fallback::AtomicU128, u128);
     // impl_atomic!(atomic::Atomic<u128>, u128);
     // impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u128>, u128);
 
-    #[cfg(any(
-        target_arch = "x86_64",
-        all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little")
-    ))]
-    benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128, u128);
+    // #[cfg(any(
+    //     target_arch = "x86_64",
+    //     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
+    // ))]
+    // benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128, u128);
     benches!(bench_portable_atomic_arch, imp::AtomicU128, u128);
     benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128, u128);
     benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128, u128);
@@ -396,7 +399,7 @@ mod bench {
     criterion_group!(
         benches,
         bench_portable_atomic_arch,
-        bench_portable_atomic_intrinsics,
+        // bench_portable_atomic_intrinsics,
         bench_portable_atomic_seqlock_fallback,
         bench_portable_atomic_spinlock_fallback,
         // Disable third-party implementation by default.

@@ -14,7 +14,7 @@ use core::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-use super::fallback::utils::{Backoff, CachePadded};
+use super::fallback::{cache_padded::CachePadded, utils::Backoff};
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
 
