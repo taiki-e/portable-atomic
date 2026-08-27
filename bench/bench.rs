@@ -69,8 +69,19 @@ mod seqlock_fallback;
 #[allow(unused_imports)]
 use self::seqlock_fallback as fallback;
 #[allow(dead_code, unused_imports)]
-#[path = "src/spinlock_fallback.rs"]
-mod spinlock_fallback;
+#[path = "src/mutex_fallback.rs"]
+mod mutex_fallback;
+#[cfg(any(
+    target_arch = "aarch64",
+    target_arch = "arm64ec",
+    target_arch = "powerpc64",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "x86_64",
+))]
+#[allow(dead_code, unused_imports)]
+#[path = "src/seqlock64_futex32.rs"]
+mod seqlock64_futex32_fallback;
 
 const THREADS: usize = 2;
 const N: u32 = 5000;
@@ -365,34 +376,41 @@ macro_rules! benches {
     };
 }
 #[cfg(any(
-    target_arch = "x86_64",
     target_arch = "aarch64",
     target_arch = "arm64ec",
     target_arch = "powerpc64",
+    target_arch = "riscv64",
     target_arch = "s390x",
+    target_arch = "x86_64",
 ))]
 mod bench {
     use super::*;
 
+    impl_atomic!(imp::AtomicU128, u128);
     // #[cfg(any(
     //     target_arch = "x86_64",
     //     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
     // ))]
     // impl_atomic!(intrinsics::AtomicU128, u128);
-    impl_atomic!(imp::AtomicU128, u128);
     impl_atomic!(seqlock_fallback::AtomicU128, u128);
-    impl_atomic!(spinlock_fallback::AtomicU128, u128);
-    // impl_atomic!(atomic::Atomic<u128>, u128);
+    impl_atomic!(seqlock64_futex32_fallback::AtomicU128, u128);
+    impl_atomic!(mutex_fallback::AtomicU128, u128);
     // impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u128>, u128);
+    // impl_atomic!(atomic::Atomic<u128>, u128);
 
+    benches!(bench_portable_atomic_arch, imp::AtomicU128, u128);
     // #[cfg(any(
     //     target_arch = "x86_64",
     //     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
     // ))]
     // benches!(bench_portable_atomic_intrinsics, intrinsics::AtomicU128, u128);
-    benches!(bench_portable_atomic_arch, imp::AtomicU128, u128);
     benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU128, u128);
-    benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU128, u128);
+    benches!(
+        bench_portable_atomic_seqlock64_futex32_fallback,
+        seqlock64_futex32_fallback::AtomicU128,
+        u128
+    );
+    benches!(bench_portable_atomic_mutex_fallback, mutex_fallback::AtomicU128, u128);
     // benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u128>, u128);
     // benches!(bench_atomic_rs, atomic::Atomic<u128>, u128);
 
@@ -401,7 +419,8 @@ mod bench {
         bench_portable_atomic_arch,
         // bench_portable_atomic_intrinsics,
         bench_portable_atomic_seqlock_fallback,
-        bench_portable_atomic_spinlock_fallback,
+        bench_portable_atomic_seqlock64_futex32_fallback,
+        bench_portable_atomic_mutex_fallback,
         // Disable third-party implementation by default.
         // bench_atomic_cell,
         // bench_atomic_rs
@@ -413,13 +432,13 @@ mod bench {
 
     impl_atomic!(imp::AtomicU64, u64);
     impl_atomic!(seqlock_fallback::AtomicU64, u64);
-    impl_atomic!(spinlock_fallback::AtomicU64, u64);
-    // impl_atomic!(atomic::Atomic<u64>, u64);
+    impl_atomic!(mutex_fallback::AtomicU64, u64);
     // impl_atomic_no_order!(crossbeam_utils::atomic::AtomicCell<u64>, u64);
+    // impl_atomic!(atomic::Atomic<u64>, u64);
 
     benches!(bench_portable_atomic_arch, imp::AtomicU64, u64);
     benches!(bench_portable_atomic_seqlock_fallback, seqlock_fallback::AtomicU64, u64);
-    benches!(bench_portable_atomic_spinlock_fallback, spinlock_fallback::AtomicU64, u64);
+    benches!(bench_portable_atomic_mutex_fallback, mutex_fallback::AtomicU64, u64);
     // benches!(bench_atomic_cell, crossbeam_utils::atomic::AtomicCell<u64>, u64);
     // benches!(bench_atomic_rs, atomic::Atomic<u64>, u64);
 
@@ -427,7 +446,7 @@ mod bench {
         benches,
         bench_portable_atomic_arch,
         bench_portable_atomic_seqlock_fallback,
-        bench_portable_atomic_spinlock_fallback,
+        bench_portable_atomic_mutex_fallback,
         // Disable third-party implementation by default.
         // bench_atomic_cell,
         // bench_atomic_rs

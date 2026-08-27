@@ -160,6 +160,7 @@ min_stable_toolchain() {
     return
   fi
   case "${target}" in
+    loongarch64*) toolchain=1.72 ;;      # LLVM 16
     arm64ec* | s390x*) toolchain=1.84 ;; # LLVM 19
     powerpc*) toolchain=1.95 ;;          # LLVM 22
     *) toolchain=1.59 ;;                 # LLVM 13
@@ -167,12 +168,13 @@ min_stable_toolchain() {
 }
 min_nightly_toolchain() {
   case "${target}" in
-    aarch64_be*) toolchain=nightly-2024-07-31 ;; # Rust 1.82, LLVM 18
-    arm64ec*) toolchain=nightly-2024-04-19 ;;    # Rust 1.79, LLVM 18 (https://github.com/rust-lang/rust/pull/123144)
-    powerpc64*) toolchain=nightly-2022-02-13 ;;  # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
-    s390x*) toolchain=nightly-2023-05-09 ;;      # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
-    riscv32*) toolchain=nightly-2022-08-12 ;;    # Rust 1.65, LLVM 14
-    *) toolchain=nightly-2021-08-21 ;;           # Rust 1.56, LLVM 12
+    aarch64_be*) toolchain=nightly-2024-07-31 ;;  # Rust 1.82, LLVM 18
+    arm64ec*) toolchain=nightly-2024-04-19 ;;     # Rust 1.79, LLVM 18 (https://github.com/rust-lang/rust/pull/123144)
+    loongarch64*) toolchain=nightly-2023-04-26 ;; # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
+    powerpc64*) toolchain=nightly-2022-02-13 ;;   # Rust 1.60, LLVM 13 (oldest version we can use asm_experimental_arch on this target)
+    s390x*) toolchain=nightly-2023-05-09 ;;       # Rust 1.71, LLVM 16 (oldest version we can use asm_experimental_arch on this target)
+    riscv32*) toolchain=nightly-2022-08-12 ;;     # Rust 1.65, LLVM 14
+    *) toolchain=nightly-2021-08-21 ;;            # Rust 1.56, LLVM 12
   esac
 }
 convert_toolchain_for_unstable_asm() {
@@ -304,7 +306,7 @@ for target in "${targets[@]}"; do
   test_only_on_nightly=''
   case "${target}" in
     # We have no architecture-specific code for these.
-    loongarch* | mips* | powerpc-* | sparc* | armv7-unknown-linux-gnueabihf | armeb-unknown-linux-gnueabi | thumbv7neon-unknown-linux-gnueabihf | arm-linux-androideabi) test_only_on_nightly=1 ;;
+    mips* | sparc* | armeb-unknown-linux-gnueabi | arm-linux-androideabi) test_only_on_nightly=1 ;;
     # We have architecture-specific code for these, but OS-specific code are
     # also tested by other targets or have no OS-specific code.
     x86_64-apple-darwin | x86_64-pc-windows-gnu | i586-unknown-linux-gnu | i686-pc-windows-msvc | aarch64-apple-ios-macabi | aarch64-pc-windows-msvc | aarch64-pc-windows-gnullvm) test_only_on_nightly=1 ;;

@@ -280,6 +280,12 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+avx
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+avx
         if: startsWith(matrix.target, 'x86_64') && !contains(matrix.target, '-darwin')
+      # x86 Linux asm syscall in fallback futex
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} --cfg portable_atomic_test_asm_syscall
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} --cfg portable_atomic_test_asm_syscall
+        if: (startsWith(matrix.target, 'i586') || startsWith(matrix.target, 'i686')) && contains(matrix.target, '-linux') && !contains(matrix.target, 'android')
       # aarch64 +lse
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:

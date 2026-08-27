@@ -65,6 +65,7 @@ devkitm
 devtmpfs
 dlsym
 ecall
+EFLAGS
 Espressif
 espup
 evbarm
@@ -74,13 +75,17 @@ fild
 fistp
 FPSR
 FUNCDESC
+futex
 getauxval
 getisax
 getpid
 getsystemcfg
 gimli
+gnuabin
+gsync
 Halfword
 hostfwd
+hppa
 HWCAP
 hwprobe
 ILRCPC
@@ -129,6 +134,7 @@ lrcpc
 lsfe
 lstatic
 lwsync
+machuser
 maxu
 mcpu
 memcheck
@@ -136,6 +142,7 @@ memd
 mfcr
 mfence
 mgba
+microblaze
 midr
 minu
 miscompiles
@@ -157,11 +164,13 @@ negs
 netdev
 newc
 newtype
+nios
 nngrk
 nostartfiles
 numl
 NZCV
 ooce
+OSREV
 osxsave
 outputdir
 phdr
@@ -193,6 +202,7 @@ setb
 setne
 sifive
 signedness
+SIGSYS
 SIGTRAP
 simavr
 simio
@@ -229,6 +239,9 @@ uart
 udevadm
 umax
 umin
+umtx
+unistd
+upstreamed
 usart
 uscat
 usesh
@@ -238,6 +251,10 @@ virtio
 vmlinux
 vmovdqa
 vreg
+vsyscall
+vtable
+wakeup
+wasilibc
 wfxt
 wokwi
 xadd

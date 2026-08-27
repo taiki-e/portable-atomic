@@ -944,7 +944,7 @@ mod tests {
                     #[cfg(target_arch = "arm")]
                     asm_syscall!(sys::__NR_prctl, 172, r, arg1, arg2, arg3, arg4, arg5);
                     // POWER9+ has fast syscall using SCV, but since detection is cold path,
-                    // there’s no need to consider it here.
+                    // there's no need to consider it here.
                     #[cfg(not(target_arch = "arm"))]
                     asm_syscall!(number, r, arg1, arg2, arg3, arg4, arg5);
                 }
