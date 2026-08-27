@@ -31,7 +31,6 @@ targets=(
   i586-unknown-linux-gnu
   i686-unknown-linux-gnu
   i686-pc-windows-msvc
-  i686-pc-windows-gnu
 
   # aarch64
   aarch64-unknown-linux-gnu    # Linux (glibc) little
@@ -308,7 +307,7 @@ for target in "${targets[@]}"; do
     loongarch* | mips* | powerpc-* | sparc* | armv7-unknown-linux-gnueabihf | armeb-unknown-linux-gnueabi | thumbv7neon-unknown-linux-gnueabihf | arm-linux-androideabi) test_only_on_nightly=1 ;;
     # We have architecture-specific code for these, but OS-specific code are
     # also tested by other targets or have no OS-specific code.
-    x86_64-apple-darwin | x86_64-pc-windows-gnu | i586-unknown-linux-gnu | i686-pc-windows-msvc | i686-pc-windows-gnu | aarch64-apple-ios-macabi | aarch64-pc-windows-msvc | aarch64-pc-windows-gnullvm) test_only_on_nightly=1 ;;
+    x86_64-apple-darwin | x86_64-pc-windows-gnu | i586-unknown-linux-gnu | i686-pc-windows-msvc | aarch64-apple-ios-macabi | aarch64-pc-windows-msvc | aarch64-pc-windows-gnullvm) test_only_on_nightly=1 ;;
     # We test only one version because we have no architecture-specific code for these.
     arm-unknown-linux-gnueabi | armv7-unknown-linux-gnueabi) test_only_on_nightly=1 ;;
   esac

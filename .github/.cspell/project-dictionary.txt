@@ -169,8 +169,6 @@ rdinit
 RDONLY
 revidr
 rootcerts
-rsbegin
-rsend
 rsil
 RTLD
 sbcs
