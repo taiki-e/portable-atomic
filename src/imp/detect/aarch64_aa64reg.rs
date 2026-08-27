@@ -42,6 +42,7 @@ On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
 
 include!("common.rs");
 
+#[cfg_attr(target_os = "netbsd", derive(Default))]
 #[cfg_attr(test, derive(Debug, PartialEq))]
 struct AA64Reg {
     aa64isar0: u64,
@@ -197,7 +198,7 @@ mod imp {
     // libc requires Rust 1.63
     #[allow(non_camel_case_types)]
     pub(super) mod ffi {
-        pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_void};
+        pub(crate) use crate::utils::ffi::{CStr, c_char, c_int, c_size_t, c_uint, c_void};
 
         sys_struct!({
             // Defined in machine/armreg.h.
@@ -229,11 +230,27 @@ mod imp {
             }
         });
 
+        sys_const!({
+            // Defined in sys/sysctl.h.
+            // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/sys/sys/sysctl.h
+            pub(crate) const CTL_HW: c_int = 6;
+        });
+        // TODO: use sys_const!
+        pub(crate) const HW_NCPU: c_int = 3;
+
         sys_fn!({
             extern "C" {
                 // Defined in sys/sysctl.h.
                 // https://man.netbsd.org/sysctl.3
                 // https://github.com/NetBSD/src/blob/121914f187d0f46c2ce43f00531d2c500d8e81e5/sys/sys/sysctl.h
+                pub(crate) fn sysctl(
+                    name: *const c_int,
+                    name_len: c_uint,
+                    old_p: *mut c_void,
+                    old_len_p: *mut c_size_t,
+                    new_p: *const c_void,
+                    new_len: c_size_t,
+                ) -> c_int;
                 pub(crate) fn sysctlbyname(
                     name: *const c_char,
                     old_p: *mut c_void,
@@ -245,13 +262,42 @@ mod imp {
         });
     }
 
-    pub(super) fn sysctl_cpu_id(name: &ffi::CStr) -> Option<AA64Reg> {
+    #[inline]
+    fn sysctl32(mib: &[ffi::c_int]) -> Option<u32> {
+        const OUT_LEN: ffi::c_size_t = core::mem::size_of::<u32>() as ffi::c_size_t;
+        #[allow(clippy::cast_possible_truncation)]
+        let mib_len = mib.len() as ffi::c_uint;
+        let mut out = 0_u32;
+        let mut out_len = OUT_LEN;
+        // SAFETY:
+        // - `mib_len` does not exceed the size of `mib`.
+        // - `out_len` does not exceed the size of `out`.
+        // - `sysctl` is thread-safe.
+        let res = unsafe {
+            ffi::sysctl(
+                mib.as_ptr(),
+                mib_len,
+                (&mut out as *mut u32).cast::<ffi::c_void>(),
+                &mut out_len,
+                ptr::null_mut(),
+                0,
+            )
+        };
+        // NetBSD sysctl returns 0 on success, -1 on failure.
+        if res != 0 {
+            return None;
+        }
+        debug_assert_eq!(out_len, OUT_LEN);
+        Some(out)
+    }
+
+    pub(super) fn sysctl_cpu_id(
+        name: &ffi::CStr,
+        buf: &mut ffi::aarch64_sysctl_cpu_id,
+    ) -> Option<AA64Reg> {
         const OUT_LEN: ffi::c_size_t =
             mem::size_of::<ffi::aarch64_sysctl_cpu_id>() as ffi::c_size_t;
 
-        // SAFETY: all fields of aarch64_sysctl_cpu_id are zero-able and we use
-        // the result when machdep.cpuN.cpu_id sysctl was successful.
-        let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
         let mut out_len = OUT_LEN;
         // SAFETY:
         // - `name` a valid C string.
@@ -260,7 +306,7 @@ mod imp {
         let res = unsafe {
             ffi::sysctlbyname(
                 name.as_ptr(),
-                (&mut buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
+                (buf as *mut ffi::aarch64_sysctl_cpu_id).cast::<ffi::c_void>(),
                 &mut out_len,
                 ptr::null_mut(),
                 0,
@@ -279,21 +325,114 @@ mod imp {
     }
 
     pub(super) fn aa64reg() -> AA64Reg {
-        // Get system registers for cpu0.
+        // SAFETY: all fields of aarch64_sysctl_cpu_id are zero-able and we use
+        // the result when machdep.cpuN.cpu_id sysctl was successful.
+        let mut cpu_id_buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
+        // First, get system registers for cpu0.
         // If failed, returns default because machdep.cpuN.cpu_id sysctl is not available.
-        // machdep.cpuN.cpu_id sysctl was added in NetBSD 9.0 so it is not available on older versions.
-        // It is ok to check only cpu0, even if there are more CPUs.
+        // machdep.cpuN.cpu_id sysctl was added on NetBSD 9.0 so it is not available on older versions.
+        let mut cpu_id = match sysctl_cpu_id(c!("machdep.cpu0.cpu_id"), &mut cpu_id_buf) {
+            Some(cpu_id) => cpu_id,
+            None => return AA64Reg::default(),
+        };
+        // Second, get the number of cpus.
+        // If failed, returns default because nothing can be assumed about the other cores.
+        // Do not use available_parallelism/_SC_NPROCESSORS_ONLN/HW_NCPUONLINE because
+        // offline cores may become online during execution.
+        let cpus = match sysctl32(&[ffi::CTL_HW, ffi::HW_NCPU]) {
+            Some(0) | None => return AA64Reg::default(), // failed
+            Some(1) => return cpu_id,                    // single-core
+            Some(cpus) => cpus,
+        };
+        // Unfortunately, there is a bug in Samsung's SoC that supports
+        // different CPU features in big and little cores.
+        // https://web.archive.org/web/20210908112244/https://medium.com/@niaow/a-big-little-problem-a-tale-of-big-little-gone-wrong-e7778ce744bb
+        // https://github.com/golang/go/issues/28431#issuecomment-433573689
+        // https://en.wikichip.org/wiki/samsung/exynos/9810
+        // So, make sure that all cores provide the same CPU features.
+        // Note that we are only checking the consistency of the registers to
+        // which we actually refer. (If we check all registers, fields such as
+        // product variant are also checked, which breaks runtime detection on
+        // most big.LITTLE SoCs.)
+        // TODO: Is this processing really necessary on NetBSD?
         // https://github.com/NetBSD/src/commit/bd9707e06ea7d21b5c24df6dfc14cb37c2819416
         // https://github.com/golang/sys/commit/ef9fd89ba245e184bdd308f7f2b4f3c551fa5b0f
-        match sysctl_cpu_id(c!("machdep.cpu0.cpu_id")) {
-            Some(cpu_id) => cpu_id,
-            None => AA64Reg {
-                aa64isar0: 0,
-                aa64isar1: 0,
-                #[cfg(test)]
-                aa64isar3: 0,
-                aa64mmfr2: 0,
-            },
+        // https://github.com/aws/aws-lc/commit/1aa0cef79cf26cfc8a0d25be275f353543ff306c
+        let mut name_buf = MachdepNameBuffer::new();
+        for n in 1..cpus {
+            match sysctl_cpu_id(name_buf.name(n), &mut cpu_id_buf) {
+                Some(AA64Reg {
+                    aa64isar0,
+                    aa64isar1,
+                    #[cfg(test)]
+                    aa64isar3,
+                    aa64mmfr2,
+                }) => {
+                    cpu_id.aa64isar0 &= aa64isar0;
+                    cpu_id.aa64isar1 &= aa64isar1;
+                    #[cfg(test)]
+                    {
+                        cpu_id.aa64isar3 &= aa64isar3;
+                    }
+                    cpu_id.aa64mmfr2 &= aa64mmfr2;
+                }
+                None => return AA64Reg::default(),
+            }
+        }
+        cpu_id
+    }
+
+    pub(super) struct MachdepNameBuffer {
+        buf: [u8; NAME_MAX_LEN],
+    }
+
+    const NAME_PREFIX: &[u8] = b"machdep.cpu";
+    const NAME_SUFFIX: &[u8] = b".cpu_id\0";
+    pub(super) const U32_MAX_LEN: usize = 10;
+    const NAME_MAX_LEN: usize = NAME_PREFIX.len() + NAME_SUFFIX.len() + U32_MAX_LEN;
+
+    impl MachdepNameBuffer {
+        #[inline]
+        pub(super) fn new() -> Self {
+            let mut buf: [u8; NAME_MAX_LEN] = [0; NAME_MAX_LEN];
+            buf[..NAME_PREFIX.len()].copy_from_slice(NAME_PREFIX);
+            Self { buf }
+        }
+
+        #[allow(clippy::cast_possible_truncation, clippy::unreadable_literal)]
+        #[inline]
+        pub(super) fn name(&mut self, mut cpu: u32) -> &ffi::CStr {
+            let mut len = NAME_PREFIX.len();
+            // integer -> string conversion which is optimized for small numbers.
+            macro_rules! put {
+                ($cur:tt $($tt:tt)*) => {
+                    if cpu >= $cur {
+                        put!($($tt)*);
+                        let n = cpu / $cur;
+                        self.buf[len] = (n as u8) + b'0';
+                        len += 1;
+                        cpu %= $cur;
+                    }
+                };
+                () => {};
+            }
+            put!(
+                10
+                100
+                1000
+                10000
+                100000
+                1000000
+                10000000
+                100000000
+                1000000000
+            );
+            self.buf[len] = (cpu as u8) + b'0';
+            len += 1;
+            self.buf[len..len + NAME_SUFFIX.len()].copy_from_slice(NAME_SUFFIX);
+            len += NAME_SUFFIX.len();
+            // SAFETY: we've wrote a valid name in a C string.
+            unsafe { ffi::CStr::from_bytes_with_nul_unchecked(&self.buf[..len]) }
         }
     }
 }
@@ -542,7 +681,7 @@ mod tests {
             name_to_mib(&parts, &mut mib)?;
 
             #[allow(clippy::cast_possible_truncation)]
-            let mib_len = MIB_LEN as libc::c_uint;
+            let mib_len = MIB_LEN as ffi::c_uint;
             let mut buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
             let mut out_len = OUT_LEN;
             // SAFETY:
@@ -571,8 +710,9 @@ mod tests {
             })
         }
 
+        let mut cpu_id_buf: ffi::aarch64_sysctl_cpu_id = unsafe { mem::zeroed() };
         assert_eq!(
-            imp::sysctl_cpu_id(c!("machdep.cpu0.cpu_id")).unwrap(),
+            imp::sysctl_cpu_id(c!("machdep.cpu0.cpu_id"), &mut cpu_id_buf).unwrap(),
             sysctl_cpu_id().unwrap()
         );
     }
@@ -609,5 +749,26 @@ mod tests {
         assert_eq!(aa64isar1, sysctl_output.field("machdep.id_aa64isar1").unwrap_or(0));
         assert_eq!(aa64isar3, sysctl_output.field("machdep.id_aa64isar3").unwrap_or(0));
         assert_eq!(aa64mmfr2, sysctl_output.field("machdep.id_aa64mmfr2").unwrap_or(0));
+    }
+
+    #[cfg(target_os = "netbsd")]
+    #[test]
+    fn machdep_name_buffer() {
+        use std::string::ToString as _;
+        assert_eq!(u32::MAX.to_string().len(), imp::U32_MAX_LEN);
+        assert_eq!(imp::MachdepNameBuffer::new().name(0).to_bytes_with_nul(), b"machdep.cpu0.cpu_id\0");
+        assert_eq!(imp::MachdepNameBuffer::new().name(1).to_bytes_with_nul(), b"machdep.cpu1.cpu_id\0");
+        assert_eq!(imp::MachdepNameBuffer::new().name(10).to_bytes_with_nul(), b"machdep.cpu10.cpu_id\0");
+        assert_eq!(imp::MachdepNameBuffer::new().name(100).to_bytes_with_nul(), b"machdep.cpu100.cpu_id\0");
+        assert_eq!(imp::MachdepNameBuffer::new().name(1023).to_bytes_with_nul(), b"machdep.cpu1023.cpu_id\0");
+        assert_eq!(imp::MachdepNameBuffer::new().name(u32::MAX).to_bytes_with_nul(), b"machdep.cpu4294967295.cpu_id\0");
+    }
+    #[cfg(target_os = "netbsd")]
+    ::quickcheck::quickcheck! {
+        fn quickcheck_machdep_name_buffer(x: u32) -> bool {
+            let expected = std::ffi::CString::new(std::format!("machdep.cpu{}.cpu_id", x)).unwrap();
+            assert_eq!(imp::MachdepNameBuffer::new().name(x).to_bytes_with_nul(), expected.into_bytes_with_nul());
+            true
+        }
     }
 }
