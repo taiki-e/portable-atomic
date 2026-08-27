@@ -36,7 +36,7 @@ Supported platforms:
   Since Rust 1.46, std requires musl 1.1.24+ https://github.com/rust-lang/rust/pull/73089
   Since Rust 1.71, std requires musl 1.2.3+ https://blog.rust-lang.org/2023/05/09/Updating-musl-targets
   Since Rust 1.93, std requires musl 1.2.5+ https://blog.rust-lang.org/2025/12/05/Updating-musl-1.2.5/
-  OpenHarmony uses a fork of musl 1.2 https://gitee.com/openharmony/docs/blob/master/en/application-dev/reference/native-lib/musl.md
+  OpenHarmony uses a fork of musl 1.2 and supports armv7/aarch64/x86_64 https://github.com/openharmony-rs/openharmony-docs/blob/OpenHarmony-v7.0-Beta1/en/application-dev/reference/native-lib/musl.md
 - uClibc-ng 1.0.43+ (through getauxval)
   https://github.com/wbx-github/uclibc-ng/commit/d869bb1600942c01a77539128f9ba5b5b55ad647
   Not always available on:
@@ -98,11 +98,13 @@ may have been fixed in https://github.com/rust-lang/rust/commit/9ed0d11efbec18a1
 See also https://github.com/rust-lang/stdarch/pull/1746.
 So as for musl with static linking, we assume that getauxval is always available also when `std` feature enabled.
 
-On platforms that we cannot assume that getauxval/elf_aux_info is always available, so we use dlsym
+On platforms that we cannot assume that getauxval/elf_aux_info is always available, so we use weakref
 instead of directly calling getauxval/elf_aux_info. (You can force getauxval/elf_aux_info to be
-called directly instead of using dlsym by `--cfg portable_atomic_outline_atomics`).
+called directly instead of using weakref by `--cfg portable_atomic_outline_atomics`).
 
-Also, note that dlsym usually not working with static linking.
+When statically linked, weakref may resolve to null even if the symbol is actually available.
+However, unlike dlsym it works if there are other strong references to the same symbol.
+(See test_weak_* tests.)
 
 # Linux/Android
 
@@ -175,40 +177,6 @@ mod os {
             #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
             pub(crate) const AT_HWCAP4: c_ulong = 30;
 
-            // Defined in dlfcn.h.
-            // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/dlfcn/dlfcn.h
-            // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
-            // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-            // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-            // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-            #[cfg(any(
-                test,
-                not(any(
-                    all(
-                        target_os = "linux",
-                        any(
-                            all(
-                                target_env = "gnu",
-                                any(
-                                    target_arch = "aarch64",
-                                    all(target_arch = "powerpc64", target_endian = "little"),
-                                ),
-                            ),
-                            target_env = "musl",
-                            target_env = "ohos",
-                        ),
-                    ),
-                    all(target_os = "android", target_pointer_width = "64"),
-                    portable_atomic_outline_atomics,
-                )),
-            ))]
-            #[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
-            pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
-            #[cfg(all(target_os = "android", target_pointer_width = "32"))]
-            #[allow(clippy::cast_sign_loss)]
-            pub(crate) const RTLD_DEFAULT: *mut c_void =
-                crate::utils::ptr::without_provenance_mut(-1_isize as usize);
-
             // Defined in sys/system_properties.h.
             // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
             #[cfg(all(target_arch = "aarch64", target_os = "android"))]
@@ -226,7 +194,6 @@ mod os {
                 // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.12/libc/include/sys/auxv.h
                 #[cfg(any(
-                    test,
                     all(
                         target_os = "linux",
                         any(
@@ -237,7 +204,10 @@ mod os {
                                     all(target_arch = "powerpc64", target_endian = "little"),
                                 ),
                             ),
-                            target_env = "musl",
+                            all(
+                                target_env = "musl",
+                                any(not(target_feature = "crt-static"), feature = "std"), // see module-level doc
+                            ),
                             target_env = "ohos",
                         ),
                     ),
@@ -245,36 +215,6 @@ mod os {
                     portable_atomic_outline_atomics,
                 ))]
                 pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
-
-                // Defined in dlfcn.h.
-                // https://man7.org/linux/man-pages/man3/dlsym.3.html
-                // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/dlfcn/dlfcn.h
-                // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
-                // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
-                // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-                #[cfg(any(
-                    test,
-                    not(any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                all(
-                                    target_env = "gnu",
-                                    any(
-                                        target_arch = "aarch64",
-                                        all(target_arch = "powerpc64", target_endian = "little"),
-                                    ),
-                                ),
-                                target_env = "musl",
-                                target_env = "ohos",
-                            ),
-                        ),
-                        all(target_os = "android", target_pointer_width = "64"),
-                        portable_atomic_outline_atomics,
-                    )),
-                ))]
-                pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
                 // Defined in sys/system_properties.h.
                 // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
@@ -301,7 +241,10 @@ mod os {
                                 all(target_arch = "powerpc64", target_endian = "little"),
                             ),
                         ),
-                        target_env = "musl",
+                        all(
+                            target_env = "musl",
+                            any(not(target_feature = "crt-static"), feature = "std"), // see module-level doc
+                        ),
                         target_env = "ohos",
                     ),
                 ),
@@ -314,14 +257,13 @@ mod os {
             }
             #[cfg(else)]
             {
-                // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
-                // is a valid pointer to the function if it is non-null.
-                let getauxval: GetauxvalTy = unsafe {
-                    let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
-                    if ptr.is_null() {
-                        return 0;
-                    }
-                    core::mem::transmute::<*mut ffi::c_void, GetauxvalTy>(ptr)
+                mod weak {
+                    weakref!(getauxval, Option<super::GetauxvalTy>);
+                }
+                // SAFETY: we've passed correct getauxval signature to weakref!.
+                let getauxval = match unsafe { weak::getauxval } {
+                    Some(getauxval) => getauxval,
+                    None => return 0,
                 };
             }
         });
@@ -363,31 +305,6 @@ mod os {
             #[cfg(test)]
             #[cfg(not(target_os = "openbsd"))]
             pub(crate) const AT_HWCAP4: c_int = 39;
-
-            // FreeBSD
-            // Defined in dlfcn.h.
-            // https://man.freebsd.org/dlsym(3)
-            // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/include/dlfcn.h
-            // OpenBSD
-            // Defined in dlfcn.h.
-            // https://man.openbsd.org/dlsym.3
-            // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/include/dlfcn.h
-            #[cfg(any(
-                test,
-                not(any(
-                    all(
-                        target_os = "freebsd",
-                        any(
-                            target_arch = "aarch64",
-                            all(target_arch = "powerpc64", target_endian = "little"),
-                        ),
-                    ),
-                    portable_atomic_outline_atomics,
-                )),
-            ))]
-            #[allow(clippy::cast_sign_loss)]
-            pub(crate) const RTLD_DEFAULT: *mut c_void =
-                crate::utils::ptr::without_provenance_mut(-2_isize as usize);
         });
 
         sys_fn!({
@@ -401,51 +318,25 @@ mod os {
                 // https://man.openbsd.org/elf_aux_info.3
                 // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/sys/auxv.h
                 #[cfg(any(
-                    test,
-                    any(
-                        all(
-                            target_os = "freebsd",
-                            any(
-                                target_arch = "aarch64",
-                                all(target_arch = "powerpc64", target_endian = "little"),
-                            ),
+                    all(
+                        target_os = "freebsd",
+                        any(
+                            target_arch = "aarch64",
+                            all(target_arch = "powerpc64", target_endian = "little"),
                         ),
-                        portable_atomic_outline_atomics,
                     ),
+                    portable_atomic_outline_atomics,
                 ))]
                 pub(crate) fn elf_aux_info(aux: c_int, buf: *mut c_void, buf_len: c_int) -> c_int;
-
-                // FreeBSD
-                // Defined in dlfcn.h.
-                // https://man.freebsd.org/dlsym(3)
-                // https://github.com/freebsd/freebsd-src/blob/release/15.1.0/include/dlfcn.h
-                // OpenBSD
-                // Defined in dlfcn.h.
-                // https://man.openbsd.org/dlsym.3
-                // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/include/dlfcn.h
-                #[cfg(any(
-                    test,
-                    not(any(
-                        all(
-                            target_os = "freebsd",
-                            any(
-                                target_arch = "aarch64",
-                                all(target_arch = "powerpc64", target_endian = "little"),
-                            ),
-                        ),
-                        portable_atomic_outline_atomics,
-                    )),
-                ))]
-                pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
             }
         });
     }
 
     pub(super) type ElfAuxInfoTy =
         unsafe extern "C" fn(ffi::c_int, *mut ffi::c_void, ffi::c_int) -> ffi::c_int;
-    pub(super) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
+    pub(super) fn elf_aux_info(aux: ffi::c_int, buf: &mut ffi::c_ulong) -> ffi::c_int {
         #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
-        const OUT_LEN: ffi::c_int = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
+        const BUF_LEN: ffi::c_int = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
 
         cfg_sel!({
             #[cfg(any(
@@ -464,26 +355,28 @@ mod os {
             }
             #[cfg(else)]
             {
-                // SAFETY: we passed a valid C string to dlsym, and a pointer returned by dlsym
-                // is a valid pointer to the function if it is non-null.
-                let elf_aux_info: ElfAuxInfoTy = unsafe {
-                    let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
-                    if ptr.is_null() {
-                        return 0;
-                    }
-                    mem::transmute::<*mut ffi::c_void, ElfAuxInfoTy>(ptr)
+                mod weak {
+                    weakref!(elf_aux_info, Option<super::ElfAuxInfoTy>);
+                }
+                // SAFETY: we've passed correct elf_aux_info signature to weakref!.
+                let elf_aux_info = match unsafe { weak::elf_aux_info } {
+                    Some(elf_aux_info) => elf_aux_info,
+                    // In elf_aux_info, 0 indicates success, so technically this isn't a correct emulation,
+                    // but since our caller doesn't care about this, we return the cheapest one.
+                    None => return 0,
                 };
             }
         });
 
-        let mut out: ffi::c_ulong = 0;
         // SAFETY:
         // - the pointer is valid because we got it from a reference.
-        // - `OUT_LEN` is the same as the size of `out`.
+        // - `BUF_LEN` is the same as the size of `buf`.
         // - `elf_aux_info` is thread-safe.
-        let res = unsafe {
-            elf_aux_info(aux, (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(), OUT_LEN)
-        };
+        unsafe { elf_aux_info(aux, (buf as *mut ffi::c_ulong).cast::<ffi::c_void>(), BUF_LEN) }
+    }
+    pub(super) fn getauxval(aux: ffi::c_int) -> ffi::c_ulong {
+        let mut out: ffi::c_ulong = 0;
+        let res = elf_aux_info(aux, &mut out);
         // If elf_aux_info fails, `out` will be left at zero (which is the proper default value).
         debug_assert!(res == 0 || out == 0);
         out
@@ -775,87 +668,183 @@ mod tests {
         );
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
-    #[test]
-    fn test_dlsym_getauxval() {
-        unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("getauxval").as_ptr());
-            if cfg!(target_feature = "crt-static") {
-                assert!(ptr.is_null());
-            } else if cfg!(any(
-                all(
-                    target_os = "linux",
-                    any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
-                ),
-                target_os = "android",
-            )) {
-                assert!(!ptr.is_null());
-            } else if option_env!("CI").is_some() {
-                assert!(ptr.is_null());
-            }
-            if ptr.is_null() {
-                return;
-            }
-            let dlsym_getauxval = mem::transmute::<*mut ffi::c_void, os::GetauxvalTy>(ptr);
-            for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
-                assert_eq!(dlsym_getauxval(at), ffi::getauxval(at));
-            }
-            #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
-            for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-                assert_eq!(dlsym_getauxval(at), ffi::getauxval(at));
+    #[cfg_attr(
+        not(portable_atomic_no_target_abi),
+        cfg(not(all(target_arch = "aarch64", target_abi = "pauthtest")))
+    )]
+    mod weak {
+        use super::*;
+
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        weakref!(getauxval, Option<os::GetauxvalTy>);
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        weakref!(getauxval9, Option<os::GetauxvalTy>); // unavailable symbol
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        mod multiple {
+            // multiple .weakref
+            use super::os;
+            weakref!(getauxval, Option<os::GetauxvalTy>);
+            weakref!(getauxval9, Option<os::GetauxvalTy>); // unavailable symbol
+        }
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        #[test]
+        fn test_weak_getauxval() {
+            unsafe {
+                let ptr = libc::dlsym(libc::RTLD_DEFAULT, c!("getauxval").as_ptr());
+                let ptr = mem::transmute::<*mut ffi::c_void, Option<os::GetauxvalTy>>(ptr);
+                let ptr2 = getauxval;
+                let ptr4 = getauxval9;
+                let ptr3 = multiple::getauxval;
+                let ptr5 = multiple::getauxval9;
+                assert!(ptr4.is_none());
+                assert!(ptr5.is_none());
+                if cfg!(any(
+                    all(
+                        target_os = "linux",
+                        any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
+                    ),
+                    target_os = "android",
+                )) {
+                    assert_eq!(ptr.is_none(), cfg!(target_feature = "crt-static"));
+                    assert!(ptr2.is_some());
+                    assert!(ptr3.is_some());
+                } else if option_env!("CI").is_some() {
+                    assert!(ptr.is_none());
+                    assert!(ptr2.is_none());
+                    assert!(ptr3.is_none());
+                }
+                if ptr2.is_none() {
+                    return;
+                }
+                #[cfg(not(target_feature = "crt-static"))]
+                let dlsym_getauxval = ptr.unwrap();
+                let weak_getauxval = ptr2.unwrap();
+                let weak2_getauxval = ptr3.unwrap();
+                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(dlsym_getauxval(at), os::getauxval(at));
+                    assert_eq!(weak_getauxval(at), os::getauxval(at));
+                    assert_eq!(weak2_getauxval(at), os::getauxval(at));
+                }
+                #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))]
+                for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(dlsym_getauxval(at), os::getauxval(at));
+                    assert_eq!(weak_getauxval(at), os::getauxval(at));
+                    assert_eq!(weak2_getauxval(at), os::getauxval(at));
+                }
             }
         }
-    }
-    #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
-    #[test]
-    fn test_dlsym_elf_aux_info() {
-        unsafe {
-            let ptr = ffi::dlsym(ffi::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
-            if cfg!(target_feature = "crt-static") {
-                assert!(ptr.is_null());
-            } else if cfg!(target_os = "freebsd") || option_env!("CI").is_some() {
-                assert!(!ptr.is_null());
-            }
-            if ptr.is_null() {
-                return;
-            }
-            let dlsym_elf_aux_info = mem::transmute::<*mut ffi::c_void, os::ElfAuxInfoTy>(ptr);
-            #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
-            let out_len = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
-            for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
-                let mut out: ffi::c_ulong = 0;
-                let mut dlsym_out: ffi::c_ulong = 0;
-                assert_eq!(
-                    ffi::elf_aux_info(
-                        at,
-                        (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                        out_len,
-                    ),
-                    dlsym_elf_aux_info(
-                        at,
-                        (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                        out_len,
-                    ),
-                );
-                assert_eq!(out, dlsym_out);
-            }
-            #[cfg(not(target_os = "openbsd"))]
-            for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
-                let mut out: ffi::c_ulong = 0;
-                let mut dlsym_out: ffi::c_ulong = 0;
-                assert_eq!(
-                    ffi::elf_aux_info(
-                        at,
-                        (&mut out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                        out_len,
-                    ),
-                    dlsym_elf_aux_info(
-                        at,
-                        (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
-                        out_len,
-                    ),
-                );
-                assert_eq!(out, dlsym_out);
+        #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
+        weakref!(elf_aux_info, Option<os::ElfAuxInfoTy>);
+        #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
+        weakref!(elf_aux_info9, Option<os::ElfAuxInfoTy>); // unavailable symbol
+        #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
+        mod multiple {
+            // multiple .weakref
+            use super::os;
+            weakref!(elf_aux_info, Option<os::ElfAuxInfoTy>);
+            weakref!(elf_aux_info9, Option<os::ElfAuxInfoTy>); // unavailable symbol
+        }
+        #[cfg(any(target_os = "freebsd", target_os = "openbsd"))]
+        #[test]
+        fn test_weak_elf_aux_info() {
+            unsafe {
+                let ptr = libc::dlsym(libc::RTLD_DEFAULT, c!("elf_aux_info").as_ptr());
+                let ptr = mem::transmute::<*mut ffi::c_void, Option<os::ElfAuxInfoTy>>(ptr);
+                let ptr2 = elf_aux_info;
+                let ptr4 = elf_aux_info9;
+                let ptr3 = multiple::elf_aux_info;
+                let ptr5 = multiple::elf_aux_info9;
+                assert!(ptr4.is_none());
+                assert!(ptr5.is_none());
+                if cfg!(target_os = "freebsd")
+                    || option_env!("CI").is_some() && option_env!("OS_VERSION") != Some("7.5")
+                {
+                    assert_eq!(ptr.is_none(), cfg!(target_feature = "crt-static"));
+                    assert!(ptr2.is_some());
+                    assert!(ptr3.is_some());
+                } else if option_env!("CI").is_some() {
+                    assert!(ptr.is_none());
+                    assert!(ptr2.is_none());
+                    assert!(ptr3.is_none());
+                }
+                if ptr2.is_none() {
+                    return;
+                }
+                #[cfg(not(target_feature = "crt-static"))]
+                let dlsym_elf_aux_info = ptr.unwrap();
+                let weak_elf_aux_info = ptr2.unwrap();
+                let weak2_elf_aux_info = ptr3.unwrap();
+                #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
+                let out_len = mem::size_of::<ffi::c_ulong>() as ffi::c_int;
+                for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2] {
+                    let mut out: ffi::c_ulong = 0;
+                    let mut dlsym_out: ffi::c_ulong = 0;
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        dlsym_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(out, dlsym_out);
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        weak_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    assert_eq!(out, dlsym_out);
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        weak2_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    assert_eq!(out, dlsym_out);
+                }
+                #[cfg(not(target_os = "openbsd"))]
+                for &at in &[ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
+                    let mut out: ffi::c_ulong = 0;
+                    let mut dlsym_out: ffi::c_ulong = 0;
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        dlsym_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    #[cfg(not(target_feature = "crt-static"))]
+                    assert_eq!(out, dlsym_out);
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        weak_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    assert_eq!(out, dlsym_out);
+                    assert_eq!(
+                        os::elf_aux_info(at, &mut out),
+                        weak2_elf_aux_info(
+                            at,
+                            (&mut dlsym_out as *mut ffi::c_ulong).cast::<ffi::c_void>(),
+                            out_len,
+                        ),
+                    );
+                    assert_eq!(out, dlsym_out);
+                }
             }
         }
     }

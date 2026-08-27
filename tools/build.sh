@@ -71,6 +71,7 @@ default_targets=(
   aarch64-unknown-linux-gnu
   aarch64-unknown-linux-musl
   aarch64-unknown-linux-uclibc # custom target
+  aarch64-unknown-linux-pauthtest
   aarch64-unknown-netbsd
   aarch64-unknown-openbsd
   aarch64-unknown-illumos
@@ -165,7 +166,8 @@ is_no_std() {
     # https://github.com/rust-lang/rust/blob/1.84.0/library/std/build.rs#L65
     # ESP-IDF and AIX supports std, but they are often broken.
     # aarch64-unknown-linux-uclibc is a custom target and libc/std currently doesn't support it.
-    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | *-aix | aarch64-unknown-linux-uclibc) return 0 ;;
+    # https://github.com/rust-lang/rust/blob/1ed2df61a19042f231709eb05d032ae9e2cb2084/compiler/rustc_target/src/spec/targets/aarch64_unknown_linux_pauthtest.rs#L13
+    *-none* | *-psp* | *-psx* | *-cuda* | avr* | *-espidf | *-aix | *-pauthtest | aarch64-unknown-linux-uclibc) return 0 ;;
   esac
   return 1
 }
@@ -428,16 +430,19 @@ build() {
       fi
       # TODO: handle SIGILL and ERR
       sed -E "${in_place[@]}" 's/^# (.* #build:static_assert_ffi)/\1/g' Cargo.toml
-      RUSTFLAGS="${target_rustflags} --cfg portable_atomic_test_no_std_static_assert_ffi" \
+      cfg_assert_ffi=' --cfg portable_atomic_test_no_std_static_assert_ffi'
+      case "${target}" in
+        *-pauthtest) cfg_assert_ffi='' ;; # TODO: test-helper uses std
+      esac
+      RUSTFLAGS="${target_rustflags}${cfg_assert_ffi}" \
         x_cargo "${args[@]}" --no-dev-deps --features float --manifest-path Cargo.toml "$@"
       case "${target}" in
-        # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux, powerpc64, and RISC-V Linux.
+        # portable_atomic_outline_atomics only affects AArch64 non-{glibc,ohos}-Linux, AArch64 OpenBSD (test-only), and powerpc64.
         # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-        # RISC-V Linux is skipped because outline-atomics is enabled by default.
         aarch64*-linux-gnu*) ;;
-        aarch64*-linux-* | powerpc64-*)
+        aarch64*-linux-* | aarch64*-openbsd* | powerpc64-*)
           CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
-            RUSTFLAGS="${target_rustflags} --cfg portable_atomic_test_no_std_static_assert_ffi --cfg portable_atomic_outline_atomics" \
+            RUSTFLAGS="${target_rustflags}${cfg_assert_ffi} --cfg portable_atomic_outline_atomics" \
             x_cargo "${args[@]}" --no-dev-deps --features float --manifest-path Cargo.toml "$@"
           ;;
       esac
@@ -601,9 +606,9 @@ build() {
   # Check {,no-}outline-atomics
   case "${target}" in
     # portable_atomic_no_outline_atomics only affects x86_64, AArch64, Arm, powerpc64, and RISC-V Linux.
-    # outline-atomics is disabled by default on AArch64/powerpc64 musl with static linking, and AIX.
+    # outline-atomics is disabled by default on AIX.
     # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-    aarch64*-linux-musl* | powerpc64-*-linux-musl* | powerpc64-*-aix) ;;
+    powerpc64-*-aix) ;;
     x86_64* | aarch64* | arm* | thumb* | powerpc64-* | riscv*-linux-*)
       CARGO_TARGET_DIR="${target_dir}/no-outline-atomics" \
         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_no_outline_atomics" \
@@ -611,11 +616,10 @@ build() {
       ;;
   esac
   case "${target}" in
-    # portable_atomic_outline_atomics only affects AArch64 non-glibc-Linux, powerpc64, and RISC-V Linux.
+    # portable_atomic_outline_atomics only affects AArch64 non-{glibc,ohos}-Linux, AArch64 OpenBSD (test-only), and powerpc64.
     # powerpc64le- (little-endian) is skipped because it is pwr8 by default
-    # RISC-V Linux is skipped because outline-atomics is enabled by default.
     aarch64*-linux-gnu*) ;;
-    aarch64*-linux-* | powerpc64-*)
+    aarch64*-linux-* | aarch64*-openbsd* | powerpc64-*)
       CARGO_TARGET_DIR="${target_dir}/outline-atomics" \
         RUSTFLAGS="${target_rustflags} --cfg portable_atomic_outline_atomics" \
         x_cargo "${args[@]}" "$@"
@@ -626,22 +630,27 @@ build() {
   esac
   # Check target features
   case "${target}" in
+    # pointer authentication requires dynamic linking.
+    *-pauthtest) ;;
     # Only AArch64 and powerpc64 detections are affected by crt-static.
     aarch64* | powerpc64-*)
-      # Script to get builtin targets that support crt-static:
-      #   rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value."crt-static-respected" == true then .value.os else empty end' | LC_ALL=C sort -u | tr '\n' '|' | sed -E 's/\|$/\n/g'
-      if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
-        if grep -Eq '^target_feature="crt-static"' <<<"${cfgs}"; then
-          CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static" \
-            x_cargo "${args[@]}" "$@"
-          CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
-            x_cargo "${args[@]}" "$@"
-        else
-          CARGO_TARGET_DIR="${target_dir}/crt-static" \
-            RUSTFLAGS="${target_rustflags} -C target-feature=+crt-static" \
-            x_cargo "${args[@]}" ${no_target_flags+"--target=${target}"} "$@"
+      # Only musl has cfg(target_feature = "crt-static") dependent code in production.
+      if [[ "${target}" == *'-linux-musl'* ]] || [[ -n "${TESTS:-}" ]]; then
+        # Script to get builtin targets that support crt-static:
+        #   rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value."crt-static-respected" == true then .value.os else empty end' | LC_ALL=C sort -u | tr '\n' '|' | sed -E 's/\|$/\n/g'
+        if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
+          if grep -Eq '^target_feature="crt-static"' <<<"${cfgs}"; then
+            CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
+              RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static" \
+              x_cargo "${args[@]}" "$@"
+            CARGO_TARGET_DIR="${target_dir}/no-crt-static-no-outline-atomics" \
+              RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static --cfg portable_atomic_no_outline_atomics" \
+              x_cargo "${args[@]}" "$@"
+          else
+            CARGO_TARGET_DIR="${target_dir}/crt-static" \
+              RUSTFLAGS="${target_rustflags} -C target-feature=+crt-static" \
+              x_cargo "${args[@]}" ${no_target_flags+"--target=${target}"} "$@"
+          fi
         fi
       fi
       ;;
