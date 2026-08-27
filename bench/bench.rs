@@ -24,7 +24,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 
 #[allow(unused_macros)]
 #[macro_use]
-#[path = "../../src/cfgs.rs"]
+#[path = "../src/cfgs.rs"]
 mod cfgs;
 #[cfg(target_pointer_width = "16")]
 use self::{cfg_has_atomic_16 as cfg_has_atomic_ptr, cfg_no_atomic_16 as cfg_no_atomic_ptr};
@@ -37,18 +37,18 @@ use self::{cfg_has_atomic_128 as cfg_has_atomic_ptr, cfg_no_atomic_128 as cfg_no
 
 #[macro_use]
 #[allow(dead_code, unused_macros)]
-#[path = "../../src/utils.rs"]
+#[path = "../src/utils.rs"]
 mod utils;
 #[allow(dead_code, unused_macros)]
 #[macro_use]
-#[path = "../../src/tests"]
+#[path = "../src/tests"]
 mod tests {
     #[macro_use]
     pub(crate) mod helper;
 }
 
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/mod.rs"]
+#[path = "../src/imp/mod.rs"]
 mod imp;
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 use core::sync::atomic::fence;
@@ -61,15 +61,15 @@ use self::imp::x86::fence;
 //     all(any(target_arch = "aarch64", target_arch = "arm64ec"), target_endian = "little"),
 // ))]
 // #[allow(dead_code, unused_imports)]
-// #[path = "../../src/imp/atomic128/intrinsics.rs"]
+// #[path = "../src/imp/atomic128/intrinsics.rs"]
 // mod intrinsics;
 #[allow(dead_code, unused_imports)]
-#[path = "../../src/imp/fallback/mod.rs"]
+#[path = "../src/imp/fallback/mod.rs"]
 mod seqlock_fallback;
 #[allow(unused_imports)]
 use self::seqlock_fallback as fallback;
 #[allow(dead_code, unused_imports)]
-#[path = "imp/spinlock_fallback.rs"]
+#[path = "src/spinlock_fallback.rs"]
 mod spinlock_fallback;
 
 const THREADS: usize = 2;

@@ -32,6 +32,7 @@ windows-sys = { version = "0.61", features = [
 
 [[bench]]
 name = "bench"
+path = "bench.rs"
 harness = false
 
 [lints]
