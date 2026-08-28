@@ -646,6 +646,8 @@ fn main() {
             if !version.probe(83, 2024, 9, 27) || needs_target_feature_fallback(&version, None) {
                 // power8 features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/PowerPC/PPC.td#L498
                 let mut quadword_atomics = false;
+                // Note that `-C target-cpu=native` is currently ignored.
+                // (Technically, supporting it is possible on PowerPC64 Linux by reusing the code in src/imp/detect.
                 if let Some(cpu) = rustflags.target_cpu {
                     if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
@@ -699,6 +701,7 @@ fn main() {
         "s390x" => {
             let mut arch9_features = false; // z196+
             let mut arch13_features = false; // z15+
+            // Note that `-C target-cpu=native` is currently ignored.
             if let Some(cpu) = rustflags.target_cpu {
                 // LLVM and GCC recognize the same names:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td
