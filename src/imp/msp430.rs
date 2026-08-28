@@ -159,7 +159,7 @@ items!({
                         #[cfg(portable_atomic_no_asm)]
                         llvm_asm!(
                             concat!("add.", $size, " $1, $0")
-                            :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                            :: "*m"(dst), "ir"(val) : "memory", "sr" : "volatile"
                         );
                     }
                 }
@@ -181,7 +181,7 @@ items!({
                         #[cfg(portable_atomic_no_asm)]
                         llvm_asm!(
                             concat!("sub.", $size, " $1, $0")
-                            :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                            :: "*m"(dst), "ir"(val) : "memory", "sr" : "volatile"
                         );
                     }
                 }
@@ -203,7 +203,7 @@ items!({
                         #[cfg(portable_atomic_no_asm)]
                         llvm_asm!(
                             concat!("and.", $size, " $1, $0")
-                            :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                            :: "*m"(dst), "ir"(val) : "memory", "sr" : "volatile"
                         );
                     }
                 }
@@ -246,7 +246,7 @@ items!({
                         #[cfg(portable_atomic_no_asm)]
                         llvm_asm!(
                             concat!("xor.", $size, " $1, $0")
-                            :: "*m"(dst), "ir"(val) : "memory" : "volatile"
+                            :: "*m"(dst), "ir"(val) : "memory", "sr" : "volatile"
                         );
                     }
                 }
@@ -267,7 +267,7 @@ items!({
                         #[cfg(portable_atomic_no_asm)]
                         llvm_asm!(
                             concat!("inv.", $size, " $0")
-                            :: "*m"(dst) : "memory" : "volatile"
+                            :: "*m"(dst) : "memory", "sr" : "volatile"
                         );
                     }
                 }

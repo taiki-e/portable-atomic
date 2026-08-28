@@ -50,7 +50,7 @@ pub(crate) fn disable() -> State {
         llvm_asm!(
             "in $0, 0x3F
              cli"
-            : "=r"(sreg) :: "memory" : "volatile");
+            : "=r"(sreg) :: "memory", "sreg" : "volatile");
     }
     sreg
 }
@@ -78,6 +78,6 @@ pub(crate) unsafe fn restore(prev_sreg: State) {
             options(nostack),
         );
         #[cfg(portable_atomic_no_asm)]
-        llvm_asm!("out 0x3F, $0" :: "r"(prev_sreg) : "memory" : "volatile");
+        llvm_asm!("out 0x3F, $0" :: "r"(prev_sreg) : "memory", "sreg" : "volatile");
     }
 }
