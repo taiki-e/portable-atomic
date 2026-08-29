@@ -800,7 +800,6 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
@@ -831,7 +830,6 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
@@ -894,7 +892,6 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
@@ -935,7 +932,6 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
