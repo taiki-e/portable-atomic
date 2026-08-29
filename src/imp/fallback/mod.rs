@@ -369,8 +369,8 @@ macro_rules! atomic {
                 // Grab a regular write lock so that writers don't starve this load.
                 let guard = lock.write();
                 let val = self.read(&guard);
-                // The value hasn't been changed. Drop the guard without incrementing the stamp.
-                guard.abort();
+                // SAFETY: The value hasn't been changed. Drop the guard without incrementing the stamp.
+                unsafe { guard.abort() }
                 val
             }
 
@@ -411,8 +411,8 @@ macro_rules! atomic {
                     self.write(new, &guard);
                     Ok(prev)
                 } else {
-                    // The value hasn't been changed. Drop the guard without incrementing the stamp.
-                    guard.abort();
+                    // SAFETY: The value hasn't been changed. Drop the guard without incrementing the stamp.
+                    unsafe { guard.abort() }
                     Err(prev)
                 }
             }

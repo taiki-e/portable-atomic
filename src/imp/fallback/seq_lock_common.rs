@@ -61,8 +61,12 @@ pub(crate) struct SeqLockWriteGuard<'a> {
 
 impl SeqLockWriteGuard<'_> {
     /// Releases the lock without incrementing the stamp.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that the value hasn't been changed.
     #[inline]
-    pub(crate) fn abort(self) {
+    pub(crate) unsafe fn abort(self) {
         // We specifically don't want to call drop(), since that's
         // what increments the stamp.
         let this = ManuallyDrop::new(self);
@@ -122,6 +126,20 @@ mod tests {
     }
 
     #[test]
+    fn test_abort() {
+        let lock = SeqLock::new();
+        let before = lock.optimistic_read().unwrap();
+        {
+            let guard = lock.write();
+            assert!(lock.optimistic_read().is_none());
+            // SAFETY: The value hasn't been changed.
+            unsafe { guard.abort() }
+        }
+        let after = lock.optimistic_read().unwrap();
+        assert_eq!(before, after, "aborted write does not update the stamp");
+    }
+
+    #[test]
     fn test_wrap() {
         let lock = SeqLock::new();
         let zero = lock.optimistic_read().unwrap();
@@ -140,18 +158,5 @@ mod tests {
         {
             assert_eq!(lock.state.load(Ordering::Relaxed) & 0xFFFF_FFFF, 0);
         }
-    }
-
-    #[test]
-    fn test_abort() {
-        let lock = SeqLock::new();
-        let before = lock.optimistic_read().unwrap();
-        {
-            let guard = lock.write();
-            assert!(lock.optimistic_read().is_none());
-            guard.abort();
-        }
-        let after = lock.optimistic_read().unwrap();
-        assert_eq!(before, after, "aborted write does not update the stamp");
     }
 }
