@@ -15,6 +15,8 @@ fn test() {
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_ilp32", "aarch64-unknown-linux-gnu_ilp32")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
+        Revision::new("aarch64_apple", "aarch64-apple-darwin")
+            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_msvc", "aarch64-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_lse", "aarch64-unknown-linux-gnu")
@@ -31,6 +33,9 @@ fn test() {
             .rustc_args(["-C", "target-feature=+lse2,+lse128,+rcpc3"]),
         Revision::new("aarch64_lsfe", "aarch64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+lsfe"]),
+        // .inst directive version
+        Revision::new("aarch64_lse2_lse128_rcpc3_lsfe_pre_llvm_16", "aarch64-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+lse2,+lse128,+rcpc3,+lsfe", "--cfg", "portable_atomic_pre_llvm_16", "--cfg", "portable_atomic_pre_llvm_20"]),
         // Arm64EC
         Revision::new("arm64ec", "arm64ec-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
@@ -63,6 +68,9 @@ fn test() {
             .rustc_args(["-C", "target-feature=+zabha", "--cfg", "portable_atomic_unsafe_assume_single_core"]),
         Revision::new("riscv64gc_zacas", "riscv64gc-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+zacas"]),
+        // .4byte directive version
+        Revision::new("riscv64gc_zacas_pre_llvm_20", "riscv64gc-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+zacas", "--cfg", "portable_atomic_pre_llvm_20"]),
         Revision::new("riscv32i_single_core", "riscv32i-unknown-none-elf")
             .rustc_args(["--cfg", "portable_atomic_unsafe_assume_single_core"]),
         Revision::new("riscv32i_single_core_s_mode", "riscv32i-unknown-none-elf")
@@ -92,6 +100,9 @@ fn test() {
             .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
         Revision::new("x86_64_cmpxchg16b_avx_msvc", "x86_64-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=+cmpxchg16b,+avx"]),
+        // asm bit-opts version
+        Revision::new("x86_64_cmpxchg16b_pre_llvm_16", "x86_64-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+cmpxchg16b", "--cfg", "portable_atomic_pre_llvm_16"]),
         Revision::new("x86", "i686-unknown-linux-gnu"),
     ];
     let esp_revisions = &[
