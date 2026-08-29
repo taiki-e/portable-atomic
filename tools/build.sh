@@ -90,7 +90,8 @@ default_targets=(
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "arm64ec" then .key else empty end'
   arm64ec-pc-windows-msvc
 
-  # arm pre-v6 linux-like
+  # arm
+  # pre-v6 linux-like
   armv4t-unknown-linux-gnueabi
   armv5te-unknown-linux-gnueabi
   arm-linux-androideabi
