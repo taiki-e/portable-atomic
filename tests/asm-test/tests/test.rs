@@ -53,6 +53,11 @@ fn test() {
             .rustc_args(["-C", "target-cpu=atmega2560"]),
         Revision::new("avr_rmw", "avr-none")
             .rustc_args(["-C", "target-cpu=atxmega384c3"]),
+        // LoongArch32 and LoongArch64
+        Revision::new("loongarch32", "loongarch32-unknown-none"),
+        Revision::new("loongarch64", "loongarch64-unknown-linux-gnu"),
+        Revision::new("loongarch64_v1_1", "loongarch64-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+lam-bh,+lamcas,+scq"]),
         // MSP430
         Revision::new("msp430", "msp430-none-elf"),
         // PowerPC64

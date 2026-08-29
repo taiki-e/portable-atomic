@@ -91,6 +91,7 @@ isellt
 ishld
 isync
 kuser
+lamcas
 lcgr
 ldar
 ldaxp
