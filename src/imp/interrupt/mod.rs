@@ -269,9 +269,9 @@ items!({
             any(target_arch = "riscv32", target_arch = "riscv64"),
             not(feature = "critical-section"),
             any(
-                portable_atomic_force_amo,
                 target_feature = "zaamo",
                 portable_atomic_target_feature = "zaamo",
+                portable_atomic_force_amo,
             ),
         )))]
         items!({
@@ -390,9 +390,9 @@ items!({
                         #[cfg(all(
                             any(target_arch = "riscv32", target_arch = "riscv64"),
                             any(
-                                portable_atomic_force_amo,
                                 target_feature = "zaamo",
                                 portable_atomic_target_feature = "zaamo",
+                                portable_atomic_force_amo,
                             ),
                         ))]
                         {

@@ -36,9 +36,9 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 #[cfg(any(
     test,
-    portable_atomic_force_amo,
     target_feature = "zaamo",
     portable_atomic_target_feature = "zaamo",
+    portable_atomic_force_amo,
 ))]
 items!({
     macro_rules! atomic_rmw_amo_ext {
@@ -63,7 +63,7 @@ items!({
             macro_rules! op {
                 ($asm_order:tt) => {
                     // SAFETY: The user guaranteed that the AMO instruction is available in this
-                    // system by setting the portable_atomic_force_amo/target_feature and
+                    // system by setting the target_feature or portable_atomic_force_amo +
                     // portable_atomic_unsafe_assume_single_core.
                     // The caller of this macro must guarantee the validity of the pointer.
                     asm!(
@@ -276,9 +276,9 @@ macro_rules! atomic_base {
         atomic_load_store!($([$($generics)*])? $atomic_type, $value_type, $size);
         #[cfg(any(
             test,
-            portable_atomic_force_amo,
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
+            portable_atomic_force_amo,
         ))]
         items!({
             // There is no amo{sub,nand,neg}.
@@ -340,9 +340,9 @@ macro_rules! atomic {
         atomic_base!($atomic_type, $value_type, $value_type, $size, fetch_add, fetch_sub);
         #[cfg(any(
             test,
-            portable_atomic_force_amo,
             target_feature = "zaamo",
             portable_atomic_target_feature = "zaamo",
+            portable_atomic_force_amo,
         ))]
         items!({
             // There is no amo{sub,nand,neg}.
@@ -399,9 +399,9 @@ macro_rules! atomic_sub_word {
                 atomic_load_store!($atomic_type, $value_type, $size);
                 #[cfg(any(
                     test,
-                    portable_atomic_force_amo,
                     target_feature = "zaamo",
                     portable_atomic_target_feature = "zaamo",
+                    portable_atomic_force_amo,
                 ))]
                 items!({
                     impl $atomic_type {

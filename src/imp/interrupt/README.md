@@ -22,7 +22,7 @@ For some targets, the implementation can be changed by explicitly enabling featu
 - On Arm (except for M-Profile architectures) with the `disable-fiq` feature (or `portable_atomic_disable_fiq` cfg), this disables interrupts by modifying the I (IRQ mask) bit and F (FIQ mask) bit of the CPSR.
 - On RISC-V, this disables interrupts by modifying the MIE (Machine Interrupt Enable) bit of the `mstatus` register.
 - On RISC-V with the `s-mode` feature (or `portable_atomic_s_mode` cfg), this disables interrupts by modifying the SIE (Supervisor Interrupt Enable) bit of the `sstatus` register.
-- On RISC-V with the `zaamo` target feature (or `force-amo` feature or `portable_atomic_force_amo` cfg), this uses AMO instructions for RMWs that have corresponding AMO instructions even if A-extension is disabled. For other RMWs, this disables interrupts as usual.
+- On RISC-V with the `zaamo` target feature (or `portable_atomic_target_feature="zaamo"` cfg or `force-amo` feature or `portable_atomic_force_amo` cfg), this uses AMO instructions for RMWs that have corresponding AMO instructions even if A-extension is disabled. For other RMWs, this disables interrupts as usual.
 - On MSP430, this disables interrupts by modifying the GIE (Global Interrupt Enable) bit of the status register (SR).
 - On AVR, this disables interrupts by modifying the I (Global Interrupt Enable) bit of the status register (SREG).
 - On Xtensa, this disables interrupts by modifying the PS special register.
