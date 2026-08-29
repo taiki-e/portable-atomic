@@ -2057,8 +2057,7 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -2066,24 +2065,21 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -2091,8 +2087,7 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -2100,8 +2095,7 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -2109,72 +2103,63 @@ asm_test::compare_exchange::bool::release_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         mv                a3, a1
         amocas.b          a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         mv                a3, a1
         amocas.b.rl       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -3297,8 +3282,7 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -3306,24 +3290,21 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -3331,8 +3312,7 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -3340,8 +3320,7 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
@@ -3349,72 +3328,63 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         mv                a3, a1
         fence             rw, rw
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         mv                a3, a1
         amocas.b.aq       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         mv                a3, a1
         amocas.b          a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         mv                a3, a1
         amocas.b.aqrl     a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         mv                a3, a1
         amocas.b.rl       a3, a2, (a0)
-        xor               a1, a1, a3
-        snez              a0, a1
+        xor               a0, a1, a3
         mv                a1, a3
         ret
 

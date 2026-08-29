@@ -2087,136 +2087,121 @@ asm_test::compare_exchange::u64::release_relaxed:
 asm_test::compare_exchange::bool::acqrel_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         mov               w8, w1
         casb              w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         mov               w8, w1
         caslb             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
@@ -3257,136 +3242,121 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         mov               w8, w1
         casab             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         mov               w8, w1
         casb              w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         mov               w8, w1
         casalb            w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         mov               w8, w1
         caslb             w8, w2, [x0]
-        cmp               w8, w1
+        eor               w9, w1, w8
         mov               w1, w8
-        cset              w9, eq
-        eor               w0, w9, #0x1
+        and               w0, w9, #0x1
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:

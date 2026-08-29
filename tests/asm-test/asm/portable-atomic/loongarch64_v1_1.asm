@@ -1747,120 +1747,105 @@ asm_test::compare_exchange::u64::release_relaxed:
 asm_test::compare_exchange::bool::acqrel_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         move              $a3, $a1
         amcas.b           $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
@@ -2617,120 +2602,105 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         move              $a3, $a1
         amcas.b           $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         move              $a3, $a1
         amcas_db.b        $a3, $a2, $a0
-        xor               $a0, $a3, $a1
-        sltu              $a0, $zero, $a0
+        xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
