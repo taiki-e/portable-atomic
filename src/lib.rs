@@ -2767,8 +2767,8 @@ impl<'a, T: 'a> AtomicPtr<T> {
 } // cfg_no_atomic_cas!
 } // cfg_has_atomic_ptr!
 
+// Atomic{I,U}* impls
 macro_rules! atomic_int {
-    // Atomic{I,U}* impls
     ($atomic_type:ident, $int_type:ident, $align:literal,
         $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
         $(, #[$cfg_float:meta] $atomic_float_type:ident, $float_type:ident)?
@@ -4209,20 +4209,23 @@ assert_eq!(foo.load(Ordering::Relaxed), 5);
         } // cfg_no_atomic_cas!
         $(
             #[$cfg_float]
-            atomic_int!(float,
-                #[$cfg_float] $atomic_float_type, $float_type, $atomic_type, $int_type, $align
+            atomic_float!(
+                #[$cfg_float] $atomic_float_type, $float_type, $atomic_type, $int_type, $align,
+                $cfg_has_atomic_cas_or_amo32_or_8, $cfg_no_atomic_cas_or_amo32_or_8
             );
         )?
     };
-
-    // AtomicF* impls
-    (float,
+}
+// AtomicF* impls
+#[cfg(feature = "float")]
+#[allow(unused_macros)]
+macro_rules! atomic_float {
+    (
         #[$cfg_float:meta]
-        $atomic_type:ident,
-        $float_type:ident,
-        $atomic_int_type:ident,
-        $int_type:ident,
-        $align:literal
+        $atomic_type:ident, $float_type:ident,
+        $atomic_int_type:ident, $int_type:ident,
+        $align:literal,
+        $cfg_has_atomic_cas_or_amo32_or_8:ident, $cfg_no_atomic_cas_or_amo32_or_8:ident
     ) => {
         doc_comment! {
             concat!("A floating point type which can be safely shared between threads.
@@ -4449,6 +4452,7 @@ This is `const fn` on Rust 1.58+.
             }
 
             cfg_has_atomic_cas_or_amo32! {
+            $cfg_has_atomic_cas_or_amo32_or_8! {
             /// Stores a value into the atomic float, returning the previous value.
             ///
             /// `swap` takes an [`Ordering`] argument which describes the memory ordering
@@ -4460,6 +4464,7 @@ This is `const fn` on Rust 1.58+.
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 self.inner.swap(val, order)
             }
+            } // $cfg_has_atomic_cas_or_amo32_or_8!
 
             cfg_has_atomic_cas! {
             /// Stores a value into the atomic float if the current value is the same as
@@ -4730,7 +4735,7 @@ This is `const fn` on Rust 1.58+."),
         #[doc(hidden)]
         #[allow(unused_variables, clippy::unused_self, clippy::extra_unused_lifetimes)]
         impl<'a> $atomic_type {
-            cfg_no_atomic_cas_or_amo32! {
+            $cfg_no_atomic_cas_or_amo32_or_8! {
             #[inline]
             pub fn swap(&self, val: $float_type, order: Ordering) -> $float_type
             where
@@ -4738,7 +4743,7 @@ This is `const fn` on Rust 1.58+."),
             {
                 unimplemented!()
             }
-            } // cfg_no_atomic_cas_or_amo32!
+            } // $cfg_no_atomic_cas_or_amo32_or_8!
             #[inline]
             pub fn compare_exchange(
                 &self,

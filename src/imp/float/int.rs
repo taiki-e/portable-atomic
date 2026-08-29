@@ -26,7 +26,7 @@ use core::{cell::UnsafeCell, sync::atomic::Ordering};
 macro_rules! atomic_float {
     (
         $atomic_type:ident, $float_type:ident, $atomic_int_type:ident, $int_type:ident,
-        $align:literal
+        $align:literal, $cfg_has_atomic_cas_or_amo32_or_8:ident
     ) => {
         #[repr(C, align($align))]
         pub(crate) struct $atomic_type {
@@ -85,12 +85,16 @@ macro_rules! atomic_float {
         }
 
         cfg_has_atomic_cas_or_amo32! {
+        $cfg_has_atomic_cas_or_amo32_or_8! {
         impl $atomic_type {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn swap(&self, val: $float_type, order: Ordering) -> $float_type {
                 $float_type::from_bits(self.as_bits().swap(val.to_bits(), order))
             }
+        }
+        } // $cfg_has_atomic_cas_or_amo32_or_8!
+        impl $atomic_type {
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn fetch_neg(&self, order: Ordering) -> $float_type {
@@ -210,15 +214,15 @@ macro_rules! atomic_float {
 
 #[cfg(portable_atomic_unstable_f16)]
 cfg_has_atomic_16! {
-    atomic_float!(AtomicF16, f16, AtomicU16, u16, 2);
+    atomic_float!(AtomicF16, f16, AtomicU16, u16, 2, cfg_has_atomic_cas_or_amo8);
 }
 cfg_has_atomic_32! {
-    atomic_float!(AtomicF32, f32, AtomicU32, u32, 4);
+    atomic_float!(AtomicF32, f32, AtomicU32, u32, 4, cfg_has_atomic_cas_or_amo32);
 }
 cfg_has_atomic_64! {
-    atomic_float!(AtomicF64, f64, AtomicU64, u64, 8);
+    atomic_float!(AtomicF64, f64, AtomicU64, u64, 8, cfg_has_atomic_cas_or_amo32);
 }
 #[cfg(portable_atomic_unstable_f128)]
 cfg_has_atomic_128! {
-    atomic_float!(AtomicF128, f128, AtomicU128, u128, 16);
+    atomic_float!(AtomicF128, f128, AtomicU128, u128, 16, cfg_has_atomic_cas_or_amo32);
 }
