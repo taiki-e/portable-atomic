@@ -68,6 +68,8 @@ fn test() {
             .rustc_args(["-C", "target-feature=+zabha", "--cfg", "portable_atomic_unsafe_assume_single_core"]),
         Revision::new("riscv64gc_zacas", "riscv64gc-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+zacas"]),
+        Revision::new("riscv64gc_zacas_zabha", "riscv64gc-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+zacas,+zabha"]),
         // .4byte directive version
         Revision::new("riscv64gc_zacas_pre_llvm_20", "riscv64gc-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+zacas", "--cfg", "portable_atomic_pre_llvm_20"]),
