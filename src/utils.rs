@@ -1284,8 +1284,8 @@ pub(crate) mod ffi {
         #[cfg(all(target_arch = "aarch64", target_pointer_width = "64"))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
@@ -1368,8 +1368,8 @@ pub(crate) mod ffi {
         #[cfg(target_arch = "arm")]
         macro_rules! asm_syscall {
             (
-                $number_const:path, $number:literal, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number_const:path, $number:literal, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {{
@@ -1411,8 +1411,8 @@ pub(crate) mod ffi {
         #[cfg(all(target_arch = "powerpc64", target_pointer_width = "64"))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
@@ -1456,8 +1456,8 @@ pub(crate) mod ffi {
         ))]
         macro_rules! asm_syscall {
             (
-                $number:ident, $r:ident,
-                $($arg1:ident $(, $arg2:ident $(, $arg3:ident
+                $number:ident, $r:ident
+                $(, $arg1:ident $(, $arg2:ident $(, $arg3:ident
                     $(, $arg4:ident $(, $arg5:ident $(, $arg6:ident )?)?)?
                 )?)?)?
             ) => {
