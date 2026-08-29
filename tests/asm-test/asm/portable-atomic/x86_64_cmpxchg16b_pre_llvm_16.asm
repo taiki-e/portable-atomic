@@ -96,120 +96,90 @@ asm_test::bit_toggle::u16::acqrel:
         and               esi, 0xf
         lock btc          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u16::seqcst:
         and               esi, 0xf
         lock btc          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u16::acquire:
         and               esi, 0xf
         lock btc          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u16::relaxed:
         and               esi, 0xf
         lock btc          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u16::release:
         and               esi, 0xf
         lock btc          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u32::acqrel:
         and               esi, 0x1f
         lock btc          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u32::seqcst:
         and               esi, 0x1f
         lock btc          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u32::acquire:
         and               esi, 0x1f
         lock btc          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u32::relaxed:
         and               esi, 0x1f
         lock btc          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u32::release:
         and               esi, 0x1f
         lock btc          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u64::acqrel:
         and               esi, 0x3f
         lock btc          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u64::seqcst:
         and               esi, 0x3f
         lock btc          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u64::acquire:
         and               esi, 0x3f
         lock btc          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u64::relaxed:
         and               esi, 0x3f
         lock btc          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u64::release:
         and               esi, 0x3f
         lock btc          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_toggle::u128::acqrel:
@@ -5575,120 +5545,90 @@ asm_test::bit_set::u16::acqrel:
         and               esi, 0xf
         lock bts          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u16::seqcst:
         and               esi, 0xf
         lock bts          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u16::acquire:
         and               esi, 0xf
         lock bts          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u16::relaxed:
         and               esi, 0xf
         lock bts          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u16::release:
         and               esi, 0xf
         lock bts          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u32::acqrel:
         and               esi, 0x1f
         lock bts          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u32::seqcst:
         and               esi, 0x1f
         lock bts          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u32::acquire:
         and               esi, 0x1f
         lock bts          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u32::relaxed:
         and               esi, 0x1f
         lock bts          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u32::release:
         and               esi, 0x1f
         lock bts          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u64::acqrel:
         and               esi, 0x3f
         lock bts          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u64::seqcst:
         and               esi, 0x3f
         lock bts          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u64::acquire:
         and               esi, 0x3f
         lock bts          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u64::relaxed:
         and               esi, 0x3f
         lock bts          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u64::release:
         and               esi, 0x3f
         lock bts          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_set::u128::acqrel:
@@ -6285,120 +6225,90 @@ asm_test::bit_clear::u16::acqrel:
         and               esi, 0xf
         lock btr          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u16::seqcst:
         and               esi, 0xf
         lock btr          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u16::acquire:
         and               esi, 0xf
         lock btr          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u16::relaxed:
         and               esi, 0xf
         lock btr          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u16::release:
         and               esi, 0xf
         lock btr          word ptr [rdi], si
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u32::acqrel:
         and               esi, 0x1f
         lock btr          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u32::seqcst:
         and               esi, 0x1f
         lock btr          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u32::acquire:
         and               esi, 0x1f
         lock btr          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u32::relaxed:
         and               esi, 0x1f
         lock btr          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u32::release:
         and               esi, 0x1f
         lock btr          dword ptr [rdi], esi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u64::acqrel:
         and               esi, 0x3f
         lock btr          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u64::seqcst:
         and               esi, 0x3f
         lock btr          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u64::acquire:
         and               esi, 0x3f
         lock btr          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u64::relaxed:
         and               esi, 0x3f
         lock btr          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u64::release:
         and               esi, 0x3f
         lock btr          qword ptr [rdi], rsi
         setb              al
-        test              al, al
-        setne             al
         ret
 
 asm_test::bit_clear::u128::acqrel:
