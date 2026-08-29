@@ -165,8 +165,6 @@ mod test_detect_aa64reg;
 #[path = "../detect/auxv.rs"]
 mod test_detect_auxv;
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_no_strict_provenance)]
@@ -646,7 +644,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
         let (out_lo, out_hi);
         macro_rules! atomic_load_relaxed {
             ($acquire:tt) => {{
-                asm!(
+                __asm!(
                     "ldp {out_lo}, {out_hi}, [{src}]", // atomic { out_lo:out_hi = *src }
                     $acquire,                          // fence
                     src = in(reg) ptr_reg!(src),
@@ -669,7 +667,7 @@ unsafe fn _atomic_load_ldp(src: *mut u128, order: Ordering) -> u128 {
             Ordering::Acquire => atomic_load_relaxed!("dmb ishld"),
             #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
             Ordering::SeqCst => {
-                asm!(
+                __asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
                     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
                     "ldar {tmp}, [{src}]",             // atomic { tmp = *src }
@@ -715,7 +713,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
         match order {
             Ordering::Acquire => {
                 #[cfg(not(portable_atomic_pre_llvm_16))]
-                asm!(
+                __asm!(
                     start_rcpc3!(),
                     "ldiapp {out_lo}, {out_hi}, [{src}]", // atomic { out_lo:out_hi = *src }
                     src = in(reg) ptr_reg!(src),
@@ -726,7 +724,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
-                asm!(
+                __asm!(
                     // ldiapp x0, x1, [x0] // atomic { out_lo:out_hi = *src }
                     ".inst 0xd9411800",
                     in("x0") ptr_reg!(src),
@@ -737,7 +735,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
             }
             Ordering::SeqCst => {
                 #[cfg(not(portable_atomic_pre_llvm_16))]
-                asm!(
+                __asm!(
                     start_rcpc3!(),
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
                     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
@@ -752,7 +750,7 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
-                asm!(
+                __asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
                     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108891 for details.
                     "ldar {tmp}, [x0]",    // atomic { out_lo:out_hi = *src }
@@ -784,7 +782,7 @@ unsafe fn _atomic_load_casp(src: *mut u128, order: Ordering) -> u128 {
         let (out_lo, out_hi);
         macro_rules! atomic_load {
             ($acquire:tt, $release:tt) => {
-                asm!(
+                __asm!(
                     start_lse!(),
                     concat!("casp", $acquire, $release, " x2, x3, x2, x3, [{src}]"), // atomic { if *src == x2:x3 { *dst = x2:x3 } else { x2:x3 = *dst } }
                     src = in(reg) ptr_reg!(src),
@@ -821,7 +819,7 @@ unsafe fn _atomic_load_ldxp_stxp(src: *mut u128, order: Ordering) -> u128 {
         let (mut out_lo, mut out_hi);
         macro_rules! atomic_load {
             ($acquire:tt, $release:tt) => {
-                asm!(
+                __asm!(
                     "2:", // 'retry:
                         concat!("ld", $acquire, "xp {out_lo}, {out_hi}, [{src}]"),        // atomic { out_lo:out_hi = *src; EXCLUSIVE = src }
                         // write back to ensure atomicity
@@ -1073,7 +1071,7 @@ unsafe fn _atomic_store_stp(dst: *mut u128, val: u128, order: Ordering) {
         macro_rules! atomic_store {
             ($acquire:tt, $release:tt) => {{
                 let val = U128 { whole: val };
-                asm!(
+                __asm!(
                     $release,                          // fence
                     "stp {val_lo}, {val_hi}, [{dst}]", // atomic { *dst = val_lo:val_hi }
                     $acquire,                          // fence
@@ -1150,7 +1148,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
             ($acquire:tt) => {{
                 let val = U128 { whole: val };
                 #[cfg(not(portable_atomic_pre_llvm_16))]
-                asm!(
+                __asm!(
                     start_rcpc3!(),
                     "stilp {val_lo}, {val_hi}, [{dst}]", // atomic { *dst = val_lo:val_hi }
                     $acquire,                            // fence
@@ -1162,7 +1160,7 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
                 // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
                 // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
-                asm!(
+                __asm!(
                     // stilp x2, x3, [x0] // atomic { *dst = x2:x3 }
                     ".inst 0xd9031802",
                     $acquire,             // fence
@@ -1203,7 +1201,7 @@ unsafe fn _atomic_store_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) {
         let val = U128 { whole: val };
         macro_rules! store {
             ($acquire:tt, $release:tt, $msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     "2:", // 'retry:
                         concat!("ld", $acquire, "xp xzr, {tmp}, [{dst}]"),                  // atomic { xzr:tmp = *dst; EXCLUSIVE = dst }
                         concat!("st", $release, "xp {tmp:w}, {val_lo}, {val_hi}, [{dst}]"), // atomic { if EXCLUSIVE == dst { *dst = val_lo:val_hi; tmp = 0 } else { tmp = 1 }; EXCLUSIVE = None }
@@ -1440,7 +1438,7 @@ unsafe fn _atomic_compare_exchange_casp(
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg {
             ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     start_lse!(),
                     concat!("casp", $acquire, $release, " x6, x7, x4, x5, [{dst}]"), // atomic { if *dst == x6:x7 { *dst = x4:x5 } else { x6:x7 = *dst } }
                     dst = in(reg) ptr_reg!(dst),
@@ -1490,7 +1488,7 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg {
             ($acquire:tt, $release:tt, $msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     "2:", // 'retry:
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst}]"),      // atomic { prev_lo:prev_hi = *dst; EXCLUSIVE = dst }
                         "cmp {prev_lo}, {old_lo}",                                        // if prev_lo == old_lo { Z = 1 } else { Z = 0 }
@@ -1590,7 +1588,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         #[cfg(not(portable_atomic_pre_llvm_16))]
         macro_rules! swap {
             ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     start_lse128!(),
                     concat!("swpp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"), // atomic { _x = *dst; *dst = val_lo:val_hi; val_lo:val_hi = _x }
                     dst = in(reg) ptr_reg!(dst),
@@ -1607,7 +1605,7 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! swap {
             ($order:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     // swpp{,a,l,al} x2, x1, [x0] // atomic { _x = *x0; *x0 = x2:x1; x2:x1 = _x }
                     concat!(".inst 0x19", $order, "18002"),
                     in("x0") ptr_reg!(dst),
@@ -1637,7 +1635,7 @@ unsafe fn _atomic_swap_casp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         let (mut prev_lo, mut prev_hi);
         macro_rules! swap {
             ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     start_lse!(),
                     // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                     // This is not single-copy atomic reads, but this is ok because subsequent
@@ -1688,7 +1686,7 @@ unsafe fn _atomic_swap_ldxp_stxp(dst: *mut u128, val: u128, order: Ordering) -> 
         let (mut prev_lo, mut prev_hi);
         macro_rules! swap {
             ($acquire:tt, $release:tt, $msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     "2:", // 'retry:
                         concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst}]"),      // atomic { prev_lo:prev_hi = *dst; EXCLUSIVE = dst }
                         concat!("st", $release, "xp {r:w}, {val_lo}, {val_hi}, [{dst}]"), // atomic { if EXCLUSIVE == dst { *dst = val_lo:val_hi; r = 0 } else { r = 1 }; EXCLUSIVE = None }
@@ -1741,7 +1739,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $msvc_fence:tt) => {
-                        asm!(
+                        __asm!(
                             "2:", // 'retry:
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst}]"),      // atomic { prev_lo:prev_hi = *dst; EXCLUSIVE = dst }
                                 $($op)*
@@ -1795,7 +1793,7 @@ macro_rules! atomic_rmw_cas_3 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                        asm!(
+                        __asm!(
                             start_lse!(),
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -1864,7 +1862,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $msvc_fence:tt) => {
-                        asm!(
+                        __asm!(
                             "2:", // 'retry:
                                 concat!("ld", $acquire, "xp {prev_lo}, {prev_hi}, [{dst}]"),      // atomic { prev_lo:prev_hi = *dst; EXCLUSIVE = dst }
                                 $($op)*
@@ -1914,7 +1912,7 @@ macro_rules! atomic_rmw_cas_2 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! op {
                     ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                        asm!(
+                        __asm!(
                             start_lse!(),
                             // If FEAT_LSE2 is not supported, this works like byte-wise atomic.
                             // This is not single-copy atomic reads, but this is ok because subsequent
@@ -2003,7 +2001,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         #[cfg(not(portable_atomic_pre_llvm_16))]
         macro_rules! clear {
             ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     start_lse128!(),
                     concat!("ldclrp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"), // atomic { _x = *dst; *dst = _x & !val; val = _x }
                     dst = in(reg) ptr_reg!(dst),
@@ -2020,7 +2018,7 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! clear {
             ($order:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     // ldclrp{,a,l,al} x8, x1, [x0] // atomic { _x = *x0; *x0 = _x & !x8:x1; x8:x1 = _x }
                     concat!(".inst 0x19", $order, "11008"),
                     in("x0") ptr_reg!(dst),
@@ -2079,7 +2077,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         #[cfg(not(portable_atomic_pre_llvm_16))]
         macro_rules! or {
             ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     start_lse128!(),
                     concat!("ldsetp", $acquire, $release, " {val_lo}, {val_hi}, [{dst}]"), // atomic { _x = *dst; *dst = _x | val; val = _x }
                     dst = in(reg) ptr_reg!(dst),
@@ -2096,7 +2094,7 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! or {
             ($order:tt, $_msvc_fence:tt) => {
-                asm!(
+                __asm!(
                     // ldsetp{,a,l,al} x2, x1, [x0] // atomic { _x = *x0; *x0 = _x | x2:x1; x2:x1 = _x }
                     concat!(".inst 0x19", $order, "13002"),
                     in("x0") ptr_reg!(dst),

@@ -8,9 +8,6 @@ Refs: https://developer.arm.com/documentation/ddi0406/cb/System-Level-Architectu
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
-
 // - 0x80 - I (IRQ mask) bit (1 << 7)
 // - 0x40 - F (FIQ mask) bit (1 << 6)
 // We disable only IRQs by default. See also https://github.com/taiki-e/portable-atomic/pull/28#issuecomment-1214146912.
@@ -40,7 +37,7 @@ pub(crate) fn disable() -> State {
     // SAFETY: reading CPSR and disabling interrupts are safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        asm!(
+        __asm!(
             "mrs {prev}, cpsr",                      // prev = CPSR
             concat!("orr {new}, {prev}, ", mask!()), // new = prev | mask
             "msr cpsr_c, {new}",                     // CPSR.{I,F,T,M} = new.{I,F,T,M}
@@ -71,7 +68,7 @@ pub(crate) unsafe fn restore(prev_cpsr: State) {
     //
     // Refs: https://developer.arm.com/documentation/dui0473/m/arm-and-thumb-instructions/msr--general-purpose-register-to-psr-
     unsafe {
-        asm!(
+        __asm!(
             "msr cpsr_c, {prev_cpsr}", // CPSR.{I,F,T,M} = prev_cpsr.{I,F,T,M}
             prev_cpsr = in(reg) prev_cpsr,
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
@@ -89,8 +86,6 @@ pub(crate) unsafe fn restore(prev_cpsr: State) {
     cfg(any(test, not(target_has_atomic = "ptr")))
 )]
 pub(super) mod atomic {
-    #[cfg(not(portable_atomic_no_asm))]
-    use core::arch::asm;
     use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
     macro_rules! atomic {
@@ -117,7 +112,7 @@ pub(super) mod atomic {
                         // inline asm without nomem/readonly implies compiler fence.
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
-                        asm!(
+                        __asm!(
                             concat!("ldr", $suffix, " {out}, [{src}]"), // atomic { out = *src }
                             src = in(reg) src,
                             out = lateout(reg) out,
@@ -136,7 +131,7 @@ pub(super) mod atomic {
                         // inline asm without nomem/readonly implies compiler fence.
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
-                        asm!(
+                        __asm!(
                             concat!("str", $suffix, " {val}, [{dst}]"), // atomic { *dst = val }
                             dst = in(reg) dst,
                             val = in(reg) val,

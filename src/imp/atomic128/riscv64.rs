@@ -36,8 +36,6 @@ mod fallback;
 #[path = "../detect/riscv_linux.rs"]
 mod detect;
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_no_strict_provenance)]
@@ -167,7 +165,7 @@ unsafe fn atomic_load_zacas(src: *mut u128, order: Ordering) -> u128 {
         #[cfg(not(portable_atomic_pre_llvm_20))]
         macro_rules! load {
             ($fence:tt, $asm_order:tt) => {
-                asm!(
+                __asm!(
                     start_zacas!(),
                     $fence,                                               // fence
                     concat!("amocas.q", $asm_order, " a2, a2, 0({src})"), // atomic { if *dst == a2:a3 { *dst = a2:a3 } else { a2:a3 = *dst } }
@@ -184,7 +182,7 @@ unsafe fn atomic_load_zacas(src: *mut u128, order: Ordering) -> u128 {
         #[cfg(portable_atomic_pre_llvm_20)]
         macro_rules! load {
             ($fence:tt, $insn_order:tt) => {
-                asm!(
+                __asm!(
                     $fence,                                  // fence
                     // amocas.q{,.aq,.rl,.aqrl} a2, a2, (a0) // atomic { if *a0 == a2:a3 { *a0 = a2:a3 } else { a2:a3 = *a0 } }
                     concat!(".4byte 0x2", $insn_order, "c5462f"),
@@ -310,7 +308,7 @@ unsafe fn atomic_compare_exchange_zacas(
         #[cfg(not(portable_atomic_pre_llvm_20))]
         macro_rules! cmpxchg {
             ($fence:tt, $asm_order:tt) => {
-                asm!(
+                __asm!(
                     start_zacas!(),
                     $fence,                                               // fence
                     concat!("amocas.q", $asm_order, " a4, a2, 0({dst})"), // atomic { if *dst == a4:a5 { *dst = a2:a3 } else { a4:a5 = *dst } }
@@ -331,7 +329,7 @@ unsafe fn atomic_compare_exchange_zacas(
         #[cfg(portable_atomic_pre_llvm_20)]
         macro_rules! cmpxchg {
             ($fence:tt, $insn_order:tt) => {
-                asm!(
+                __asm!(
                     $fence,                                  // fence
                     // amocas.q{,.aq,.rl,.aqrl} a4, a2, (a0) // atomic { if *a0 == a4:a5 { *a0 = a2:a3 } else { a4:a5 = *a0 } }
                     concat!(".4byte 0x2", $insn_order, "c5472f"),
@@ -363,7 +361,7 @@ unsafe fn byte_wise_atomic_load(src: *const u128) -> u128 {
 
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
-        asm!(
+        __asm!(
             "ld {out_lo}, ({src})",  // atomic { out_lo = *src }
             "ld {out_hi}, 8({src})", // atomic { out_hi = *src.byte_add(8) }
             src = in(reg) ptr_reg!(src),

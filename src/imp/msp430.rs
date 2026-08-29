@@ -25,8 +25,6 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 #![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 #[cfg(not(feature = "critical-section"))]
 use core::cell::UnsafeCell;
 use core::sync::atomic::Ordering;
@@ -62,7 +60,7 @@ pub fn compiler_fence(order: Ordering) {
     unsafe {
         // Do not use `nomem` and `readonly` because prevent preceding and subsequent memory accesses from being reordered.
         #[cfg(not(portable_atomic_no_asm))]
-        asm!("", options(nostack, preserves_flags));
+        __asm!("", options(nostack, preserves_flags));
         #[cfg(portable_atomic_no_asm)]
         llvm_asm!("" ::: "memory" : "volatile");
     }
@@ -97,7 +95,7 @@ items!({
                     unsafe {
                         let out;
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("mov.", $size, " @{src}, {out}"), // atomic { out = *src }
                             src = in(reg) src,
                             out = lateout(reg) out,
@@ -124,7 +122,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("mov.", $size, " {val}, 0({dst})"), // atomic { *dst = val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -149,7 +147,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("add.", $size, " {val}, 0({dst})"), // atomic { *dst += val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -171,7 +169,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("sub.", $size, " {val}, 0({dst})"), // atomic { *dst -= val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -193,7 +191,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("and.", $size, " {val}, 0({dst})"), // atomic { *dst &= val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -215,7 +213,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("bis.", $size, " {val}, 0({dst})"), // atomic { *dst |= val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -236,7 +234,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("xor.", $size, " {val}, 0({dst})"), // atomic { *dst ^= val }
                             dst = in(reg) dst,
                             val = in(reg) val,
@@ -258,7 +256,7 @@ items!({
                     // pointer passed in is valid because we got it from a reference.
                     unsafe {
                         #[cfg(not(portable_atomic_no_asm))]
-                        asm!(
+                        __asm!(
                             concat!("inv.", $size, " 0({dst})"), // atomic { *dst = !*dst }
                             dst = in(reg) dst,
                             // Do not use `preserves_flags` because INV modifies the V, N, Z, and C bits of the status register.

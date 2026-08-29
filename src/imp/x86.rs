@@ -15,8 +15,6 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::sync::atomic::Ordering;
 
 #[cfg(target_pointer_width = "32")]
@@ -52,14 +50,14 @@ pub fn fence(order: Ordering) {
             // - MSVC STL uses `lock inc` https://github.com/microsoft/STL/pull/740
             // - boost uses `lock or` https://github.com/boostorg/atomic/commit/559eba81af71386cedd99f170dc6101c6ad7bf22
             #[cfg(target_pointer_width = "64")]
-            asm!(
+            __asm!(
                 concat!("xchg qword ptr [{p", ptr_modifier!(), "}], {tmp}"),
                 p = in(reg) p.get(),
                 tmp = out(reg) _,
                 options(nostack, preserves_flags),
             );
             #[cfg(target_pointer_width = "32")]
-            asm!(
+            __asm!(
                 concat!("xchg dword ptr [{p", ptr_modifier!(), "}], {tmp:e}"),
                 p = in(reg) p.get(),
                 tmp = out(reg) _,
@@ -89,7 +87,7 @@ cfg_core_atomic!({
                     // https://www.felixcloutier.com/x86/not
                     unsafe {
                         // atomic RMW is always SeqCst.
-                        asm!(
+                        __asm!(
                             concat!("lock not ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}]"),
                             dst = in(reg) dst,
                             options(nostack, preserves_flags),
@@ -105,7 +103,7 @@ cfg_core_atomic!({
                     // https://www.felixcloutier.com/x86/neg
                     unsafe {
                         // atomic RMW is always SeqCst.
-                        asm!(
+                        __asm!(
                             concat!("lock neg ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}]"),
                             dst = in(reg) dst,
                             // Do not use `preserves_flags` because NEG modifies the CF, OF, SF, ZF, AF, and PF flag.
@@ -187,7 +185,7 @@ cfg_core_atomic!({
                     unsafe {
                         let r: u8;
                         // atomic RMW is always SeqCst.
-                        asm!(
+                        __asm!(
                             concat!("lock bts ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                             "setb {r}",
                             dst = in(reg) dst,
@@ -212,7 +210,7 @@ cfg_core_atomic!({
                     unsafe {
                         let r: u8;
                         // atomic RMW is always SeqCst.
-                        asm!(
+                        __asm!(
                             concat!("lock btr ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                             "setb {r}",
                             dst = in(reg) dst,
@@ -237,7 +235,7 @@ cfg_core_atomic!({
                     unsafe {
                         let r: u8;
                         // atomic RMW is always SeqCst.
-                        asm!(
+                        __asm!(
                             concat!("lock btc ", $ptr_size, " ptr [{dst", ptr_modifier!(), "}], {bit", $val_modifier, "}"),
                             "setb {r}",
                             dst = in(reg) dst,

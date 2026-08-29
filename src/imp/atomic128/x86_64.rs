@@ -45,8 +45,6 @@ mod fallback;
 #[path = "../detect/x86_64.rs"]
 mod detect;
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),
@@ -141,7 +139,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         let (prev_lo, prev_hi);
         macro_rules! cmpxchg16b {
             ($dst:tt) => {
-                asm!(
+                __asm!(
                     "xchg r8, rbx", // save rbx which is reserved by LLVM
                     concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
                     "setne cl",
@@ -207,7 +205,7 @@ unsafe fn _atomic_load_vmovdqa(src: *mut u128) -> u128 {
     // atomic load by vmovdqa is always SeqCst.
     unsafe {
         let out: __m128i;
-        asm!(
+        __asm!(
             concat!("vmovdqa {out}, xmmword ptr [{src", ptr_modifier!(), "}]"),
             src = in(reg) src,
             out = out(xmm_reg) out,
@@ -232,7 +230,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
         match order {
             // Relaxed and Release stores are equivalent.
             Ordering::Relaxed | Ordering::Release => {
-                asm!(
+                __asm!(
                     concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
                     dst = in(reg) dst,
                     val = in(xmm_reg) val,
@@ -241,7 +239,7 @@ unsafe fn _atomic_store_vmovdqa(dst: *mut u128, val: u128, order: Ordering) {
             }
             Ordering::SeqCst => {
                 let p = core::cell::UnsafeCell::new(core::mem::MaybeUninit::<u64>::uninit());
-                asm!(
+                __asm!(
                     concat!("vmovdqa xmmword ptr [{dst", ptr_modifier!(), "}], {val}"),
                     // Equivalent to `mfence`, but is up to 3.1x faster on Coffee Lake and up to 2.4x faster on Raptor Lake-H at least in simple cases.
                     // - https://github.com/taiki-e/portable-atomic/pull/156
@@ -387,7 +385,7 @@ unsafe fn _atomic_load_cmpxchg16b(src: *mut u128) -> u128 {
         let (out_lo, out_hi);
         macro_rules! cmpxchg16b {
             ($dst:tt, $save:tt) => {
-                asm!(
+                __asm!(
                     concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                     "xor rbx, rbx", // zeroed rbx
                     concat!("lock cmpxchg16b xmmword ptr [", $dst, "]"),
@@ -570,7 +568,7 @@ unsafe fn atomic_swap_cmpxchg16b(dst: *mut u128, val: u128, _order: Ordering) ->
         let (mut prev_lo, mut prev_hi);
         macro_rules! cmpxchg16b {
             ($dst:tt, $save:tt) => {
-                asm!(
+                __asm!(
                     concat!("xchg ", $save, ", rbx"), // save rbx which is reserved by LLVM
                     // This is not single-copy atomic reads, but this is ok because subsequent
                     // CAS will check for consistency.
@@ -645,7 +643,7 @@ macro_rules! atomic_rmw_cas_3 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! cmpxchg16b {
                     ($dst:tt, $save:tt) => {
-                        asm!(
+                        __asm!(
                             concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.
@@ -722,7 +720,7 @@ macro_rules! atomic_rmw_cas_2 {
                 let (mut prev_lo, mut prev_hi);
                 macro_rules! cmpxchg16b {
                     ($dst:tt, $save:tt) => {
-                        asm!(
+                        __asm!(
                             concat!("mov ", $save, ", rbx"), // save rbx which is reserved by LLVM
                             // This is not single-copy atomic reads, but this is ok because subsequent
                             // CAS will check for consistency.

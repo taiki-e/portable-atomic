@@ -80,7 +80,7 @@ mod detect;
 #[path = "../detect/powerpc64_aix.rs"]
 mod detect;
 
-use core::{arch::asm, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
@@ -238,7 +238,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
     unsafe {
         macro_rules! atomic_load_acquire {
             ($release:tt) => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     $release,
                     "lq %r4, 0({src})", // atomic { r4:r5 = *src }
@@ -259,7 +259,7 @@ unsafe fn atomic_load_pwr8(src: *mut u128, order: Ordering) -> u128 {
         }
         match order {
             Ordering::Relaxed => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     "lq %r4, 0({src})", // atomic { r4:r5 = *src }
                     end_pwr8!(),
@@ -348,7 +348,7 @@ unsafe fn atomic_store_pwr8(dst: *mut u128, val: u128, order: Ordering) {
     unsafe {
         macro_rules! atomic_store {
             ($release:tt) => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     $release,            // fence
                     "stq %r4, 0({dst})", // atomic { *dst = r4:r5 }
@@ -480,7 +480,7 @@ unsafe fn atomic_compare_exchange_pwr8(
     unsafe {
         macro_rules! cmpxchg {
             ($acquire_always:tt, $acquire_success:tt, $release:tt) => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     $release,                               // fence
                     "2:", // 'retry:
@@ -566,7 +566,7 @@ unsafe fn atomic_compare_exchange_weak_pwr8(
     unsafe {
         macro_rules! cmpxchg_weak {
             ($acquire_always:tt, $acquire_success:tt, $release:tt) => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     $release,                           // fence
                     "lqarx %r8, 0, {dst}",              // atomic { RESERVE = (dst, 16); r8:r9 = *dst }
@@ -614,7 +614,7 @@ unsafe fn atomic_swap_pwr8(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     unsafe {
         macro_rules! swap {
             ($acquire:tt, $release:tt) => {
-                asm!(
+                __asm!(
                     start_pwr8!(),
                     $release,                   // fence
                     "2:", // 'retry:
@@ -660,7 +660,7 @@ macro_rules! atomic_rmw_ll_sc_3 {
             unsafe {
                 macro_rules! op {
                     ($acquire:tt, $release:tt) => {
-                        asm!(
+                        __asm!(
                             start_pwr8!(),
                             $release,                   // fence
                             "2:", // 'retry:
@@ -709,7 +709,7 @@ macro_rules! atomic_rmw_ll_sc_2 {
             unsafe {
                 macro_rules! op {
                     ($acquire:tt, $release:tt) => {
-                        asm!(
+                        __asm!(
                             start_pwr8!(),
                             $release,                   // fence
                             "2:", // 'retry:

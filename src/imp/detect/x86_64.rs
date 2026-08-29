@@ -15,8 +15,6 @@ compile_error!("internal error: this module is not supported on this environment
 
 include!("common.rs");
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::arch::x86_64::CpuidResult;
 
 // Workaround for https://github.com/rust-lang/rust/issues/101346
@@ -36,7 +34,7 @@ fn __cpuid(leaf: u32) -> CpuidResult {
     // which doesn't support `cpuid`.
     // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L109
     unsafe {
-        asm!(
+        __asm!(
             "mov r8, rbx", // save rbx which is reserved by LLVM
             "cpuid",
             "xchg r8, rbx", // restore rbx

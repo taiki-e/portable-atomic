@@ -48,8 +48,6 @@ mod fallback;
 #[path = "../detect/auxv.rs"]
 mod test_detect_auxv;
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::{mem, sync::atomic::Ordering};
 
 #[cfg(portable_atomic_no_strict_provenance)]
@@ -93,7 +91,7 @@ unsafe fn byte_wise_atomic_load(src: *const u64) -> u64 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         let (out_lo, out_hi);
-        asm!(
+        __asm!(
             "ldr {out_lo}, [{src}]",     // atomic { out_lo = *src }
             "ldr {out_hi}, [{src}, #4]", // atomic { out_hi = *src.byte_add(4) }
             src = in(reg) src,

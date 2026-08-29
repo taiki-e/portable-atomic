@@ -9,8 +9,6 @@ Generated asm:
 - aarch64 (+lsfe) https://godbolt.org/z/7vaxeofv1
 */
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_unstable_f16)]
@@ -92,7 +90,7 @@ macro_rules! atomic_float {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! add {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 start_lsfe!(),
                                 concat!("ldfadd", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x + val; out = _x }
                                 dst = in(reg) ptr_reg!(dst),
@@ -109,7 +107,7 @@ macro_rules! atomic_float {
                     #[cfg(portable_atomic_pre_llvm_20)]
                     macro_rules! add {
                         ($order:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 // ldfadd{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x + {h,s,d}0; {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "00041"),
                                 in("x2") ptr_reg!(dst),
@@ -141,7 +139,7 @@ macro_rules! atomic_float {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! max {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 start_lsfe!(),
                                 concat!("ldfmaxnm", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.max(val); out = _x }
                                 dst = in(reg) ptr_reg!(dst),
@@ -158,7 +156,7 @@ macro_rules! atomic_float {
                     #[cfg(portable_atomic_pre_llvm_20)]
                     macro_rules! max {
                         ($order:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 // ldfmaxnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.max({h,s,d}0); {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "06041"),
                                 in("x2") ptr_reg!(dst),
@@ -185,7 +183,7 @@ macro_rules! atomic_float {
                     #[cfg(not(portable_atomic_pre_llvm_20))]
                     macro_rules! min {
                         ($acquire:tt, $release:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 start_lsfe!(),
                                 concat!("ldfminnm", $acquire, $release, " {val:", $modifier, "}, {out:", $modifier, "}, [{dst}]"), // atomic { _x = *dst; *dst = _x.min(val); out = _x }
                                 dst = in(reg) ptr_reg!(dst),
@@ -202,7 +200,7 @@ macro_rules! atomic_float {
                     #[cfg(portable_atomic_pre_llvm_20)]
                     macro_rules! min {
                         ($order:tt, $_msvc_fence:tt) => {
-                            asm!(
+                            __asm!(
                                 // ldfminnm{,a,l,al} {h,s,d}0, {h,s,d}1, [x2] // atomic { _x = *x2; *x2 = _x.min({h,s,d}0); {h,s,d}1 = _x }
                                 concat!(".inst 0x", $inst_modifier, "c", $order, "07041"),
                                 in("x2") ptr_reg!(dst),

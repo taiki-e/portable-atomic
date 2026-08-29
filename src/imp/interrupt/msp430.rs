@@ -14,9 +14,6 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 #![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
-
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_cas))
@@ -39,7 +36,7 @@ pub(crate) fn disable() -> State {
     // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
     unsafe {
         #[cfg(not(portable_atomic_no_asm))]
-        asm!(
+        __asm!(
             "mov r2, {sr}", // sr = SR
             "dint {{ nop",  // SR.GIE = 0
             sr = out(reg) sr,
@@ -75,7 +72,7 @@ pub(crate) unsafe fn restore(prev_sr: State) {
     // See "NOTE: Enable and Disable Interrupt" of User's Guide for NOP: https://www.ti.com/lit/ug/slau208q/slau208q.pdf#page=60
     unsafe {
         #[cfg(not(portable_atomic_no_asm))]
-        asm!(
+        __asm!(
             "nop {{ mov {prev_sr}, r2 {{ nop", // SR = prev_sr
             prev_sr = in(reg) prev_sr,
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.

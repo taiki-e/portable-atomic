@@ -23,8 +23,6 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 #![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 macro_rules! atomic8 {
@@ -51,7 +49,7 @@ macro_rules! atomic8 {
                 unsafe {
                     let out;
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "ld {out}, Z", // atomic { out = *Z }
                         out = out(reg) out,
                         in("Z") src,
@@ -74,7 +72,7 @@ macro_rules! atomic8 {
                 // pointer passed in is valid because we got it from a reference.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "st Z, {val}", // atomic { *Z = val }
                         val = in(reg) val,
                         in("Z") dst,
@@ -99,7 +97,7 @@ macro_rules! atomic8 {
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "xch Z, {val}", // atomic { _x = *Z; *Z = val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
@@ -123,7 +121,7 @@ macro_rules! atomic8 {
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "lac Z, {val}", // atomic { _x = *Z; *Z &= !val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
@@ -146,7 +144,7 @@ macro_rules! atomic8 {
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "las Z, {val}", // atomic { _x = *Z; *Z |= val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,
@@ -169,7 +167,7 @@ macro_rules! atomic8 {
                 // cfg guarantee that the CPU supports RMW instructions.
                 unsafe {
                     #[cfg(not(portable_atomic_no_asm))]
-                    asm!(
+                    __asm!(
                         "lat Z, {val}", // atomic { _x = *Z; *Z ^= val; val = _x }
                         val = inout(reg) val => out,
                         in("Z") dst,

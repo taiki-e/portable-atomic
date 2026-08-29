@@ -30,8 +30,6 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
 use core::{cell::UnsafeCell, sync::atomic::Ordering};
 
 #[cfg(any(
@@ -66,7 +64,7 @@ items!({
                     // system by setting the target_feature or portable_atomic_force_amo +
                     // portable_atomic_unsafe_assume_single_core.
                     // The caller of this macro must guarantee the validity of the pointer.
-                    asm!(
+                    __asm!(
                         ".option push",
                         // https://github.com/riscv-non-isa/riscv-asm-manual/blob/v0.0.1/src/asm-manual.adoc#arch
                         // LLVM supports `.option arch` directive on LLVM 17+.
@@ -116,7 +114,7 @@ items!({
             // SAFETY: Calling sll{,w} is safe.
             unsafe {
                 let out;
-                asm!(
+                __asm!(
                     concat!("sll", w!(), " {out}, {val}, {shift}"), // out = val << shift & 31
                     out = lateout(reg) out,
                     val = in(reg) val,
@@ -134,7 +132,7 @@ items!({
                     let val: u32 = $val;
                     let shift: u32 = $shift;
                     let out;
-                    asm!(
+                    __asm!(
                         concat!("srl", w!(), " {out}, {val}, {shift}"), // out = val >> shift & 31
                         out = lateout(reg) out,
                         val = in(reg) val,
@@ -215,7 +213,7 @@ macro_rules! atomic_load_store {
                     let out;
                     macro_rules! atomic_load {
                         ($acquire:tt, $release:tt) => {
-                            asm!(
+                            __asm!(
                                 $release,                                // fence
                                 concat!("l", $size, " {out}, 0({src})"), // atomic { out = *src }
                                 $acquire,                                // fence
@@ -245,7 +243,7 @@ macro_rules! atomic_load_store {
                 unsafe {
                     macro_rules! atomic_store {
                         ($acquire:tt, $release:tt) => {
-                            asm!(
+                            __asm!(
                                 $release,                                // fence
                                 concat!("s", $size, " {val}, 0({dst})"), // atomic { *dst = val }
                                 $acquire,                                // fence

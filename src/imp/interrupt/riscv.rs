@@ -13,9 +13,6 @@ See also src/imp/riscv.rs.
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
-
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_cas))
@@ -73,7 +70,7 @@ pub(crate) fn disable() -> State {
     // SAFETY: reading mstatus/sstatus and disabling interrupts is safe.
     // (see module-level comments of interrupt/mod.rs on the safety of using privileged instructions)
     unsafe {
-        asm!(
+        __asm!(
             concat!("csrrci {status}, ", status!(), ", ", mask!()), // atomic { status = status!(); status!() &= !mask!() }
             status = out(reg) status,
             // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
@@ -94,7 +91,7 @@ pub(crate) unsafe fn restore(prev_status: State) {
     //
     // This avoids clobbering other fields in the mstatus/sstatus register.
     unsafe {
-        asm!(
+        __asm!(
             concat!("csrs ", status!(), ", {mask}"), // atomic { status!() |= mask }
             mask = in(reg) prev_status & MASK,
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.

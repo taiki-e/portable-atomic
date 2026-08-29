@@ -34,7 +34,7 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 include!("macros.rs");
 
-use core::{arch::asm, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
@@ -116,7 +116,7 @@ unsafe fn atomic_load(src: *mut u128, _order: Ordering) -> u128 {
     // SAFETY: the caller must uphold the safety contract.
     unsafe {
         // atomic load is always SeqCst.
-        asm!(
+        __asm!(
             "lpq %r0, 0({src})", // atomic { r0:r1 = *src }
             src = in(reg) ptr_reg!(src),
             // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
@@ -137,7 +137,7 @@ unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
     unsafe {
         macro_rules! atomic_store {
             ($acquire:expr) => {
-                asm!(
+                __asm!(
                     "stpq %r0, 0({dst})", // atomic { *dst = r0:r1 }
                     $acquire,             // fence
                     dst = in(reg) ptr_reg!(dst),
@@ -176,7 +176,7 @@ unsafe fn atomic_compare_exchange(
     let prev = unsafe {
         macro_rules! cmpxchg {
             ($new_hi:tt, $new_lo:tt) => {
-                asm!(
+                __asm!(
                     concat!("cdsg %r0, %", $new_hi, ", 0({dst})"), // atomic { if *dst == r0:r1 { cc = 0; *dst = new_hi:new_lo } else { cc = 1; r0:r1 = *dst } }
                     "ipm {r}",                                     // r[:] = cc
                     dst = in(reg) ptr_reg!(dst),
@@ -217,7 +217,7 @@ unsafe fn atomic_swap(dst: *mut u128, val: u128, _order: Ordering) -> u128 {
     unsafe {
         macro_rules! swap {
             ($val_hi:tt, $val_lo:tt) => {
-                asm!(
+                __asm!(
                     "lg %r1, 8({dst})",                                // atomic { r1 = *dst.byte_add(8) }
                     "lg %r0, 0({dst})",                                // atomic { r0 = *dst }
                     "2:", // 'retry:
@@ -261,7 +261,7 @@ macro_rules! atomic_rmw_cas_3 {
             // SAFETY: the caller must uphold the safety contract.
             // CDSG has SeqCst semantics.
             unsafe {
-                asm!(
+                __asm!(
                     "lg %r1, 8({dst})",             // atomic { r1 = *dst.byte_add(8) }
                     "lg %r0, 0({dst})",             // atomic { r0 = *dst }
                     "2:", // 'retry:
@@ -301,7 +301,7 @@ macro_rules! atomic_rmw_cas_2 {
             // SAFETY: the caller must uphold the safety contract.
             // CDSG has SeqCst semantics.
             unsafe {
-                asm!(
+                __asm!(
                     "lg %r1, 8({dst})",             // atomic { r1 = *dst.byte_add(8) }
                     "lg %r0, 0({dst})",             // atomic { r0 = *dst }
                     "2:", // 'retry:
@@ -438,7 +438,7 @@ cfg_sel!({
                     unsafe {
                         macro_rules! cmp {
                             ($val_hi:tt, $val_lo:tt) => {
-                                asm!(
+                                __asm!(
                                     "lg %r1, 8({dst})",                                // atomic { r1 = *dst.byte_add(8) }
                                     "lg %r0, 0({dst})",                                // atomic { r0 = *dst }
                                     "2:", // 'retry:

@@ -10,7 +10,6 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
-use core::arch::asm;
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_cas))
@@ -34,7 +33,7 @@ pub(crate) fn disable() -> State {
     // SYNC after RSIL is not required.
     // Use a14 per https://github.com/torvalds/linux/blob/v6.16/arch/xtensa/include/asm/atomic.h#L33-L37.
     unsafe {
-        asm!(
+        __asm!(
             "rsil a14, 15", // a14 = PS; PS.INTLEVEL = 15
             out("a14") ps,
             // Do not use `nomem` and `readonly` because prevent subsequent memory accesses from being reordered before interrupts are disabled.
@@ -57,7 +56,7 @@ pub(crate) unsafe fn restore(prev_ps: State) {
     // SYNC after WSR is required to guarantee that subsequent RSIL read the written value.
     // See also 3.8.10 Processor Control Instructions of Xtensa Instruction Set Architecture (ISA) Summary for all Xtensa LX Processors.
     unsafe {
-        asm!(
+        __asm!(
             "wsr.ps a14", // PS = a14
             "rsync",      // wait
             in("a14") prev_ps,

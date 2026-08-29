@@ -14,9 +14,6 @@ See tests/asm-test/asm/portable-atomic for generated assembly.
 
 #![cfg_attr(portable_atomic_no_asm, allow(deprecated))]
 
-#[cfg(not(portable_atomic_no_asm))]
-use core::arch::asm;
-
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
     cfg(any(test, portable_atomic_no_atomic_cas))
@@ -38,7 +35,7 @@ pub(crate) fn disable() -> State {
     unsafe {
         // Refs: https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf#page=58
         #[cfg(not(portable_atomic_no_asm))]
-        asm!(
+        __asm!(
             "in {sreg}, 0x3F", // sreg = SREG
             "cli",             // SREG.I = 0
             sreg = out(reg) sreg,
@@ -70,7 +67,7 @@ pub(crate) unsafe fn restore(prev_sreg: State) {
     // See also the discussion at https://github.com/taiki-e/portable-atomic/pull/40.
     unsafe {
         #[cfg(not(portable_atomic_no_asm))]
-        asm!(
+        __asm!(
             "out 0x3F, {prev_sreg}", // SREG = prev_sreg
             prev_sreg = in(reg) prev_sreg,
             // Do not use `nomem` and `readonly` because prevent preceding memory accesses from being reordered after interrupts are enabled.
