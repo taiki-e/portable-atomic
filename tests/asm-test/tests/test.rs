@@ -112,6 +112,5 @@ fn test() {
         .dump(env!("CARGO_MANIFEST_DIR"), "asm/portable-atomic", revisions);
     Tester::new()
         .cargo_args(["-Z", "build-std=core", "--features", "core"])
-        .rustc_args(["--cfg", "portable_atomic_no_outline_atomics"])
         .dump(env!("CARGO_MANIFEST_DIR"), "asm/core", revisions);
 }
