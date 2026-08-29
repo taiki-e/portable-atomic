@@ -2982,481 +2982,346 @@ asm_test::compare_exchange::u64::release_relaxed:
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w           a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w          a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w           a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w          a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w           a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.rl        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.rl       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.rl        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.rl       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.rl        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -5062,481 +4927,346 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aq        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aq       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aq        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aq       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aq        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w           a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w          a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w           a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w          a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w           a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.aqrl      a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.aqrl     a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.aqrl      a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.aqrl     a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.aqrl      a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        slli              a2, a0, 0x3
-        li                a3, 0x1
+        slli              a3, a0, 0x3
+        beqz              a1, 0f
+        li                a4, 0xff
+        sllw              a4, a4, a3
+        not               a4, a4
+        sllw              a2, a2, a3
         andi              a0, a0, -0x4
-        sllw              a3, a3, a2
-        amoor.w.rl        a0, a3, (a0)
-        srlw              a2, a0, a2
+        or                a2, a2, a4
+        amoand.w.rl       a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret
 0:
-        andi              a2, a0, -0x4
-        amoor.w.rl        a2, zero, (a2)
-        slli              a0, a0, 0x3
-        srlw              a2, a2, a0
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        slli              a2, a0, 0x3
-        li                a3, 0xff
-        sllw              a3, a3, a2
         andi              a0, a0, -0x4
-        not               a3, a3
-        amoand.w.rl       a0, a3, (a0)
-        srlw              a2, a0, a2
+        sllw              a2, a2, a3
+        amoor.w.rl        a0, a2, (a0)
+        srlw              a2, a0, a3
         xor               a0, a1, a2
         mv                a1, a2
         ret

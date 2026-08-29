@@ -2850,27 +2850,17 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -2880,27 +2870,17 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -2910,27 +2890,17 @@ asm_test::compare_exchange::bool::acqrel_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -2940,27 +2910,17 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -2970,27 +2930,17 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3000,27 +2950,17 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3030,27 +2970,17 @@ asm_test::compare_exchange::bool::release_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3060,27 +2990,17 @@ asm_test::compare_exchange::bool::seqcst_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3090,27 +3010,17 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3120,27 +3030,17 @@ asm_test::compare_exchange::bool::acquire_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3150,27 +3050,17 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3180,27 +3070,17 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3210,27 +3090,17 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3240,27 +3110,17 @@ asm_test::compare_exchange::bool::release_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -3270,27 +3130,17 @@ asm_test::compare_exchange::bool::release_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4770,27 +4620,17 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4800,27 +4640,17 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4830,27 +4660,17 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4860,27 +4680,17 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4890,27 +4700,17 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4920,27 +4720,17 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4950,27 +4740,17 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -4980,27 +4760,17 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5010,27 +4780,17 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5040,27 +4800,17 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5070,27 +4820,17 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5100,27 +4840,17 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5130,27 +4860,17 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5160,27 +4880,17 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
@@ -5190,27 +4900,17 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r5,%r2
-        crje              %r3,%r4,0f
-        cije              %r4,0,1f
-        lhi               %r0,1
-        rll               %r0,%r0,24(%r5)
-        lao               %r0,%r0,0(%r1)
+        cije              %r3,0,0f
+        oilf              %r4,4294967040
+        rll               %r0,%r4,24(%r5)
+        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0
         br                %r14
 0:
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r5)
+        rll               %r0,%r4,24(%r5)
         lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-1:
-        lhi               %r0,-256
-        rll               %r0,%r0,24(%r5)
-        lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
         lr                %r3,%r0

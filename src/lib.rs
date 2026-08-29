@@ -1295,19 +1295,32 @@ impl AtomicBool {
         failure: Ordering,
     ) -> Result<bool, bool> {
         cfg_emulate_bool_cas! {
-            // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
-            // https://godbolt.org/z/ofbGGdx44
             crate::utils::assert_compare_exchange_ordering(success, failure);
             let order = crate::utils::upgrade_success_ordering(success, failure);
-            let old = if current == new {
-                // This is a no-op, but we still need to perform the operation
-                // for memory ordering reasons.
-                self.fetch_or(false, order)
-            } else {
-                // This sets the value to the new one and returns the old one.
-                self.swap(new, order)
-            };
+            cfg_emulate_bool_swap! {
+                let old = if current {
+                    // CAS(x, true, true) == (x & true) == x
+                    // CAS(x, true, false) == (x & false) == false
+                    self.fetch_and(new, order)
+                } else {
+                    // CAS(x, false, false) == (x | false) == x
+                    // CAS(x, false, true) == (x | true) == true
+                    self.fetch_or(new, order)
+                };
+            }
+            cfg_no_emulate_bool_swap! {
+                // See https://github.com/rust-lang/rust/pull/114034 for details.
+                // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+                // https://godbolt.org/z/ofbGGdx44
+                let old = if current == new {
+                    // This is a no-op, but we still need to perform the operation
+                    // for memory ordering reasons.
+                    self.fetch_or(false, order)
+                } else {
+                    // This sets the value to the new one and returns the old one.
+                    self.swap(new, order)
+                };
+            }
             if old == current { Ok(old) } else { Err(old) }
         }
         cfg_no_emulate_bool_cas! {
@@ -1371,9 +1384,6 @@ impl AtomicBool {
         failure: Ordering,
     ) -> Result<bool, bool> {
         cfg_emulate_bool_cas! {
-            // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
-            // https://godbolt.org/z/ofbGGdx44
             self.compare_exchange(current, new, success, failure)
         }
         cfg_no_emulate_bool_cas! {
