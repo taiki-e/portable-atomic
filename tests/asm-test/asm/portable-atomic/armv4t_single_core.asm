@@ -30,6 +30,261 @@ asm_test::fence::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::bit_toggle::u8::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        eor               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::fetch_nand::u8::acqrel:
         push              {r11, lr}
         mov               r11, sp
@@ -5621,6 +5876,261 @@ asm_test::store::bool::release:
         pop               {r11, lr}
         bx                lr
 
+asm_test::bit_set::u8::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        orr               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
 asm_test::fetch_or::u8::acqrel:
         push              {r11, lr}
         mov               r11, sp
@@ -5908,6 +6418,261 @@ asm_test::fetch_or::bool::release:
         movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #7
+        mov               r12, #1
+        ldrb              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strb              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #15
+        mov               r12, #1
+        ldrh              r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        strh              r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::acqrel:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::seqcst:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::acquire:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::relaxed:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
+        pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::release:
+        push              {r11, lr}
+        mov               r11, sp
+        mrs               lr, apsr
+        orr               r2, lr, #128
+        msr               CPSR_c, r2
+        and               r1, r1, #31
+        mov               r12, #1
+        ldr               r2, [r0]
+        bic               r3, r2, r12, lsl r1
+        str               r3, [r0]
+        ands              r0, r2, r12, lsl r1
+        msr               CPSR_c, lr
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 

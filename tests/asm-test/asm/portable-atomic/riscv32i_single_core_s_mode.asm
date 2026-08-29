@@ -14,6 +14,211 @@ asm_test::fence::release:
         fence             rw, w
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u8::release:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u16::release:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u32::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u32::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u32::acquire:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u32::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_toggle::u32::release:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        xor               a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         csrrci            a3, sstatus, 0x2
         lbu               a2, 0x0(a0)
@@ -4900,6 +5105,211 @@ asm_test::store::bool::release:
         sb                a1, 0x0(a0)
         ret
 
+asm_test::bit_set::u8::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u8::acquire:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u8::release:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u16::acquire:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u16::release:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u32::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u32::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u32::acquire:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u32::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_set::u32::release:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        or                a4, a3, a1
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         csrrci            a3, sstatus, 0x2
         lbu               a2, 0x0(a0)
@@ -5098,6 +5508,226 @@ asm_test::fetch_or::bool::release:
         sb                a1, 0x0(a0)
         csrs              sstatus, a2
         snez              a0, a3
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u8::release:
+        csrrci            a2, sstatus, 0x2
+        lbu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sb                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u16::release:
+        csrrci            a2, sstatus, 0x2
+        lhu               a3, 0x0(a0)
+        li                a4, 0x1
+        andi              a1, a1, 0xf
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sh                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u32::acqrel:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u32::seqcst:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u32::acquire:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u32::relaxed:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
+        ret
+
+asm_test::bit_clear::u32::release:
+        csrrci            a2, sstatus, 0x2
+        lw                a3, 0x0(a0)
+        li                a4, 0x1
+        sll               a1, a4, a1
+        not               a4, a1
+        and               a4, a3, a4
+        sw                a4, 0x0(a0)
+        andi              a2, a2, 0x2
+        and               a1, a3, a1
+        csrs              sstatus, a2
+        snez              a0, a1
         ret
 
 asm_test::fetch_abs::f32::acqrel:

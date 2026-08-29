@@ -10,6 +10,311 @@ asm_test::fence::acquire:
 asm_test::fence::release:
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        eor               r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        eor               r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        eor               r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        eor               r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u8::release:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        eor               r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        eor               r24, r18
+        eor               r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        eor               r24, r18
+        eor               r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        eor               r24, r18
+        eor               r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        eor               r24, r18
+        eor               r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_toggle::u16::release:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        eor               r24, r18
+        eor               r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movw              r26, r24
         in                r25, 0x3f	; 63
@@ -4107,6 +4412,311 @@ asm_test::store::bool::release:
         st                Z, r22
         ret
 
+asm_test::bit_set::u8::acqrel:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        or                r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        or                r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u8::acquire:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        or                r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        or                r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u8::release:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r24, 0x01	; 1
+        ldi               r25, 0x01	; 1
+        dec               r20
+0:
+        brmi              0f
+        add               r25, r25
+        dec               r20
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r19, X
+        mov               r20, r19
+        or                r20, r25
+        st                X, r20
+        out               0x3f, r18	; 63
+        and               r19, r25
+        cpi               r19, 0x00	; 0
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        or                r24, r18
+        or                r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        or                r24, r18
+        or                r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u16::acquire:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        or                r24, r18
+        or                r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        or                r24, r18
+        or                r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_set::u16::release:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        in                r20, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r22, Z
+        ldd               r23, Z+1	; 0x01
+        movw              r24, r22
+        or                r24, r18
+        or                r25, r19
+        std               Z+1, r25	; 0x01
+        st                Z, r24
+        out               0x3f, r20	; 63
+        and               r22, r18
+        and               r23, r19
+        ldi               r24, 0x01	; 1
+        cp                r22, r1
+        cpc               r23, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         movw              r26, r24
         in                r25, 0x3f	; 63
@@ -4298,6 +4908,336 @@ asm_test::fetch_or::bool::release:
         cpi               r25, 0x00	; 0
 0:
         brne              0f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r25, 0xFE	; 254
+        mov               r24, r20
+        dec               r24
+0:
+        brmi              0f
+        add               r25, r25
+        adc               r25, r1
+        dec               r24
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r24, X
+        and               r25, r24
+        st                X, r25
+        out               0x3f, r18	; 63
+        dec               r20
+2:
+        brmi              2f
+        lsr               r24
+        dec               r20
+3:
+        brpl              3f
+        andi              r24, 0x01	; 1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r25, 0xFE	; 254
+        mov               r24, r20
+        dec               r24
+0:
+        brmi              0f
+        add               r25, r25
+        adc               r25, r1
+        dec               r24
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r24, X
+        and               r25, r24
+        st                X, r25
+        out               0x3f, r18	; 63
+        dec               r20
+2:
+        brmi              2f
+        lsr               r24
+        dec               r20
+3:
+        brpl              3f
+        andi              r24, 0x01	; 1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r25, 0xFE	; 254
+        mov               r24, r20
+        dec               r24
+0:
+        brmi              0f
+        add               r25, r25
+        adc               r25, r1
+        dec               r24
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r24, X
+        and               r25, r24
+        st                X, r25
+        out               0x3f, r18	; 63
+        dec               r20
+2:
+        brmi              2f
+        lsr               r24
+        dec               r20
+3:
+        brpl              3f
+        andi              r24, 0x01	; 1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r25, 0xFE	; 254
+        mov               r24, r20
+        dec               r24
+0:
+        brmi              0f
+        add               r25, r25
+        adc               r25, r1
+        dec               r24
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r24, X
+        and               r25, r24
+        st                X, r25
+        out               0x3f, r18	; 63
+        dec               r20
+2:
+        brmi              2f
+        lsr               r24
+        dec               r20
+3:
+        brpl              3f
+        andi              r24, 0x01	; 1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u8::release:
+        movw              r26, r24
+        andi              r20, 0x07	; 7
+        ldi               r25, 0xFE	; 254
+        mov               r24, r20
+        dec               r24
+0:
+        brmi              0f
+        add               r25, r25
+        adc               r25, r1
+        dec               r24
+1:
+        brpl              1f
+        in                r18, 0x3f	; 63
+        cli
+        ld                r24, X
+        and               r25, r24
+        st                X, r25
+        out               0x3f, r18	; 63
+        dec               r20
+2:
+        brmi              2f
+        lsr               r24
+        dec               r20
+3:
+        brpl              3f
+        andi              r24, 0x01	; 1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        movw              r20, r18
+        com               r20
+        com               r21
+        in                r22, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r26, Z
+        ldd               r27, Z+1	; 0x01
+        and               r20, r26
+        and               r21, r27
+        std               Z+1, r21	; 0x01
+        st                Z, r20
+        out               0x3f, r22	; 63
+        and               r26, r18
+        and               r27, r19
+        ldi               r24, 0x01	; 1
+        cp                r26, r1
+        cpc               r27, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        movw              r20, r18
+        com               r20
+        com               r21
+        in                r22, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r26, Z
+        ldd               r27, Z+1	; 0x01
+        and               r20, r26
+        and               r21, r27
+        std               Z+1, r21	; 0x01
+        st                Z, r20
+        out               0x3f, r22	; 63
+        and               r26, r18
+        and               r27, r19
+        ldi               r24, 0x01	; 1
+        cp                r26, r1
+        cpc               r27, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        movw              r20, r18
+        com               r20
+        com               r21
+        in                r22, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r26, Z
+        ldd               r27, Z+1	; 0x01
+        and               r20, r26
+        and               r21, r27
+        std               Z+1, r21	; 0x01
+        st                Z, r20
+        out               0x3f, r22	; 63
+        and               r26, r18
+        and               r27, r19
+        ldi               r24, 0x01	; 1
+        cp                r26, r1
+        cpc               r27, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        movw              r20, r18
+        com               r20
+        com               r21
+        in                r22, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r26, Z
+        ldd               r27, Z+1	; 0x01
+        and               r20, r26
+        and               r21, r27
+        std               Z+1, r21	; 0x01
+        st                Z, r20
+        out               0x3f, r22	; 63
+        and               r26, r18
+        and               r27, r19
+        ldi               r24, 0x01	; 1
+        cp                r26, r1
+        cpc               r27, r1
+2:
+        brne              2f
+        mov               r24, r1
+        eor               r25, r25
+        ret
+
+asm_test::bit_clear::u16::release:
+        andi              r20, 0x0F	; 15
+        ldi               r18, 0x01	; 1
+        ldi               r19, 0x00	; 0
+        dec               r20
+0:
+        brmi              0f
+        add               r18, r18
+        adc               r19, r19
+        dec               r20
+1:
+        brpl              1f
+        movw              r20, r18
+        com               r20
+        com               r21
+        in                r22, 0x3f	; 63
+        cli
+        movw              r30, r24
+        ld                r26, Z
+        ldd               r27, Z+1	; 0x01
+        and               r20, r26
+        and               r21, r27
+        std               Z+1, r21	; 0x01
+        st                Z, r20
+        out               0x3f, r22	; 63
+        and               r26, r18
+        and               r27, r19
+        ldi               r24, 0x01	; 1
+        cp                r26, r1
+        cpc               r27, r1
+2:
+        brne              2f
         mov               r24, r1
         eor               r25, r25
         ret

@@ -18,6 +18,321 @@ asm_test::fence::release:
         memw
         retw.n
 
+asm_test::bit_toggle::u8::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        xor               a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u8::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        xor               a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u8::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        xor               a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u8::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        xor               a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u8::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        xor               a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u16::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        xor               a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u16::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        xor               a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u16::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        xor               a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u16::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        xor               a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u16::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        xor               a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u32::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        xor               a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u32::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        xor               a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u32::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        xor               a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u32::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        xor               a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_toggle::u32::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        xor               a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
 asm_test::fetch_nand::u8::acqrel:
         entry             a1, 32
         rsil              a14, 15
@@ -5505,6 +5820,321 @@ asm_test::store::bool::release:
         s8i               a3, a2, 0
         retw.n
 
+asm_test::bit_set::u8::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        or                a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u8::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        or                a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u8::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        or                a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u8::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        or                a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u8::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l8ui              a10, a8, 0
+        or                a11, a10, a9
+        s8i               a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u16::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        or                a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u16::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        or                a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u16::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        or                a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u16::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        or                a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u16::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l16ui             a10, a8, 0
+        or                a11, a10, a9
+        s16i              a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u32::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        or                a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u32::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        or                a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u32::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        or                a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u32::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        or                a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_set::u32::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        rsil              a14, 15
+        l32i.n            a10, a8, 0
+        or                a11, a10, a9
+        s32i.n            a11, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a10, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
 asm_test::fetch_or::u8::acqrel:
         entry             a1, 32
         rsil              a14, 15
@@ -5737,6 +6367,351 @@ asm_test::fetch_or::bool::release:
         movi.n            a2, 0
         beq               a8, a2, 0f
         movi.n            a2, 1
+0:
+        retw.n
+
+asm_test::bit_clear::u8::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l8ui              a11, a8, 0
+        and               a10, a11, a10
+        s8i               a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u8::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l8ui              a11, a8, 0
+        and               a10, a11, a10
+        s8i               a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u8::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l8ui              a11, a8, 0
+        and               a10, a11, a10
+        s8i               a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u8::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l8ui              a11, a8, 0
+        and               a10, a11, a10
+        s8i               a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u8::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 7
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l8ui              a11, a8, 0
+        and               a10, a11, a10
+        s8i               a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u16::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l16ui             a11, a8, 0
+        and               a10, a11, a10
+        s16i              a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u16::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l16ui             a11, a8, 0
+        and               a10, a11, a10
+        s16i              a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u16::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l16ui             a11, a8, 0
+        and               a10, a11, a10
+        s16i              a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u16::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l16ui             a11, a8, 0
+        and               a10, a11, a10
+        s16i              a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u16::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 15
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l16ui             a11, a8, 0
+        and               a10, a11, a10
+        s16i              a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u32::acqrel:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l32i.n            a11, a8, 0
+        and               a10, a11, a10
+        s32i.n            a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u32::seqcst:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l32i.n            a11, a8, 0
+        and               a10, a11, a10
+        s32i.n            a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u32::acquire:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l32i.n            a11, a8, 0
+        and               a10, a11, a10
+        s32i.n            a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u32::relaxed:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l32i.n            a11, a8, 0
+        and               a10, a11, a10
+        s32i.n            a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
+0:
+        retw.n
+
+asm_test::bit_clear::u32::release:
+        entry             a1, 32
+        mov.n             a8, a2
+        movi.n            a9, 31
+        and               a9, a3, a9
+        movi.n            a2, 1
+        ssl               a9
+        sll               a9, a2
+        movi.n            a10, -1
+        xor               a10, a9, a10
+        rsil              a14, 15
+        l32i.n            a11, a8, 0
+        and               a10, a11, a10
+        s32i.n            a10, a8, 0
+        wsr.ps            a14
+        rsync
+        and               a9, a11, a9
+        movi.n            a8, 0
+        bne               a9, a8, 0f
+        mov.n             a2, a8
 0:
         retw.n
 

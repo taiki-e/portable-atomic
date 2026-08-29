@@ -14,6 +14,441 @@ asm_test::fence::release:
         lwsync
         blr
 
+asm_test::bit_toggle::u8::acqrel:
+        clrlwi            4, 4, 29
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        xor               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u8::seqcst:
+        clrlwi            4, 4, 29
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        xor               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u8::acquire:
+        clrlwi            4, 4, 29
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        xor               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u8::relaxed:
+        clrlwi            4, 4, 29
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        xor               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u8::release:
+        clrlwi            4, 4, 29
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        xor               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u16::acqrel:
+        clrlwi            4, 4, 28
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        xor               6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u16::seqcst:
+        clrlwi            4, 4, 28
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        xor               6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u16::acquire:
+        clrlwi            4, 4, 28
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        xor               6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u16::relaxed:
+        clrlwi            4, 4, 28
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        xor               6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u16::release:
+        clrlwi            4, 4, 28
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        xor               6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u32::acqrel:
+        clrlwi            4, 4, 27
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        xor               6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u32::seqcst:
+        clrlwi            4, 4, 27
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        xor               6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u32::acquire:
+        clrlwi            4, 4, 27
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        xor               6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u32::relaxed:
+        clrlwi            4, 4, 27
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        xor               6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u32::release:
+        clrlwi            4, 4, 27
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        xor               6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_toggle::u64::acqrel:
+        clrlwi            4, 4, 26
+        li                5, 1
+        lwsync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u64::seqcst:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u64::acquire:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u64::relaxed:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u64::release:
+        clrlwi            4, 4, 26
+        li                5, 1
+        lwsync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        xor               6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u128::acqrel:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u128::seqcst:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        sync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u128::acquire:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u128::relaxed:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_toggle::u128::release:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
 asm_test::fetch_nand::u8::acqrel:
         lwsync
 0:
@@ -9434,6 +9869,441 @@ asm_test::store::u128::release:
         stq               4, 0(3)
         blr
 
+asm_test::bit_set::u8::acqrel:
+        clrlwi            4, 4, 29
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        or                6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u8::seqcst:
+        clrlwi            4, 4, 29
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        or                6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u8::acquire:
+        clrlwi            4, 4, 29
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        or                6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u8::relaxed:
+        clrlwi            4, 4, 29
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        or                6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u8::release:
+        clrlwi            4, 4, 29
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lbarx             5, 0, 3
+        or                6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u16::acqrel:
+        clrlwi            4, 4, 28
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        or                6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u16::seqcst:
+        clrlwi            4, 4, 28
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        or                6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u16::acquire:
+        clrlwi            4, 4, 28
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        or                6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u16::relaxed:
+        clrlwi            4, 4, 28
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        or                6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u16::release:
+        clrlwi            4, 4, 28
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lharx             5, 0, 3
+        or                6, 4, 5
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u32::acqrel:
+        clrlwi            4, 4, 27
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        or                6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u32::seqcst:
+        clrlwi            4, 4, 27
+        li                5, 1
+        sync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        or                6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u32::acquire:
+        clrlwi            4, 4, 27
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        or                6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u32::relaxed:
+        clrlwi            4, 4, 27
+        li                5, 1
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        or                6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u32::release:
+        clrlwi            4, 4, 27
+        li                5, 1
+        lwsync
+        slw               4, 5, 4
+0:
+        lwarx             5, 0, 3
+        or                6, 4, 5
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::bit_set::u64::acqrel:
+        clrlwi            4, 4, 26
+        li                5, 1
+        lwsync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        or                6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u64::seqcst:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        or                6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u64::acquire:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        or                6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        lwsync
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u64::relaxed:
+        clrlwi            4, 4, 26
+        li                5, 1
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        or                6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u64::release:
+        clrlwi            4, 4, 26
+        li                5, 1
+        lwsync
+        sld               4, 5, 4
+0:
+        ldarx             5, 0, 3
+        or                6, 4, 5
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        and               3, 5, 4
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u128::acqrel:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u128::seqcst:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        sync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u128::acquire:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u128::relaxed:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_set::u128::release:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        or                5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 5
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
 asm_test::fetch_or::u8::acqrel:
         lwsync
 0:
@@ -9758,6 +10628,416 @@ asm_test::fetch_or::u128::release:
         bf                2, 0b
         mr                4, 7
         mr                3, 6
+        blr
+
+asm_test::bit_clear::u8::acqrel:
+        clrlwi            4, 4, 29
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lbarx             6, 0, 3
+        and               7, 5, 6
+        stbcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u8::seqcst:
+        clrlwi            4, 4, 29
+        li                5, -2
+        sync
+        rotlw             5, 5, 4
+0:
+        lbarx             6, 0, 3
+        and               7, 5, 6
+        stbcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u8::acquire:
+        clrlwi            4, 4, 29
+        li                5, -2
+        rotlw             6, 5, 4
+0:
+        lbarx             5, 0, 3
+        and               7, 6, 5
+        stbcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 5, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u8::relaxed:
+        clrlwi            4, 4, 29
+        li                5, -2
+        rotlw             5, 5, 4
+0:
+        lbarx             6, 0, 3
+        and               7, 5, 6
+        stbcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u8::release:
+        clrlwi            4, 4, 29
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lbarx             6, 0, 3
+        and               7, 5, 6
+        stbcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u16::acqrel:
+        clrlwi            4, 4, 28
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lharx             6, 0, 3
+        and               7, 5, 6
+        sthcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u16::seqcst:
+        clrlwi            4, 4, 28
+        li                5, -2
+        sync
+        rotlw             5, 5, 4
+0:
+        lharx             6, 0, 3
+        and               7, 5, 6
+        sthcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u16::acquire:
+        clrlwi            4, 4, 28
+        li                5, -2
+        rotlw             6, 5, 4
+0:
+        lharx             5, 0, 3
+        and               7, 6, 5
+        sthcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 5, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u16::relaxed:
+        clrlwi            4, 4, 28
+        li                5, -2
+        rotlw             5, 5, 4
+0:
+        lharx             6, 0, 3
+        and               7, 5, 6
+        sthcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u16::release:
+        clrlwi            4, 4, 28
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lharx             6, 0, 3
+        and               7, 5, 6
+        sthcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u32::acqrel:
+        clrlwi            4, 4, 27
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lwarx             6, 0, 3
+        and               7, 5, 6
+        stwcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u32::seqcst:
+        clrlwi            4, 4, 27
+        li                5, -2
+        sync
+        rotlw             5, 5, 4
+0:
+        lwarx             6, 0, 3
+        and               7, 5, 6
+        stwcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u32::acquire:
+        clrlwi            4, 4, 27
+        li                5, -2
+        rotlw             6, 5, 4
+0:
+        lwarx             5, 0, 3
+        and               7, 6, 5
+        stwcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 5, 4
+        lwsync
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u32::relaxed:
+        clrlwi            4, 4, 27
+        li                5, -2
+        rotlw             5, 5, 4
+0:
+        lwarx             6, 0, 3
+        and               7, 5, 6
+        stwcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u32::release:
+        clrlwi            4, 4, 27
+        li                5, -2
+        lwsync
+        rotlw             5, 5, 4
+0:
+        lwarx             6, 0, 3
+        and               7, 5, 6
+        stwcx.            7, 0, 3
+        bf-               2, 0b
+        srw               3, 6, 4
+        clrlwi            3, 3, 31
+        blr
+
+asm_test::bit_clear::u64::acqrel:
+        clrlwi            4, 4, 26
+        li                5, -2
+        lwsync
+        rotld             5, 5, 4
+0:
+        ldarx             6, 0, 3
+        and               7, 5, 6
+        stdcx.            7, 0, 3
+        bf-               2, 0b
+        srd               3, 6, 4
+        lwsync
+        clrldi            3, 3, 63
+        blr
+
+asm_test::bit_clear::u64::seqcst:
+        clrlwi            4, 4, 26
+        li                5, -2
+        sync
+        rotld             5, 5, 4
+0:
+        ldarx             6, 0, 3
+        and               7, 5, 6
+        stdcx.            7, 0, 3
+        bf-               2, 0b
+        srd               3, 6, 4
+        lwsync
+        clrldi            3, 3, 63
+        blr
+
+asm_test::bit_clear::u64::acquire:
+        clrlwi            4, 4, 26
+        li                5, -2
+        rotld             6, 5, 4
+0:
+        ldarx             5, 0, 3
+        and               7, 6, 5
+        stdcx.            7, 0, 3
+        bf-               2, 0b
+        srd               3, 5, 4
+        lwsync
+        clrldi            3, 3, 63
+        blr
+
+asm_test::bit_clear::u64::relaxed:
+        clrlwi            4, 4, 26
+        li                5, -2
+        rotld             5, 5, 4
+0:
+        ldarx             6, 0, 3
+        and               7, 5, 6
+        stdcx.            7, 0, 3
+        bf-               2, 0b
+        srd               3, 6, 4
+        clrldi            3, 3, 63
+        blr
+
+asm_test::bit_clear::u64::release:
+        clrlwi            4, 4, 26
+        li                5, -2
+        lwsync
+        rotld             5, 5, 4
+0:
+        ldarx             6, 0, 3
+        and               7, 5, 6
+        stdcx.            7, 0, 3
+        bf-               2, 0b
+        srd               3, 6, 4
+        clrldi            3, 3, 63
+        blr
+
+asm_test::bit_clear::u128::acqrel:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        not               11, 4
+        or                10, 7, 5
+        nor               5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 11, 7
+        and               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 10
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_clear::u128::seqcst:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        not               11, 4
+        or                10, 7, 5
+        nor               5, 7, 5
+        sync
+0:
+        lqarx             6, 0, 3
+        and               9, 11, 7
+        and               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 10
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_clear::u128::acquire:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        not               11, 4
+        or                10, 7, 5
+        nor               5, 7, 5
+0:
+        lqarx             6, 0, 3
+        and               9, 11, 7
+        and               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        and               4, 7, 4
+        and               3, 6, 10
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_clear::u128::relaxed:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        not               11, 4
+        or                10, 7, 5
+        nor               5, 7, 5
+0:
+        lqarx             6, 0, 3
+        and               9, 11, 7
+        and               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 10
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
+        blr
+
+asm_test::bit_clear::u128::release:
+        clrlwi            4, 4, 25
+        li                6, 1
+        addi              5, 4, -64
+        subfic            7, 4, 64
+        sld               4, 6, 4
+        sld               5, 6, 5
+        srd               7, 6, 7
+        not               11, 4
+        or                10, 7, 5
+        nor               5, 7, 5
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 11, 7
+        and               8, 5, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        and               4, 7, 4
+        and               3, 6, 10
+        or                3, 4, 3
+        addic             4, 3, -1
+        subfe             3, 4, 3
         blr
 
 asm_test::fetch_abs::f32::acqrel:

@@ -4,8 +4,6 @@
 #![allow(unused, internal_features, unsafe_op_in_unsafe_fn, clippy::missing_safety_doc)]
 #![cfg_attr(feature = "core", feature(cfg_target_has_atomic, core_intrinsics))]
 
-// TODO: bit_* (for x86 opt)
-
 // -----------------------------------------------------------------------------
 // feature = "portable-atomic"
 
@@ -556,6 +554,7 @@ pub mod sub {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -610,6 +609,7 @@ pub mod fetch_and {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -718,6 +718,7 @@ pub mod fetch_nand {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -772,6 +773,7 @@ pub mod fetch_or {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -826,6 +828,7 @@ pub mod or {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -880,6 +883,7 @@ pub mod fetch_xor {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -934,6 +938,7 @@ pub mod xor {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -988,6 +993,7 @@ pub mod fetch_not {
     target_has_atomic = "ptr",
     target_arch = "avr",
     target_arch = "msp430",
+    target_feature = "zaamo",
     target_feature = "zalrsc",
     target_feature = "zacas",
     portable_atomic_unsafe_assume_single_core,
@@ -1018,6 +1024,168 @@ pub mod not {
     }
     portable_atomic::cfg_has_atomic_8! {
         t!(bool);
+        t!(u8);
+    }
+    portable_atomic::cfg_has_atomic_16! {
+        t!(u16);
+    }
+    portable_atomic::cfg_has_atomic_32! {
+        t!(u32);
+    }
+    portable_atomic::cfg_has_atomic_64! {
+        t!(u64);
+    }
+    // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
+    // portable_atomic::cfg_no_atomic_64! {
+    //     t!(u64);
+    // }
+    portable_atomic::cfg_has_atomic_128! {
+        t!(u128);
+    }
+}
+#[cfg(feature = "portable-atomic")]
+#[cfg(any(
+    target_has_atomic = "ptr",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_feature = "zaamo",
+    target_feature = "zalrsc",
+    target_feature = "zacas",
+    portable_atomic_unsafe_assume_single_core,
+))]
+pub mod bit_set {
+    macro_rules! bit_set {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, bit: u32) -> bool {
+                a.bit_set(bit, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
+    macro_rules! t {
+        ($t:ident) => {
+            paste::paste! {
+                pub mod $t {
+                    type T = $t;
+                    type A = &'static portable_atomic::[<Atomic $t:camel>];
+                    bit_set!(relaxed, Relaxed);
+                    bit_set!(acquire, Acquire);
+                    bit_set!(release, Release);
+                    bit_set!(acqrel, AcqRel);
+                    bit_set!(seqcst, SeqCst);
+                }
+            }
+        };
+    }
+    portable_atomic::cfg_has_atomic_8! {
+        t!(u8);
+    }
+    portable_atomic::cfg_has_atomic_16! {
+        t!(u16);
+    }
+    portable_atomic::cfg_has_atomic_32! {
+        t!(u32);
+    }
+    portable_atomic::cfg_has_atomic_64! {
+        t!(u64);
+    }
+    // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
+    // portable_atomic::cfg_no_atomic_64! {
+    //     t!(u64);
+    // }
+    portable_atomic::cfg_has_atomic_128! {
+        t!(u128);
+    }
+}
+#[cfg(feature = "portable-atomic")]
+#[cfg(any(
+    target_has_atomic = "ptr",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_feature = "zaamo",
+    target_feature = "zalrsc",
+    target_feature = "zacas",
+    portable_atomic_unsafe_assume_single_core,
+))]
+pub mod bit_clear {
+    macro_rules! bit_clear {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, bit: u32) -> bool {
+                a.bit_clear(bit, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
+    macro_rules! t {
+        ($t:ident) => {
+            paste::paste! {
+                pub mod $t {
+                    type T = $t;
+                    type A = &'static portable_atomic::[<Atomic $t:camel>];
+                    bit_clear!(relaxed, Relaxed);
+                    bit_clear!(acquire, Acquire);
+                    bit_clear!(release, Release);
+                    bit_clear!(acqrel, AcqRel);
+                    bit_clear!(seqcst, SeqCst);
+                }
+            }
+        };
+    }
+    portable_atomic::cfg_has_atomic_8! {
+        t!(u8);
+    }
+    portable_atomic::cfg_has_atomic_16! {
+        t!(u16);
+    }
+    portable_atomic::cfg_has_atomic_32! {
+        t!(u32);
+    }
+    portable_atomic::cfg_has_atomic_64! {
+        t!(u64);
+    }
+    // #[cfg(all(target_arch = "arm", target_os = "linux"))] // TODO
+    // portable_atomic::cfg_no_atomic_64! {
+    //     t!(u64);
+    // }
+    portable_atomic::cfg_has_atomic_128! {
+        t!(u128);
+    }
+}
+#[cfg(feature = "portable-atomic")]
+#[cfg(any(
+    target_has_atomic = "ptr",
+    target_arch = "avr",
+    target_arch = "msp430",
+    target_feature = "zaamo",
+    target_feature = "zalrsc",
+    target_feature = "zacas",
+    portable_atomic_unsafe_assume_single_core,
+))]
+pub mod bit_toggle {
+    macro_rules! bit_toggle {
+        ($name:ident, $order:ident) => {
+            #[inline(never)]
+            pub unsafe fn $name(a: A, bit: u32) -> bool {
+                a.bit_toggle(bit, core::sync::atomic::Ordering::$order)
+            }
+        };
+    }
+    macro_rules! t {
+        ($t:ident) => {
+            paste::paste! {
+                pub mod $t {
+                    type T = $t;
+                    type A = &'static portable_atomic::[<Atomic $t:camel>];
+                    bit_toggle!(relaxed, Relaxed);
+                    bit_toggle!(acquire, Acquire);
+                    bit_toggle!(release, Release);
+                    bit_toggle!(acqrel, AcqRel);
+                    bit_toggle!(seqcst, SeqCst);
+                }
+            }
+        };
+    }
+    portable_atomic::cfg_has_atomic_8! {
         t!(u8);
     }
     portable_atomic::cfg_has_atomic_16! {

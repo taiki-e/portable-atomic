@@ -11,6 +11,471 @@ asm_test::fence::acquire:
 asm_test::fence::release:
         br                %r14
 
+asm_test::bit_toggle::u8::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u8::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u8::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u8::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u8::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u16::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u16::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u16::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u16::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u16::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        xr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u32::acqrel:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lax               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u32::seqcst:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lax               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u32::acquire:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lax               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u32::relaxed:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lax               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u32::release:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lax               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u64::acqrel:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laxg              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u64::seqcst:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laxg              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u64::acquire:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laxg              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u64::relaxed:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laxg              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u64::release:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laxg              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_toggle::u128::acqrel:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        xgrk              %r13,%r1,%r3
+        xgrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u128::seqcst:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        xgrk              %r13,%r1,%r3
+        xgrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u128::acquire:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        xgrk              %r13,%r1,%r3
+        xgrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u128::relaxed:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        xgrk              %r13,%r1,%r3
+        xgrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_toggle::u128::release:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        xgrk              %r13,%r1,%r3
+        xgrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
 asm_test::fetch_nand::u8::acqrel:
         risbgnz           %r1,%r2,0,61
         l                 %r0,0(%r1)
@@ -8511,6 +8976,471 @@ asm_test::store::u128::release:
         stpq              %r0,0(%r2)
         br                %r14
 
+asm_test::bit_set::u8::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u8::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u8::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u8::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u8::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,24
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u16::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u16::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u16::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u16::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u16::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r2,3
+        sllk              %r1,%r0,16
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        or                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_set::u32::acqrel:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lao               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u32::seqcst:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lao               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u32::acquire:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lao               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u32::relaxed:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lao               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u32::release:
+        nill              %r3,31
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        lao               %r1,%r0,0(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u64::acqrel:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laog              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u64::seqcst:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laog              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u64::acquire:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laog              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u64::relaxed:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laog              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u64::release:
+        lghi              %r0,1
+        sllg              %r0,%r0,0(%r3)
+        laog              %r1,%r0,0(%r2)
+        ngr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        br                %r14
+
+asm_test::bit_set::u128::acqrel:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ogrk              %r13,%r1,%r3
+        ogrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_set::u128::seqcst:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ogrk              %r13,%r1,%r3
+        ogrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_set::u128::acquire:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ogrk              %r13,%r1,%r3
+        ogrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_set::u128::relaxed:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ogrk              %r13,%r1,%r3
+        ogrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_set::u128::release:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,176(%r15)
+        lg                %r3,184(%r15)
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ogrk              %r13,%r1,%r3
+        ogrk              %r12,%r0,%r2
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r2
+        ngr               %r1,%r3
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
 asm_test::fetch_or::u8::acqrel:
         risbgnz           %r1,%r2,0,61
         l                 %r0,0(%r1)
@@ -8869,6 +9799,511 @@ asm_test::fetch_or::u128::release:
         stg               %r1,8(%r2)
         stg               %r0,0(%r2)
         lmg               %r12,%r15,96(%r15)
+        br                %r14
+
+asm_test::bit_clear::u8::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,24
+        sll               %r2,3
+        oilf              %r1,16777215
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u8::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,24
+        sll               %r2,3
+        oilf              %r1,16777215
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u8::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,24
+        sll               %r2,3
+        oilf              %r1,16777215
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u8::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,24
+        sll               %r2,3
+        oilf              %r1,16777215
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u8::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,7
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,24
+        sll               %r2,3
+        oilf              %r1,16777215
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,8(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u16::acqrel:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,16
+        sll               %r2,3
+        oill              %r1,65535
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u16::seqcst:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,16
+        sll               %r2,3
+        oill              %r1,65535
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u16::acquire:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,16
+        sll               %r2,3
+        oill              %r1,65535
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u16::relaxed:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,16
+        sll               %r2,3
+        oill              %r1,65535
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u16::release:
+        stmg              %r14,%r15,112(%r15)
+        nill              %r3,15
+        lhi               %r0,-2
+        rll               %r1,%r0,0(%r3)
+        lhi               %r0,1
+        sll               %r0,0(%r3)
+        risbgnz           %r3,%r2,0,61
+        l                 %r4,0(%r3)
+        sll               %r1,16
+        sll               %r2,3
+        oill              %r1,65535
+        lcr               %r5,%r2
+0:
+        rll               %r14,%r4,0(%r2)
+        nr                %r14,%r1
+        rll               %r14,%r14,0(%r5)
+        cs                %r4,%r14,0(%r3)
+        jl                0b
+        rll               %r1,%r4,16(%r2)
+        nr                %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r14,%r15,112(%r15)
+        br                %r14
+
+asm_test::bit_clear::u32::acqrel:
+        nill              %r3,31
+        lhi               %r0,-2
+        rll               %r0,%r0,0(%r3)
+        lan               %r0,%r0,0(%r2)
+        srl               %r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u32::seqcst:
+        nill              %r3,31
+        lhi               %r0,-2
+        rll               %r0,%r0,0(%r3)
+        lan               %r0,%r0,0(%r2)
+        srl               %r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u32::acquire:
+        nill              %r3,31
+        lhi               %r0,-2
+        rll               %r0,%r0,0(%r3)
+        lan               %r0,%r0,0(%r2)
+        srl               %r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u32::relaxed:
+        nill              %r3,31
+        lhi               %r0,-2
+        rll               %r0,%r0,0(%r3)
+        lan               %r0,%r0,0(%r2)
+        srl               %r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u32::release:
+        nill              %r3,31
+        lhi               %r0,-2
+        rll               %r0,%r0,0(%r3)
+        lan               %r0,%r0,0(%r2)
+        srl               %r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u64::acqrel:
+        lghi              %r0,-2
+        rllg              %r0,%r0,0(%r3)
+        lang              %r0,%r0,0(%r2)
+        srlg              %r0,%r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u64::seqcst:
+        lghi              %r0,-2
+        rllg              %r0,%r0,0(%r3)
+        lang              %r0,%r0,0(%r2)
+        srlg              %r0,%r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u64::acquire:
+        lghi              %r0,-2
+        rllg              %r0,%r0,0(%r3)
+        lang              %r0,%r0,0(%r2)
+        srlg              %r0,%r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u64::relaxed:
+        lghi              %r0,-2
+        rllg              %r0,%r0,0(%r3)
+        lang              %r0,%r0,0(%r2)
+        srlg              %r0,%r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u64::release:
+        lghi              %r0,-2
+        rllg              %r0,%r0,0(%r3)
+        lang              %r0,%r0,0(%r2)
+        srlg              %r0,%r0,0(%r3)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+
+asm_test::bit_clear::u128::acqrel:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,184(%r15)
+        lg                %r3,176(%r15)
+        lcgr              %r4,%r3
+        lcgr              %r5,%r2
+        aghi              %r4,-1
+        aghi              %r5,-1
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ngrk              %r13,%r1,%r5
+        ngrk              %r12,%r0,%r4
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r3
+        ngr               %r1,%r2
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_clear::u128::seqcst:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,184(%r15)
+        lg                %r3,176(%r15)
+        lcgr              %r4,%r3
+        lcgr              %r5,%r2
+        aghi              %r4,-1
+        aghi              %r5,-1
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ngrk              %r13,%r1,%r5
+        ngrk              %r12,%r0,%r4
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r3
+        ngr               %r1,%r2
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_clear::u128::acquire:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,184(%r15)
+        lg                %r3,176(%r15)
+        lcgr              %r4,%r3
+        lcgr              %r5,%r2
+        aghi              %r4,-1
+        aghi              %r5,-1
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ngrk              %r13,%r1,%r5
+        ngrk              %r12,%r0,%r4
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r3
+        ngr               %r1,%r2
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_clear::u128::relaxed:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,184(%r15)
+        lg                %r3,176(%r15)
+        lcgr              %r4,%r3
+        lcgr              %r5,%r2
+        aghi              %r4,-1
+        aghi              %r5,-1
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ngrk              %r13,%r1,%r5
+        ngrk              %r12,%r0,%r4
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r3
+        ngr               %r1,%r2
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
+        br                %r14
+
+asm_test::bit_clear::u128::release:
+        stmg              %r11,%r15,88(%r15)
+        aghi              %r15,-192
+        lgr               %r11,%r2
+        risbgnz           %r4,%r3,57,63
+        la                %r2,176(%r15)
+        la                %r3,160(%r15)
+        mvghi             168(%r15),1
+        mvghi             160(%r15),0
+0:
+        brasl             %r14,0f
+        lg                %r2,184(%r15)
+        lg                %r3,176(%r15)
+        lcgr              %r4,%r3
+        lcgr              %r5,%r2
+        aghi              %r4,-1
+        aghi              %r5,-1
+        lg                %r1,8(%r11)
+        lg                %r0,0(%r11)
+1:
+        ngrk              %r13,%r1,%r5
+        ngrk              %r12,%r0,%r4
+        cdsg              %r0,%r12,0(%r11)
+        jl                1b
+        ngr               %r0,%r3
+        ngr               %r1,%r2
+        ogr               %r0,%r1
+        lghi              %r2,0
+        locghil           %r2,1
+        lmg               %r11,%r15,280(%r15)
         br                %r14
 
 asm_test::fetch_abs::f32::acqrel:

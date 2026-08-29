@@ -184,6 +184,176 @@ asm_test::fence::release:
         fence             rw, w
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoxor.w.aq       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoxor.w          a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u8::release:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoxor.w.rl       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoxor.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoxor.w.aq       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoxor.w          a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u16::release:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoxor.w.rl       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u32::acqrel:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoxor.w.aqrl     a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u32::seqcst:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoxor.w.aqrl     a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u32::acquire:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoxor.w.aq       a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u32::relaxed:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoxor.w          a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_toggle::u32::release:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoxor.w.rl       a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
@@ -4450,6 +4620,176 @@ asm_test::store::bool::release:
         sb                a1, 0x0(a0)
         ret
 
+asm_test::bit_set::u8::acqrel:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u8::acquire:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoor.w.aq        a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoor.w           a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u8::release:
+        andi              a1, a1, 0x7
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x4
+        sll               a3, a1, a2
+        amoor.w.rl        a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoor.w.aqrl      a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u16::acquire:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoor.w.aq        a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoor.w           a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u16::release:
+        andi              a1, a1, 0xf
+        li                a2, 0x1
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        andi              a0, a0, -0x3
+        sll               a3, a1, a2
+        amoor.w.rl        a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a1, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u32::acqrel:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoor.w.aqrl      a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u32::seqcst:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoor.w.aqrl      a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u32::acquire:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoor.w.aq        a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u32::relaxed:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoor.w           a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_set::u32::release:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        amoor.w.rl        a0, a1, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         slli              a2, a0, 0x3
         andi              a0, a0, -0x4
@@ -4597,6 +4937,236 @@ asm_test::fetch_or::bool::release:
         amoor.w.rl        a0, a1, (a0)
         srl               a0, a0, a2
         zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        li                a2, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sll               a3, a3, a2
+        xori              a4, a1, 0xff
+        not               a3, a3
+        sll               a4, a4, a2
+        andi              a0, a0, -0x4
+        or                a3, a4, a3
+        amoand.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        li                a2, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sll               a3, a3, a2
+        xori              a4, a1, 0xff
+        not               a3, a3
+        sll               a4, a4, a2
+        andi              a0, a0, -0x4
+        or                a3, a4, a3
+        amoand.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        li                a2, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sll               a3, a3, a2
+        xori              a4, a1, 0xff
+        not               a3, a3
+        sll               a4, a4, a2
+        andi              a0, a0, -0x4
+        or                a3, a4, a3
+        amoand.w.aq       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        li                a2, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sll               a3, a3, a2
+        xori              a4, a1, 0xff
+        not               a3, a3
+        sll               a4, a4, a2
+        andi              a0, a0, -0x4
+        or                a3, a4, a3
+        amoand.w          a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u8::release:
+        li                a2, 0x1
+        andi              a1, a1, 0x7
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        li                a3, 0xff
+        sll               a3, a3, a2
+        xori              a4, a1, 0xff
+        not               a3, a3
+        sll               a4, a4, a2
+        andi              a0, a0, -0x4
+        or                a3, a4, a3
+        amoand.w.rl       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        li                a2, 0x1
+        andi              a1, a1, 0xf
+        lui               a3, 0x10
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        addi              a3, a3, -0x1
+        sll               a4, a3, a2
+        xor               a3, a1, a3
+        not               a4, a4
+        sll               a3, a3, a2
+        andi              a0, a0, -0x3
+        or                a3, a3, a4
+        amoand.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        li                a2, 0x1
+        andi              a1, a1, 0xf
+        lui               a3, 0x10
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        addi              a3, a3, -0x1
+        sll               a4, a3, a2
+        xor               a3, a1, a3
+        not               a4, a4
+        sll               a3, a3, a2
+        andi              a0, a0, -0x3
+        or                a3, a3, a4
+        amoand.w.aqrl     a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        li                a2, 0x1
+        andi              a1, a1, 0xf
+        lui               a3, 0x10
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        addi              a3, a3, -0x1
+        sll               a4, a3, a2
+        xor               a3, a1, a3
+        not               a4, a4
+        sll               a3, a3, a2
+        andi              a0, a0, -0x3
+        or                a3, a3, a4
+        amoand.w.aq       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        li                a2, 0x1
+        andi              a1, a1, 0xf
+        lui               a3, 0x10
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        addi              a3, a3, -0x1
+        sll               a4, a3, a2
+        xor               a3, a1, a3
+        not               a4, a4
+        sll               a3, a3, a2
+        andi              a0, a0, -0x3
+        or                a3, a3, a4
+        amoand.w          a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u16::release:
+        li                a2, 0x1
+        andi              a1, a1, 0xf
+        lui               a3, 0x10
+        sll               a1, a2, a1
+        slli              a2, a0, 0x3
+        addi              a3, a3, -0x1
+        sll               a4, a3, a2
+        xor               a3, a1, a3
+        not               a4, a4
+        sll               a3, a3, a2
+        andi              a0, a0, -0x3
+        or                a3, a3, a4
+        amoand.w.rl       a0, a3, (a0)
+        srl               a0, a0, a2
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u32::acqrel:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        not               a2, a1
+        amoand.w.aqrl     a0, a2, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u32::seqcst:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        not               a2, a1
+        amoand.w.aqrl     a0, a2, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u32::acquire:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        not               a2, a1
+        amoand.w.aq       a0, a2, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u32::relaxed:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        not               a2, a1
+        amoand.w          a0, a2, (a0)
+        and               a0, a0, a1
+        snez              a0, a0
+        ret
+
+asm_test::bit_clear::u32::release:
+        li                a2, 0x1
+        sll               a1, a2, a1
+        not               a2, a1
+        amoand.w.rl       a0, a2, (a0)
+        and               a0, a0, a1
         snez              a0, a0
         ret
 

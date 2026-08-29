@@ -12,6 +12,331 @@ asm_test::fence::acquire:
 asm_test::fence::release:
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        xor               cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        xor               cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        xor               cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        xor               cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_toggle::u8::release:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        xor               cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        and               esi, 0xf
+        lock btc          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        and               esi, 0xf
+        lock btc          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        and               esi, 0xf
+        lock btc          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        and               esi, 0xf
+        lock btc          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_toggle::u16::release:
+        and               esi, 0xf
+        lock btc          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_toggle::u32::acqrel:
+        and               esi, 0x1f
+        lock btc          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u32::seqcst:
+        and               esi, 0x1f
+        lock btc          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u32::acquire:
+        and               esi, 0x1f
+        lock btc          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u32::relaxed:
+        and               esi, 0x1f
+        lock btc          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u32::release:
+        and               esi, 0x1f
+        lock btc          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u64::acqrel:
+        and               esi, 0x3f
+        lock btc          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u64::seqcst:
+        and               esi, 0x3f
+        lock btc          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u64::acquire:
+        and               esi, 0x3f
+        lock btc          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u64::relaxed:
+        and               esi, 0x3f
+        lock btc          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u64::release:
+        and               esi, 0x3f
+        lock btc          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u128::acqrel:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        xor               rbx, r8
+        mov               rcx, rdx
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u128::seqcst:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        xor               rbx, r8
+        mov               rcx, rdx
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u128::acquire:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        xor               rbx, r8
+        mov               rcx, rdx
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u128::relaxed:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        xor               rbx, r8
+        mov               rcx, rdx
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_toggle::u128::release:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        xor               rbx, r8
+        mov               rcx, rdx
+        xor               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         movzx             eax, byte ptr [rdi]
         nop               word ptr cs:[rax + rax]
@@ -5114,6 +5439,331 @@ asm_test::store::u128::release:
         vmovdqa           xmmword ptr [rdi], xmm0
         ret
 
+asm_test::bit_set::u8::acqrel:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        or                cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        or                cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_set::u8::acquire:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        or                cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        or                cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_set::u8::release:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        movzx             eax, byte ptr [rdi]
+        nop               dword ptr [rax]
+0:
+        mov               ecx, eax
+        or                cl, dl
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        and               esi, 0xf
+        lock bts          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        and               esi, 0xf
+        lock bts          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_set::u16::acquire:
+        and               esi, 0xf
+        lock bts          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        and               esi, 0xf
+        lock bts          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_set::u16::release:
+        and               esi, 0xf
+        lock bts          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_set::u32::acqrel:
+        and               esi, 0x1f
+        lock bts          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_set::u32::seqcst:
+        and               esi, 0x1f
+        lock bts          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_set::u32::acquire:
+        and               esi, 0x1f
+        lock bts          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_set::u32::relaxed:
+        and               esi, 0x1f
+        lock bts          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_set::u32::release:
+        and               esi, 0x1f
+        lock bts          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_set::u64::acqrel:
+        and               esi, 0x3f
+        lock bts          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_set::u64::seqcst:
+        and               esi, 0x3f
+        lock bts          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_set::u64::acquire:
+        and               esi, 0x3f
+        lock bts          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_set::u64::relaxed:
+        and               esi, 0x3f
+        lock bts          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_set::u64::release:
+        and               esi, 0x3f
+        lock bts          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_set::u128::acqrel:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        or                rbx, r8
+        mov               rcx, rdx
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_set::u128::seqcst:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        or                rbx, r8
+        mov               rcx, rdx
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_set::u128::acquire:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        or                rbx, r8
+        mov               rcx, rdx
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_set::u128::relaxed:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        or                rbx, r8
+        mov               rcx, rdx
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_set::u128::release:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        xor               eax, eax
+        shl               r8, cl
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        or                rbx, r8
+        mov               rcx, rdx
+        or                rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         movzx             eax, byte ptr [rdi]
         nop               word ptr cs:[rax + rax]
@@ -5452,6 +6102,356 @@ asm_test::fetch_or::u128::release:
         lock cmpxchg16b   xmmword ptr [rdi]
         jne               0b
         mov               rbx, r10
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        mov               r8b, -0x2
+        mov               ecx, esi
+        rol               r8b, cl
+        movzx             eax, byte ptr [rdi]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               ecx, eax
+        and               cl, r8b
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        mov               r8b, -0x2
+        mov               ecx, esi
+        rol               r8b, cl
+        movzx             eax, byte ptr [rdi]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               ecx, eax
+        and               cl, r8b
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        mov               r8b, -0x2
+        mov               ecx, esi
+        rol               r8b, cl
+        movzx             eax, byte ptr [rdi]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               ecx, eax
+        and               cl, r8b
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        mov               r8b, -0x2
+        mov               ecx, esi
+        rol               r8b, cl
+        movzx             eax, byte ptr [rdi]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               ecx, eax
+        and               cl, r8b
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_clear::u8::release:
+        mov               ecx, esi
+        and               cl, 0x7
+        mov               dl, 0x1
+        shl               dl, cl
+        mov               r8b, -0x2
+        mov               ecx, esi
+        rol               r8b, cl
+        movzx             eax, byte ptr [rdi]
+        nop               word ptr cs:[rax + rax]
+0:
+        mov               ecx, eax
+        and               cl, r8b
+        lock cmpxchg      byte ptr [rdi], cl
+        jne               0b
+        test              al, dl
+        setne             al
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        and               esi, 0xf
+        lock btr          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        and               esi, 0xf
+        lock btr          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        and               esi, 0xf
+        lock btr          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        and               esi, 0xf
+        lock btr          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_clear::u16::release:
+        and               esi, 0xf
+        lock btr          word ptr [rdi], si
+        setb              al
+        ret
+
+asm_test::bit_clear::u32::acqrel:
+        and               esi, 0x1f
+        lock btr          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u32::seqcst:
+        and               esi, 0x1f
+        lock btr          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u32::acquire:
+        and               esi, 0x1f
+        lock btr          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u32::relaxed:
+        and               esi, 0x1f
+        lock btr          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u32::release:
+        and               esi, 0x1f
+        lock btr          dword ptr [rdi], esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u64::acqrel:
+        and               esi, 0x3f
+        lock btr          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_clear::u64::seqcst:
+        and               esi, 0x3f
+        lock btr          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_clear::u64::acquire:
+        and               esi, 0x3f
+        lock btr          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_clear::u64::relaxed:
+        and               esi, 0x3f
+        lock btr          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_clear::u64::release:
+        and               esi, 0x3f
+        lock btr          qword ptr [rdi], rsi
+        setb              al
+        ret
+
+asm_test::bit_clear::u128::acqrel:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        shl               r8, cl
+        xor               eax, eax
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        not               r9
+        not               r8
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        and               rbx, r8
+        mov               rcx, rdx
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u128::seqcst:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        shl               r8, cl
+        xor               eax, eax
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        not               r9
+        not               r8
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        and               rbx, r8
+        mov               rcx, rdx
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u128::acquire:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        shl               r8, cl
+        xor               eax, eax
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        not               r9
+        not               r8
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        and               rbx, r8
+        mov               rcx, rdx
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u128::relaxed:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        shl               r8, cl
+        xor               eax, eax
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        not               r9
+        not               r8
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        and               rbx, r8
+        mov               rcx, rdx
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
+        ret
+
+asm_test::bit_clear::u128::release:
+        mov               r8d, 0x1
+        xor               r9d, r9d
+        mov               ecx, esi
+        shld              r9, r8, cl
+        shl               r8, cl
+        xor               eax, eax
+        test              sil, 0x40
+        cmovne            r9, r8
+        cmovne            r8, rax
+        not               r9
+        not               r8
+        mov               r10, rbx
+        mov               rax, qword ptr [rdi]
+        mov               rdx, qword ptr [rdi + 0x8]
+0:
+        mov               rbx, rax
+        and               rbx, r8
+        mov               rcx, rdx
+        and               rcx, r9
+        lock cmpxchg16b   xmmword ptr [rdi]
+        jne               0b
+        mov               rbx, r10
+        mov               ecx, esi
+        and               cl, 0x20
+        shr               rdx, cl
+        shr               rax, cl
+        test              sil, 0x40
+        cmovne            rax, rdx
+        bt                eax, esi
+        setb              al
         ret
 
 asm_test::fetch_abs::f32::acqrel:

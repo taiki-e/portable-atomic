@@ -14,6 +14,361 @@ asm_test::fence::release:
         dmb               ish
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        eor               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        eor               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        eor               w10, w9, w8
+        stxrb             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldxrb             w9, [x0]
+        eor               w10, w9, w8
+        stxrb             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u8::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldxrb             w9, [x0]
+        eor               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        eor               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        eor               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        eor               w10, w9, w8
+        stxrh             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldxrh             w9, [x0]
+        eor               w10, w9, w8
+        stxrh             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u16::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldxrh             w9, [x0]
+        eor               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u32::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        eor               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u32::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        eor               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u32::acquire:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        eor               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u32::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        eor               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u32::release:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        eor               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u64::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        eor               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u64::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        eor               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u64::acquire:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        eor               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u64::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        eor               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u64::release:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        eor               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u128::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        eor               x12, x10, x9
+        eor               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u128::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        eor               x12, x10, x9
+        eor               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        dmb               ish
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u128::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        eor               x12, x10, x9
+        eor               x13, x11, x8
+        stxp              w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u128::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldxp              x10, x11, [x0]
+        eor               x12, x10, x9
+        eor               x13, x11, x8
+        stxp              w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_toggle::u128::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldxp              x10, x11, [x0]
+        eor               x12, x10, x9
+        eor               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
 0:
         ldaxrb            w8, [x0]
@@ -7583,6 +7938,361 @@ asm_test::store::u128::release:
         cbnz              w8, 0b
         ret
 
+asm_test::bit_set::u8::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        orr               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        orr               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u8::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldaxrb            w9, [x0]
+        orr               w10, w9, w8
+        stxrb             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldxrb             w9, [x0]
+        orr               w10, w9, w8
+        stxrb             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u8::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+0:
+        ldxrb             w9, [x0]
+        orr               w10, w9, w8
+        stlxrb            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        orr               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        orr               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u16::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldaxrh            w9, [x0]
+        orr               w10, w9, w8
+        stxrh             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldxrh             w9, [x0]
+        orr               w10, w9, w8
+        stxrh             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u16::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+0:
+        ldxrh             w9, [x0]
+        orr               w10, w9, w8
+        stlxrh            w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u32::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        orr               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u32::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        orr               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u32::acquire:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        orr               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u32::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        orr               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u32::release:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        orr               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u64::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        orr               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u64::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        orr               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u64::acquire:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        orr               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u64::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        orr               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u64::release:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        orr               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u128::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        orr               x12, x10, x9
+        orr               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u128::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        orr               x12, x10, x9
+        orr               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        dmb               ish
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u128::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldaxp             x10, x11, [x0]
+        orr               x12, x10, x9
+        orr               x13, x11, x8
+        stxp              w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u128::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldxp              x10, x11, [x0]
+        orr               x12, x10, x9
+        orr               x13, x11, x8
+        stxp              w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_set::u128::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, xzr, x8, ne
+        csel              x8, x8, xzr, ne
+0:
+        ldxp              x10, x11, [x0]
+        orr               x12, x10, x9
+        orr               x13, x11, x8
+        stlxp             w14, x12, x13, [x0]
+        cbnz              w14, 0b
+        and               x8, x11, x8
+        and               x9, x10, x9
+        orr               x8, x9, x8
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
 asm_test::fetch_or::u8::acqrel:
 0:
         ldaxrb            w8, [x0]
@@ -7867,6 +8577,381 @@ asm_test::fetch_or::u128::release:
         stlxp             w11, x9, x10, [x0]
         cbnz              w11, 0b
         mov               x0, x8
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xff
+0:
+        ldaxrb            w10, [x0]
+        and               w11, w10, w9
+        stlxrb            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+        eor               w10, w8, #0xff
+0:
+        ldaxrb            w9, [x0]
+        and               w11, w9, w10
+        stlxrb            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xff
+0:
+        ldaxrb            w10, [x0]
+        and               w11, w10, w9
+        stxrb             w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xff
+0:
+        ldxrb             w10, [x0]
+        and               w11, w10, w9
+        stxrb             w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u8::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xff
+0:
+        ldxrb             w10, [x0]
+        and               w11, w10, w9
+        stlxrb            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xffff
+0:
+        ldaxrh            w10, [x0]
+        and               w11, w10, w9
+        stlxrh            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+        eor               w10, w8, #0xffff
+0:
+        ldaxrh            w9, [x0]
+        and               w11, w9, w10
+        stlxrh            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xffff
+0:
+        ldaxrh            w10, [x0]
+        and               w11, w10, w9
+        stxrh             w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xffff
+0:
+        ldxrh             w10, [x0]
+        and               w11, w10, w9
+        stxrh             w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u16::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0xf
+        lsl               w8, w8, w9
+        eor               w9, w8, #0xffff
+0:
+        ldxrh             w10, [x0]
+        and               w11, w10, w9
+        stlxrh            w12, w11, [x0]
+        cbnz              w12, 0b
+        tst               w10, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u32::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        bic               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u32::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        bic               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u32::acquire:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldaxr             w9, [x0]
+        bic               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u32::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        bic               w10, w9, w8
+        stxr              w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u32::release:
+        mov               w8, #0x1                // =1
+        lsl               w8, w8, w1
+0:
+        ldxr              w9, [x0]
+        bic               w10, w9, w8
+        stlxr             w11, w10, [x0]
+        cbnz              w11, 0b
+        tst               w9, w8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u64::acqrel:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        bic               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u64::seqcst:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        bic               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        dmb               ish
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u64::acquire:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldaxr             x9, [x0]
+        bic               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u64::relaxed:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        bic               x10, x9, x8
+        stxr              w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u64::release:
+        mov               w8, #0x1                // =1
+        lsl               x8, x8, x1
+0:
+        ldxr              x9, [x0]
+        bic               x10, x9, x8
+        stlxr             w11, x10, [x0]
+        cbnz              w11, 0b
+        tst               x9, x8
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u128::acqrel:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, x8, xzr, ne
+        csel              x8, xzr, x8, ne
+        mvn               x10, x8
+        mvn               x11, x9
+0:
+        ldaxp             x12, x13, [x0]
+        and               x14, x12, x10
+        and               x15, x13, x11
+        stlxp             w16, x14, x15, [x0]
+        cbnz              w16, 0b
+        and               x9, x13, x9
+        and               x8, x12, x8
+        orr               x8, x8, x9
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u128::seqcst:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, x8, xzr, ne
+        csel              x8, xzr, x8, ne
+        mvn               x10, x8
+        mvn               x11, x9
+0:
+        ldaxp             x12, x13, [x0]
+        and               x14, x12, x10
+        and               x15, x13, x11
+        stlxp             w16, x14, x15, [x0]
+        cbnz              w16, 0b
+        dmb               ish
+        and               x9, x13, x9
+        and               x8, x12, x8
+        orr               x8, x8, x9
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u128::acquire:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, x8, xzr, ne
+        csel              x8, xzr, x8, ne
+        mvn               x10, x8
+        mvn               x11, x9
+0:
+        ldaxp             x12, x13, [x0]
+        and               x14, x12, x10
+        and               x15, x13, x11
+        stxp              w16, x14, x15, [x0]
+        cbnz              w16, 0b
+        and               x9, x13, x9
+        and               x8, x12, x8
+        orr               x8, x8, x9
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u128::relaxed:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, x8, xzr, ne
+        csel              x8, xzr, x8, ne
+        mvn               x10, x8
+        mvn               x11, x9
+0:
+        ldxp              x12, x13, [x0]
+        and               x14, x12, x10
+        and               x15, x13, x11
+        stxp              w16, x14, x15, [x0]
+        cbnz              w16, 0b
+        and               x9, x13, x9
+        and               x8, x12, x8
+        orr               x8, x8, x9
+        cmp               x8, #0x0
+        cset              w0, ne
+        ret
+
+asm_test::bit_clear::u128::release:
+        mov               w8, #0x1                // =1
+        and               w9, w1, #0x7f
+        lsl               x8, x8, x9
+        tst               x9, #0x40
+        csel              x9, x8, xzr, ne
+        csel              x8, xzr, x8, ne
+        mvn               x10, x8
+        mvn               x11, x9
+0:
+        ldxp              x12, x13, [x0]
+        and               x14, x12, x10
+        and               x15, x13, x11
+        stlxp             w16, x14, x15, [x0]
+        cbnz              w16, 0b
+        and               x9, x13, x9
+        and               x8, x12, x8
+        orr               x8, x8, x9
+        cmp               x8, #0x0
+        cset              w0, ne
         ret
 
 asm_test::fetch_abs::f32::acqrel:

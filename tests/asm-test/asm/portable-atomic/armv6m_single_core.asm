@@ -22,6 +22,306 @@ asm_test::fence::release:
         dmb               sy
         pop               {r7, pc}
 
+asm_test::bit_toggle::u8::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u8::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u8::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u8::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u8::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u16::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u16::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u16::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u16::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u16::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u32::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u32::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u32::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u32::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_toggle::u32::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        eors              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
 asm_test::fetch_nand::u8::acqrel:
         push              {r7, lr}
         add               r7, sp, #0x0
@@ -5413,6 +5713,306 @@ asm_test::store::bool::release:
         strb              r1, [r0]
         pop               {r7, pc}
 
+asm_test::bit_set::u8::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u8::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u8::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u8::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u8::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u16::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u16::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u16::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u16::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u16::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u32::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u32::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u32::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u32::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_set::u32::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        orrs              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
 asm_test::fetch_or::u8::acqrel:
         push              {r7, lr}
         add               r7, sp, #0x0
@@ -5662,6 +6262,306 @@ asm_test::fetch_or::bool::release:
         sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
+
+asm_test::bit_clear::u8::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u8::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u8::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u8::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u8::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x7
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrb              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strb              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u16::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u16::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u16::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u16::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u16::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0xf
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldrh              r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        strh              r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u32::acqrel:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u32::seqcst:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u32::acquire:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u32::relaxed:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
+
+asm_test::bit_clear::u32::release:
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        mov               r2, r0
+        movs              r3, #0x1f
+        ands              r3, r1
+        movs              r0, #0x1
+        lsls              r0, r3
+        mrs               r1, primask
+        cpsid             i
+        ldr               r3, [r2]
+        mov               r4, r3
+        bics              r4, r0
+        str               r4, [r2]
+        msr               primask, r1
+        ands              r0, r3
+        subs              r1, r0, #0x1
+        sbcs              r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_abs::f32::acqrel:
         push              {r4, r6, r7, lr}

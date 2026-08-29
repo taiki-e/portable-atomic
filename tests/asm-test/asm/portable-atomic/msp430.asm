@@ -10,6 +10,256 @@ asm_test::fence::acquire:
 asm_test::fence::release:
         ret
 
+asm_test::bit_toggle::u8::acqrel:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        xor.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u8::seqcst:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        xor.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u8::acquire:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        xor.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u8::relaxed:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        xor.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u8::release:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        xor.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u16::acqrel:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        xor               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u16::seqcst:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        xor               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u16::acquire:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        xor               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u16::relaxed:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        xor               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_toggle::u16::release:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        xor               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         mov               r2,	r15	;
         dint
@@ -3252,6 +3502,256 @@ asm_test::store::bool::release:
         mov.b             r13,	0(r12)	;
         ret
 
+asm_test::bit_set::u8::acqrel:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bis.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u8::seqcst:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bis.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u8::acquire:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bis.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u8::relaxed:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bis.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u8::release:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bis.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u16::acqrel:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bis               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u16::seqcst:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bis               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u16::acquire:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bis               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u16::relaxed:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bis               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_set::u16::release:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bis               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         mov               r2,	r15	;
         dint
@@ -3465,6 +3965,256 @@ asm_test::fetch_or::bool::release:
         rra               r13		;
         mov               #1,	r12	;r3 As==01
         bic               r13,	r12	;
+        ret
+
+asm_test::bit_clear::u8::acqrel:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bic.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u8::seqcst:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bic.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u8::acquire:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bic.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u8::relaxed:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bic.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u8::release:
+        and.b             #7,	r13	;
+        mov.b             #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla.b             r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov.b             0(r12),	r15	;
+        mov.b             r15,	r11	;
+        bic.b             r14,	r11	;
+        mov.b             r11,	0(r12)	;
+        bit.b             r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u16::acqrel:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bic               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u16::seqcst:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bic               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u16::acquire:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bic               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u16::relaxed:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bic               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
+        ret
+
+asm_test::bit_clear::u16::release:
+        and.b             #15,	r13	;#0x000f
+        mov               #1,	r14	;r3 As==01
+        cmp.b             #0,	r13	;
+        jz                1f
+0:
+        rla               r14		;
+        sub.b             #1,	r13	;
+        jnz               0b
+1:
+        mov               r2,	r13	;
+        dint
+        nop
+        mov               0(r12),	r15	;
+        mov               r15,	r11	;
+        bic               r14,	r11	;
+        mov               r11,	0(r12)	;
+        bit               r14,	r15	;
+        mov               r2,	r12	;
+        nop
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_add::u8::acqrel:

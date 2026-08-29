@@ -18,6 +18,186 @@ asm_test::fence::release:
         sub               r0, r0, #61440
         bx                r0
 
+asm_test::bit_toggle::u8::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u8::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u16::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_toggle::u32::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
 asm_test::fetch_nand::u8::acqrel:
         push              {r11, lr}
 0:
@@ -5204,6 +5384,186 @@ asm_test::store::bool::release:
         pop               {r4, r5, r11, lr}
         bx                lr
 
+asm_test::bit_set::u8::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u8::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u16::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_set::u32::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        lsl               r1, r5, r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
 asm_test::fetch_or::u8::acqrel:
         push              {r11, lr}
 0:
@@ -5352,6 +5712,186 @@ asm_test::fetch_or::bool::release:
         cmp               r0, #0
         movne             r0, #1
         pop               {r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u8::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #7
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u16::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #15
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::acqrel:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::seqcst:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::acquire:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::relaxed:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
+        bx                lr
+
+asm_test::bit_clear::u32::release:
+        push              {r4, r5, r11, lr}
+        and               r4, r1, #31
+        mov               r5, #1
+        mvn               r1, r5, lsl r4
+0:
+        bl                0f
+        ands              r0, r0, r5, lsl r4
+        movne             r0, #1
+        pop               {r4, r5, r11, lr}
         bx                lr
 
 asm_test::fetch_abs::f32::acqrel:
