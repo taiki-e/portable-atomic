@@ -1655,6 +1655,7 @@ impl AtomicBool {
     ///
     /// - x86/x86_64: `lock and` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
     /// - MSP430: `and` instead of `and; mov` / `rra; mov`
+    /// - s390x: `ni` for zEC12+ instead of `lan` / `cs` loop depending on the target feature
     ///
     /// # Examples
     ///
@@ -1680,7 +1681,22 @@ impl AtomicBool {
         {
             self.fetch_and(val, order);
         }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().and_bool(val);
+            return;
+        });
         #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
         {
             self.as_atomic_u8().and(val as u8, order);
         }
@@ -1820,6 +1836,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
     /// - x86/x86_64: `lock or` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
+    /// - s390x: `oi` for zEC12+ instead of `lao` / `cs` loop depending on the target feature
     /// - MSP430: `bis` instead of `and; mov` / disabling interrupts depending on the value
     ///
     /// # Examples
@@ -1846,7 +1863,22 @@ impl AtomicBool {
         {
             self.fetch_or(val, order);
         }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().or_bool(val);
+            return;
+        });
         #[cfg(not(target_arch = "loongarch64"))]
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
         {
             self.as_atomic_u8().or(val as u8, order);
         }
@@ -1889,6 +1921,19 @@ impl AtomicBool {
             let _ = order;
             self.as_atomic_u8().fetch_xor_bool(val)
         }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            return self.as_atomic_u8().fetch_xor_bool(val);
+        });
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         #[allow(clippy::redundant_else)]
         {
@@ -1906,7 +1951,10 @@ impl AtomicBool {
             }
         }
         #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
-        #[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), allow(unreachable_code))]
+        #[cfg_attr(
+            any(target_arch = "s390x", target_arch = "x86", target_arch = "x86_64"),
+            allow(unreachable_code)
+        )]
         {
             let x = self.as_atomic_u8().fetch_xor(val as u8, order);
             // SAFETY: we only store 0 or 1.
@@ -1930,6 +1978,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
     /// - x86/x86_64: `lock xor` instead of `lock xor; setz` / `lock xadd` / `cmpxchg` loop depending on the value
+    /// - s390x: `xi` for zEC12+ instead of `lax` / `cs` loop depending on the target feature
     /// - MSP430: `xor` instead of `xor; mov`
     ///
     /// # Examples
@@ -1952,7 +2001,24 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().xor(val as u8, order);
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().xor_bool(val);
+            return;
+        });
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
+        {
+            self.as_atomic_u8().xor(val as u8, order);
+        }
     }
 
     /// Logical "not" with a boolean value.
@@ -2009,6 +2075,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
     /// - x86/x86_64: `lock xor` instead of `lock xor; setz`
+    /// - s390x: `xi` for zEC12+ instead of `xi; ipm` / `cs` loop depending on the target feature
     /// - MSP430: `xor` instead of `xor; mov`
     ///
     /// # Examples

@@ -62,7 +62,7 @@ mod riscv;
 #[cfg(all(
     target_arch = "s390x",
     not(any(miri, portable_atomic_sanitize_thread)),
-    not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+    not(portable_atomic_no_asm),
 ))]
 mod s390x;
 

@@ -94,6 +94,8 @@ fn test() {
         Revision::new("s390x", "s390x-unknown-linux-gnu"),
         Revision::new("s390x_z196", "s390x-unknown-linux-gnu")
             .rustc_args(["-C", "target-cpu=z196"]),
+        Revision::new("s390x_zec12", "s390x-unknown-linux-gnu")
+            .rustc_args(["-C", "target-cpu=zEC12"]),
         Revision::new("s390x_z15_no_vector", "s390x-unknown-linux-gnu")
             .rustc_args(["-C", "target-cpu=z15", "-C", "target-feature=-vector"]),
         Revision::new("s390x_z15", "s390x-unknown-linux-gnu")
