@@ -401,118 +401,108 @@ asm_test::fetch_nand::u16::release:
         ret
 
 asm_test::fetch_nand::bool::acqrel:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
         cmp               #0,	r13	;r3 As==00
         jz                0f
-        mov.b             r14,	r13	;
-        xor.b             #1,	r13	;r3 As==01
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov.b             r14,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 0:
-        mov.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        dint
         nop
-        mov               r15,	r2	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov.b             r14,	r12	;
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_nand::bool::seqcst:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
         cmp               #0,	r13	;r3 As==00
         jz                0f
-        mov.b             r14,	r13	;
-        xor.b             #1,	r13	;r3 As==01
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov.b             r14,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 0:
-        mov.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        dint
         nop
-        mov               r15,	r2	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov.b             r14,	r12	;
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_nand::bool::acquire:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
         cmp               #0,	r13	;r3 As==00
         jz                0f
-        mov.b             r14,	r13	;
-        xor.b             #1,	r13	;r3 As==01
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov.b             r14,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 0:
-        mov.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        dint
         nop
-        mov               r15,	r2	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov.b             r14,	r12	;
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_nand::bool::relaxed:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
         cmp               #0,	r13	;r3 As==00
         jz                0f
-        mov.b             r14,	r13	;
-        xor.b             #1,	r13	;r3 As==01
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov.b             r14,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 0:
-        mov.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        dint
         nop
-        mov               r15,	r2	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov.b             r14,	r12	;
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_nand::bool::release:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
         cmp               #0,	r13	;r3 As==00
         jz                0f
-        mov.b             r14,	r13	;
-        xor.b             #1,	r13	;r3 As==01
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov.b             r14,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 0:
-        mov.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        dint
         nop
-        mov               r15,	r2	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov.b             r14,	r12	;
+        mov               r13,	r2	;
+        nop
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -2986,28 +2976,23 @@ asm_test::not::u16::release:
         ret
 
 asm_test::not::bool::acqrel:
-        mov.b             #1,	r13	;r3 As==01
-        xor.b             r13,	0(r12)	;
+        xor.b             #1,	0(r12)	;r3 As==01
         ret
 
 asm_test::not::bool::seqcst:
-        mov.b             #1,	r13	;r3 As==01
-        xor.b             r13,	0(r12)	;
+        xor.b             #1,	0(r12)	;r3 As==01
         ret
 
 asm_test::not::bool::acquire:
-        mov.b             #1,	r13	;r3 As==01
-        xor.b             r13,	0(r12)	;
+        xor.b             #1,	0(r12)	;r3 As==01
         ret
 
 asm_test::not::bool::relaxed:
-        mov.b             #1,	r13	;r3 As==01
-        xor.b             r13,	0(r12)	;
+        xor.b             #1,	0(r12)	;r3 As==01
         ret
 
 asm_test::not::bool::release:
-        mov.b             #1,	r13	;r3 As==01
-        xor.b             r13,	0(r12)	;
+        xor.b             #1,	0(r12)	;r3 As==01
         ret
 
 asm_test::sub::u8::acqrel:
@@ -3270,63 +3255,103 @@ asm_test::swap::u16::release:
         ret
 
 asm_test::swap::bool::acqrel:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::swap::bool::seqcst:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::swap::bool::acquire:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::swap::bool::relaxed:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::swap::bool::release:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::store::u8::seqcst:
@@ -3746,68 +3771,103 @@ asm_test::fetch_or::u16::release:
         ret
 
 asm_test::fetch_or::bool::acqrel:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        bis               r14,	r13	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_or::bool::seqcst:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        bis               r14,	r13	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_or::bool::acquire:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        bis               r14,	r13	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_or::bool::relaxed:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        bis               r14,	r13	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_or::bool::release:
-        mov               r2,	r15	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        mov               r2,	r13	;
         dint
         nop
-        mov.b             0(r12),	r14	;
-        bis               r14,	r13	;
-        mov.b             r13,	0(r12)	;
+        mov               r12,	r14	;
+        mov.b             0(r14),	r12	;
+        mov.b             #1,	0(r14)	;r3 As==01
         nop
-        mov               r15,	r2	;
+        mov               r13,	r2	;
         nop
-        mov               r14,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::bit_clear::u8::acqrel:
@@ -4321,68 +4381,68 @@ asm_test::fetch_and::u16::release:
         ret
 
 asm_test::fetch_and::bool::acqrel:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        and               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_and::bool::seqcst:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        and               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_and::bool::acquire:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        and               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_and::bool::relaxed:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        and               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_and::bool::release:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        and               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        cmp               #0,	r13	;r3 As==00
+        jz                0f
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
+        ret
+0:
+        rra.b             0(r12)		;
+        mov               r2,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -4986,73 +5046,33 @@ asm_test::fetch_not::u16::release:
         ret
 
 asm_test::fetch_not::bool::acqrel:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        mov.b             r13,	r15	;
-        xor.b             #1,	r15	;r3 As==01
-        mov.b             r15,	0(r12)	;
-        nop
-        mov               r14,	r2	;
-        nop
-        mov               r13,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
         ret
 
 asm_test::fetch_not::bool::seqcst:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        mov.b             r13,	r15	;
-        xor.b             #1,	r15	;r3 As==01
-        mov.b             r15,	0(r12)	;
-        nop
-        mov               r14,	r2	;
-        nop
-        mov               r13,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
         ret
 
 asm_test::fetch_not::bool::acquire:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        mov.b             r13,	r15	;
-        xor.b             #1,	r15	;r3 As==01
-        mov.b             r15,	0(r12)	;
-        nop
-        mov               r14,	r2	;
-        nop
-        mov               r13,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
         ret
 
 asm_test::fetch_not::bool::relaxed:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        mov.b             r13,	r15	;
-        xor.b             #1,	r15	;r3 As==01
-        mov.b             r15,	0(r12)	;
-        nop
-        mov               r14,	r2	;
-        nop
-        mov               r13,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
         ret
 
 asm_test::fetch_not::bool::release:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        mov.b             r13,	r15	;
-        xor.b             #1,	r15	;r3 As==01
-        mov.b             r15,	0(r12)	;
-        nop
-        mov               r14,	r2	;
-        nop
-        mov               r13,	r12	;
+        xor.b             #1,	0(r12)	;r3 As==01
+        mov               #1,	r12	;r3 As==01
+        bic               r2,	r12	;
         ret
 
 asm_test::fetch_sub::u8::acqrel:
@@ -5326,66 +5346,36 @@ asm_test::fetch_xor::u16::release:
         ret
 
 asm_test::fetch_xor::bool::acqrel:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        xor               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        xor.b             r13,	0(r12)	;
+        mov               r2,	r12	;
+        xor.b             r13,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_xor::bool::seqcst:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        xor               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        xor.b             r13,	0(r12)	;
+        mov               r2,	r12	;
+        xor.b             r13,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_xor::bool::acquire:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        xor               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        xor.b             r13,	0(r12)	;
+        mov               r2,	r12	;
+        xor.b             r13,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_xor::bool::relaxed:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        xor               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        xor.b             r13,	0(r12)	;
+        mov               r2,	r12	;
+        xor.b             r13,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
 
 asm_test::fetch_xor::bool::release:
-        mov               r2,	r15	;
-        dint
-        nop
-        mov.b             0(r12),	r14	;
-        xor               r14,	r13	;
-        mov.b             r13,	0(r12)	;
-        nop
-        mov               r15,	r2	;
-        nop
-        mov               r14,	r12	;
+        xor.b             r13,	0(r12)	;
+        mov               r2,	r12	;
+        xor.b             r13,	r12	;
+        and               #1,	r12	;r3 As==01
         ret
