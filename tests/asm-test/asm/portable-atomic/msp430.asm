@@ -3121,17 +3121,14 @@ asm_test::load::u16::relaxed:
 
 asm_test::load::bool::seqcst:
         mov.b             @r12,	r12	;
-        mov.b             r12,	r12	;
         ret
 
 asm_test::load::bool::acquire:
         mov.b             @r12,	r12	;
-        mov.b             r12,	r12	;
         ret
 
 asm_test::load::bool::relaxed:
         mov.b             @r12,	r12	;
-        mov.b             r12,	r12	;
         ret
 
 asm_test::swap::u8::acqrel:

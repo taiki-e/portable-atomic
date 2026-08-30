@@ -5996,20 +5996,17 @@ asm_test::load::u64::relaxed:
 
 asm_test::load::bool::seqcst:
         fence             rw, rw
-        lb                a0, 0x0(a0)
+        lbu               a0, 0x0(a0)
         fence             r, rw
-        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::acquire:
-        lb                a0, 0x0(a0)
+        lbu               a0, 0x0(a0)
         fence             r, rw
-        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::relaxed:
-        lb                a0, 0x0(a0)
-        andi              a0, a0, 0x1
+        lbu               a0, 0x0(a0)
         ret
 
 asm_test::swap::u8::acqrel:
