@@ -699,35 +699,31 @@ fn main() {
             }
         }
         "s390x" => {
-            let mut arch9_features = false; // z196+
-            let mut arch13_features = false; // z15+
+            let mut arch_version = 8; // LLVM's baseline (z10): https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
             // Note that `-C target-cpu=native` is currently ignored.
             if let Some(cpu) = rustflags.target_cpu {
                 // LLVM and GCC recognize the same names:
                 // https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/SystemZ/SystemZProcessors.td
                 // https://github.com/gcc-mirror/gcc/blob/releases/gcc-15.2.0/gcc/config/s390/s390.opt#L58-L128
-                if let Some(arch_version) = strip_prefix(cpu, "arch") {
-                    if let Ok(arch_version) = arch_version.parse::<u32>() {
-                        arch9_features = arch_version >= 9;
-                        arch13_features = arch_version >= 13;
+                if let Some(v) = strip_prefix(cpu, "arch") {
+                    if let Ok(v) = v.parse::<u32>() {
+                        arch_version = v;
                     }
                 } else {
                     match cpu {
-                        "z196" | "zEC12" | "z13" | "z14" => arch9_features = true,
-                        "z15" | "z16" | "z17" => {
-                            arch9_features = true;
-                            arch13_features = true;
-                        }
+                        "z196" | "zEC12" | "z13" | "z14" => arch_version = 9, // 9-12
+                        "z15" | "z16" | "z17" => arch_version = 13,           // 13-
                         _ => {}
                     }
                 }
             }
-            // arch9 features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
+            // arch9 (z196) features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L103
+            let arch9_features = arch_version >= 9;
             let mut fast_serialization = arch9_features;
             let mut load_store_on_cond = arch9_features;
             let mut distinct_ops = arch9_features;
-            // arch13 features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
-            let mut misc_ext_3 = arch13_features;
+            // arch13 (z15) features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
+            let mut misc_ext_3 = arch_version >= 13;
             for &(enabled, name) in &rustflags.target_feature {
                 // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L925
                 match name {
@@ -745,8 +741,8 @@ fn main() {
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
                 emit_target_feature_fallback("miscellaneous-extensions-3", misc_ext_3);
             }
-            // As of Rust 1.84, target_feature "fast-serialization"/"load-store-on-cond"/"distinct-ops"/"miscellaneous-extensions-3" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/target_features.rs#L547
+            // As of Rust 1.98, these target features are not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.98.0/compiler/rustc_target/src/target_features.rs#L898
             // bcr 14,0
             emit_target_feature_fallback("fast-serialization", fast_serialization);
             // {l,st}oc{,g}{,r}
