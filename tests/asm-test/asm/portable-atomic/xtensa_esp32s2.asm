@@ -530,152 +530,97 @@ asm_test::fetch_nand::u32::release:
 
 asm_test::fetch_nand::bool::acqrel:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
         beqz              a3, 0f
-        movi.n            a10, 1
-        xor               a10, a9, a10
-        s8i               a10, a8, 0
+        xor               a10, a8, a9
+        s8i               a10, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        beq               a9, a8, 1f
-        j                 2f
+        and               a2, a8, a9
+        retw.n
 0:
-        s8i               a2, a8, 0
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        bne               a9, a8, 2f
-1:
-        mov.n             a2, a8
-2:
+        and               a2, a8, a9
         retw.n
 
 asm_test::fetch_nand::bool::seqcst:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
         beqz              a3, 0f
-        movi.n            a10, 1
-        xor               a10, a9, a10
-        s8i               a10, a8, 0
+        xor               a10, a8, a9
+        s8i               a10, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        beq               a9, a8, 1f
-        j                 2f
+        and               a2, a8, a9
+        retw.n
 0:
-        s8i               a2, a8, 0
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        bne               a9, a8, 2f
-1:
-        mov.n             a2, a8
-2:
+        and               a2, a8, a9
         retw.n
 
 asm_test::fetch_nand::bool::acquire:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
         beqz              a3, 0f
-        movi.n            a10, 1
-        xor               a10, a9, a10
-        s8i               a10, a8, 0
+        xor               a10, a8, a9
+        s8i               a10, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        beq               a9, a8, 1f
-        j                 2f
+        and               a2, a8, a9
+        retw.n
 0:
-        s8i               a2, a8, 0
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        bne               a9, a8, 2f
-1:
-        mov.n             a2, a8
-2:
+        and               a2, a8, a9
         retw.n
 
 asm_test::fetch_nand::bool::relaxed:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
         beqz              a3, 0f
-        movi.n            a10, 1
-        xor               a10, a9, a10
-        s8i               a10, a8, 0
+        xor               a10, a8, a9
+        s8i               a10, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        beq               a9, a8, 1f
-        j                 2f
+        and               a2, a8, a9
+        retw.n
 0:
-        s8i               a2, a8, 0
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        bne               a9, a8, 2f
-1:
-        mov.n             a2, a8
-2:
+        and               a2, a8, a9
         retw.n
 
 asm_test::fetch_nand::bool::release:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
         beqz              a3, 0f
-        movi.n            a10, 1
-        xor               a10, a9, a10
-        s8i               a10, a8, 0
+        xor               a10, a8, a9
+        s8i               a10, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        beq               a9, a8, 1f
-        j                 2f
+        and               a2, a8, a9
+        retw.n
 0:
-        s8i               a2, a8, 0
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi              a8, 255
-        and               a9, a9, a8
-        movi.n            a8, 0
-        bne               a9, a8, 2f
-1:
-        mov.n             a2, a8
-2:
+        and               a2, a8, a9
         retw.n
 
 asm_test::fetch_umax::u8::acqrel:
@@ -2225,377 +2170,317 @@ asm_test::compare_exchange::u32::release_relaxed:
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::release_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::acquire_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::release_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange::bool::release_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -3725,377 +3610,317 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         entry             a1, 32
+        mov.n             a8, a3
         rsil              a14, 15
-        l8ui              a9, a2, 0
-        bne               a9, a3, 0f
-        s8i               a4, a2, 0
-0:
+        l8ui              a3, a2, 0
+        beq               a3, a8, 1f
         wsr.ps            a14
         rsync
-        movi.n            a10, 0
-        movi.n            a8, 1
-        mov.n             a2, a8
-        beq               a9, a3, 2f
-        beq               a9, a10, 3f
-1:
-        mov.n             a3, a8
+        beq               a3, a8, 2f
+0:
+        movi.n            a2, 1
         retw.n
+1:
+        s8i               a4, a2, 0
+        wsr.ps            a14
+        rsync
+        bne               a3, a8, 0b
 2:
-        mov.n             a2, a10
-        bne               a9, a10, 1b
-3:
-        mov.n             a8, a10
-        mov.n             a3, a8
+        movi.n            a2, 0
         retw.n
 
 asm_test::or::u8::acqrel:
@@ -5438,31 +5263,19 @@ asm_test::load::u32::relaxed:
 
 asm_test::load::bool::seqcst:
         entry             a1, 32
-        l8ui              a8, a2, 0
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        l8ui              a2, a2, 0
         memw
         retw.n
 
 asm_test::load::bool::acquire:
         entry             a1, 32
-        l8ui              a8, a2, 0
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        l8ui              a2, a2, 0
         memw
         retw.n
 
 asm_test::load::bool::relaxed:
         entry             a1, 32
-        l8ui              a8, a2, 0
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        l8ui              a2, a2, 0
         retw.n
 
 asm_test::swap::u8::acqrel:
@@ -5672,10 +5485,7 @@ asm_test::swap::bool::acqrel:
         s8i               a3, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::swap::bool::seqcst:
@@ -5685,10 +5495,7 @@ asm_test::swap::bool::seqcst:
         s8i               a3, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::swap::bool::acquire:
@@ -5698,10 +5505,7 @@ asm_test::swap::bool::acquire:
         s8i               a3, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::swap::bool::relaxed:
@@ -5711,10 +5515,7 @@ asm_test::swap::bool::relaxed:
         s8i               a3, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::swap::bool::release:
@@ -5724,10 +5525,7 @@ asm_test::swap::bool::release:
         s8i               a3, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::store::u8::seqcst:
@@ -6308,10 +6106,7 @@ asm_test::fetch_or::bool::acqrel:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_or::bool::seqcst:
@@ -6322,10 +6117,7 @@ asm_test::fetch_or::bool::seqcst:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_or::bool::acquire:
@@ -6336,10 +6128,7 @@ asm_test::fetch_or::bool::acquire:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_or::bool::relaxed:
@@ -6350,10 +6139,7 @@ asm_test::fetch_or::bool::relaxed:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_or::bool::release:
@@ -6364,10 +6150,7 @@ asm_test::fetch_or::bool::release:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::bit_clear::u8::acqrel:
@@ -7293,10 +7076,7 @@ asm_test::fetch_and::bool::acqrel:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_and::bool::seqcst:
@@ -7307,10 +7087,7 @@ asm_test::fetch_and::bool::seqcst:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_and::bool::acquire:
@@ -7321,10 +7098,7 @@ asm_test::fetch_and::bool::acquire:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_and::bool::relaxed:
@@ -7335,10 +7109,7 @@ asm_test::fetch_and::bool::relaxed:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_and::bool::release:
@@ -7349,10 +7120,7 @@ asm_test::fetch_and::bool::release:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_max::i8::acqrel:
@@ -8562,82 +8330,62 @@ asm_test::fetch_not::u32::release:
 
 asm_test::fetch_not::bool::acqrel:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
-        xor               a10, a9, a2
-        s8i               a10, a8, 0
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a9, a8, a9
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a8, 0
-        bne               a9, a8, 0f
         mov.n             a2, a8
-0:
         retw.n
 
 asm_test::fetch_not::bool::seqcst:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
-        xor               a10, a9, a2
-        s8i               a10, a8, 0
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a9, a8, a9
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a8, 0
-        bne               a9, a8, 0f
         mov.n             a2, a8
-0:
         retw.n
 
 asm_test::fetch_not::bool::acquire:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
-        xor               a10, a9, a2
-        s8i               a10, a8, 0
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a9, a8, a9
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a8, 0
-        bne               a9, a8, 0f
         mov.n             a2, a8
-0:
         retw.n
 
 asm_test::fetch_not::bool::relaxed:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
-        xor               a10, a9, a2
-        s8i               a10, a8, 0
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a9, a8, a9
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a8, 0
-        bne               a9, a8, 0f
         mov.n             a2, a8
-0:
         retw.n
 
 asm_test::fetch_not::bool::release:
         entry             a1, 32
-        mov.n             a8, a2
         rsil              a14, 15
-        l8ui              a9, a8, 0
-        movi.n            a2, 1
-        xor               a10, a9, a2
-        s8i               a10, a8, 0
+        l8ui              a8, a2, 0
+        movi.n            a9, 1
+        xor               a9, a8, a9
+        s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a8, 0
-        bne               a9, a8, 0f
         mov.n             a2, a8
-0:
         retw.n
 
 asm_test::fetch_sub::u8::acqrel:
@@ -9128,10 +8876,7 @@ asm_test::fetch_xor::bool::acqrel:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_xor::bool::seqcst:
@@ -9142,10 +8887,7 @@ asm_test::fetch_xor::bool::seqcst:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_xor::bool::acquire:
@@ -9156,10 +8898,7 @@ asm_test::fetch_xor::bool::acquire:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_xor::bool::relaxed:
@@ -9170,10 +8909,7 @@ asm_test::fetch_xor::bool::relaxed:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n
 
 asm_test::fetch_xor::bool::release:
@@ -9184,8 +8920,5 @@ asm_test::fetch_xor::bool::release:
         s8i               a9, a2, 0
         wsr.ps            a14
         rsync
-        movi.n            a2, 0
-        beq               a8, a2, 0f
-        movi.n            a2, 1
-0:
+        mov.n             a2, a8
         retw.n

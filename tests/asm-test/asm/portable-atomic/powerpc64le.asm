@@ -671,10 +671,8 @@ asm_test::fetch_nand::bool::acqrel:
         stbcx.            5, 0, 3
         bf-               2, 2b
 3:
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 63
         blr
 
 asm_test::fetch_nand::bool::seqcst:
@@ -695,10 +693,8 @@ asm_test::fetch_nand::bool::seqcst:
         stbcx.            5, 0, 3
         bf-               2, 2b
 3:
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 63
         blr
 
 asm_test::fetch_nand::bool::acquire:
@@ -717,10 +713,8 @@ asm_test::fetch_nand::bool::acquire:
         stbcx.            5, 0, 3
         bf-               2, 2b
 3:
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 63
         blr
 
 asm_test::fetch_nand::bool::relaxed:
@@ -739,9 +733,7 @@ asm_test::fetch_nand::bool::relaxed:
         stbcx.            5, 0, 3
         bf-               2, 2b
 3:
-        cntlzw            3, 4
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 63
         blr
 
 asm_test::fetch_nand::bool::release:
@@ -762,9 +754,7 @@ asm_test::fetch_nand::bool::release:
         stbcx.            5, 0, 3
         bf-               2, 2b
 3:
-        cntlzw            3, 4
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 63
         blr
 
 asm_test::fetch_nand::u128::acqrel:
@@ -3795,359 +3785,326 @@ asm_test::compare_exchange::u64::release_relaxed:
         blr
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         sync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::acqrel_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::acquire_seqcst:
+        mr                6, 4
 0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+1:
         lwsync
         crclr             20
-        b                 1b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
+        mr                6, 4
         crset             20
 0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+1:
         lwsync
         crclr             20
-        b                 1b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange::bool::release_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
         crset             20
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
 2:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::seqcst_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         sync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         sync
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         crclr             20
-        b                 3f
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 2:
         lwsync
         crset             20
-3:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::acquire_acquire:
+        mr                6, 4
 0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+1:
         lwsync
         crclr             20
-        b                 1b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange::bool::acquire_relaxed:
+        mr                6, 4
 0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
         lwsync
         crset             20
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+1:
         crclr             20
-        b                 1b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange::bool::relaxed_acquire:
+        mr                6, 4
         crset             20
 0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
         stbcx.            5, 0, 3
         bf-               2, 0b
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+1:
         lwsync
         crclr             20
-        b                 1b
-
-asm_test::compare_exchange::bool::relaxed_relaxed:
-        crset             20
-0:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 2f
-        stbcx.            5, 0, 3
-        bf-               2, 0b
-1:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-2:
+
+asm_test::compare_exchange::bool::relaxed_relaxed:
+        mr                6, 4
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 1f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+1:
         crclr             20
-        b                 1b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange::bool::release_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
         crset             20
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         lwsync
         crclr             20
 2:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange::bool::release_relaxed:
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bf-               2, 1f
         lwsync
         crset             20
 0:
         stbcx.            5, 0, 3
         bt+               2, 2f
-        lbarx             6, 0, 3
-        cmplw             6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
         bt+               2, 0b
 1:
         crclr             20
 2:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
@@ -6316,75 +6273,70 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         blr
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         lwsync
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         sync
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         lwsync
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
-        lbarx             6, 0, 3
+        mr                6, 4
+        lbarx             4, 0, 3
         crclr             20
-        cmplw             6, 4
+        cmplw             4, 6
         bf-               2, 0f
         lwsync
         stbcx.            5, 0, 3
@@ -6392,102 +6344,91 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         lwsync
         crset             20
 0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         lwsync
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         sync
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
-        lbarx             6, 0, 3
+        mr                6, 4
+        lbarx             4, 0, 3
         crclr             20
-        cmplw             6, 4
+        cmplw             4, 6
         bf-               2, 0f
         sync
         stbcx.            5, 0, 3
@@ -6495,132 +6436,115 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         lwsync
         crset             20
 0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         stbcx.            5, 0, 3
-        bf-               2, 1f
+        bf-               2, 0f
         lwsync
         crset             20
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
-        lbarx             6, 0, 3
+        mr                6, 4
+        lbarx             4, 0, 3
         crclr             20
-        cmplw             6, 4
+        cmplw             4, 6
         bf-               2, 0f
         stbcx.            5, 0, 3
         bf-               2, 0f
         lwsync
         crset             20
 0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
         li                3, 1
         isel              3, 0, 3, 20
         blr
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::release_acquire:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         lwsync
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         lwsync
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
-        lbarx             6, 0, 3
-        cmplw             6, 4
-        bf-               2, 1f
+        mr                6, 4
+        lbarx             4, 0, 3
+        cmplw             4, 6
+        bf-               2, 0f
         lwsync
         crset             20
         stbcx.            5, 0, 3
-        bf-               2, 1f
-0:
-        clrlwi            3, 6, 24
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              4, 3, 1
+        bf-               2, 0f
         li                3, 1
         isel              3, 0, 3, 20
         blr
-1:
+0:
         crclr             20
-        b                 0b
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         mr                10, 6
@@ -9217,30 +9141,21 @@ asm_test::load::bool::seqcst:
         sync
         lbz               3, 0(3)
         cmpd              7, 3, 3
-        cntlzw            3, 3
-        srwi              3, 3, 5
         bf-               30, 0f
 0:
         isync
-        xori              3, 3, 1
         blr
 
 asm_test::load::bool::acquire:
         lbz               3, 0(3)
         cmpd              7, 3, 3
-        cntlzw            3, 3
-        srwi              3, 3, 5
         bf-               30, 0f
 0:
         isync
-        xori              3, 3, 1
         blr
 
 asm_test::load::bool::relaxed:
         lbz               3, 0(3)
-        cntlzw            3, 3
-        srwi              3, 3, 5
-        xori              3, 3, 1
         blr
 
 asm_test::load::u128::seqcst:
@@ -9574,10 +9489,8 @@ asm_test::swap::bool::acqrel:
         lbarx             5, 0, 3
         stbcx.            4, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::swap::bool::seqcst:
@@ -9586,10 +9499,8 @@ asm_test::swap::bool::seqcst:
         lbarx             5, 0, 3
         stbcx.            4, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::swap::bool::acquire:
@@ -9597,10 +9508,8 @@ asm_test::swap::bool::acquire:
         lbarx             5, 0, 3
         stbcx.            4, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::swap::bool::relaxed:
@@ -9608,9 +9517,7 @@ asm_test::swap::bool::relaxed:
         lbarx             5, 0, 3
         stbcx.            4, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::swap::bool::release:
@@ -9619,9 +9526,7 @@ asm_test::swap::bool::release:
         lbarx             5, 0, 3
         stbcx.            4, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::swap::u128::acqrel:
@@ -10461,10 +10366,8 @@ asm_test::fetch_or::bool::acqrel:
         or                6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_or::bool::seqcst:
@@ -10474,10 +10377,8 @@ asm_test::fetch_or::bool::seqcst:
         or                6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_or::bool::acquire:
@@ -10486,10 +10387,8 @@ asm_test::fetch_or::bool::acquire:
         or                6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_or::bool::relaxed:
@@ -10498,9 +10397,7 @@ asm_test::fetch_or::bool::relaxed:
         or                6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_or::bool::release:
@@ -10510,9 +10407,7 @@ asm_test::fetch_or::bool::release:
         or                6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_or::u128::acqrel:
@@ -11863,10 +11758,8 @@ asm_test::fetch_and::bool::acqrel:
         and               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_and::bool::seqcst:
@@ -11876,10 +11769,8 @@ asm_test::fetch_and::bool::seqcst:
         and               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_and::bool::acquire:
@@ -11888,10 +11779,8 @@ asm_test::fetch_and::bool::acquire:
         and               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_and::bool::relaxed:
@@ -11900,9 +11789,7 @@ asm_test::fetch_and::bool::relaxed:
         and               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_and::bool::release:
@@ -11912,9 +11799,7 @@ asm_test::fetch_and::bool::release:
         and               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_and::u128::acqrel:
@@ -14364,10 +14249,8 @@ asm_test::fetch_not::bool::acqrel:
         xori              5, 4, 1
         stbcx.            5, 0, 3
         bf-               2, 0b
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 32
         blr
 
 asm_test::fetch_not::bool::seqcst:
@@ -14377,10 +14260,8 @@ asm_test::fetch_not::bool::seqcst:
         xori              5, 4, 1
         stbcx.            5, 0, 3
         bf-               2, 0b
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 32
         blr
 
 asm_test::fetch_not::bool::acquire:
@@ -14389,10 +14270,8 @@ asm_test::fetch_not::bool::acquire:
         xori              5, 4, 1
         stbcx.            5, 0, 3
         bf-               2, 0b
-        cntlzw            3, 4
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 32
         blr
 
 asm_test::fetch_not::bool::relaxed:
@@ -14401,9 +14280,7 @@ asm_test::fetch_not::bool::relaxed:
         xori              5, 4, 1
         stbcx.            5, 0, 3
         bf-               2, 0b
-        cntlzw            3, 4
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 32
         blr
 
 asm_test::fetch_not::bool::release:
@@ -14413,9 +14290,7 @@ asm_test::fetch_not::bool::release:
         xori              5, 4, 1
         stbcx.            5, 0, 3
         bf-               2, 0b
-        cntlzw            3, 4
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 4, 32
         blr
 
 asm_test::fetch_not::u128::acqrel:
@@ -15229,10 +15104,8 @@ asm_test::fetch_xor::bool::acqrel:
         xor               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_xor::bool::seqcst:
@@ -15242,10 +15115,8 @@ asm_test::fetch_xor::bool::seqcst:
         xor               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_xor::bool::acquire:
@@ -15254,10 +15125,8 @@ asm_test::fetch_xor::bool::acquire:
         xor               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
         lwsync
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_xor::bool::relaxed:
@@ -15266,9 +15135,7 @@ asm_test::fetch_xor::bool::relaxed:
         xor               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_xor::bool::release:
@@ -15278,9 +15145,7 @@ asm_test::fetch_xor::bool::release:
         xor               6, 4, 5
         stbcx.            6, 0, 3
         bf-               2, 0b
-        cntlzw            3, 5
-        srwi              3, 3, 5
-        xori              3, 3, 1
+        clrldi            3, 5, 32
         blr
 
 asm_test::fetch_xor::u128::acqrel:

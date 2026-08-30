@@ -457,20 +457,10 @@ asm_test::fetch_nand::bool::acqrel:
         eor               r18, r24
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-1:
-        breq              1f
-2:
-        rjmp              2f
+        eor               r25, r25
+        ret
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
-        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -486,20 +476,10 @@ asm_test::fetch_nand::bool::seqcst:
         eor               r18, r24
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-1:
-        breq              1f
-2:
-        rjmp              2f
+        eor               r25, r25
+        ret
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
-        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -515,20 +495,10 @@ asm_test::fetch_nand::bool::acquire:
         eor               r18, r24
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-1:
-        breq              1f
-2:
-        rjmp              2f
+        eor               r25, r25
+        ret
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
-        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -544,20 +514,10 @@ asm_test::fetch_nand::bool::relaxed:
         eor               r18, r24
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-1:
-        breq              1f
-2:
-        rjmp              2f
+        eor               r25, r25
+        ret
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
-        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -573,20 +533,10 @@ asm_test::fetch_nand::bool::release:
         eor               r18, r24
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-1:
-        breq              1f
-2:
-        rjmp              2f
+        eor               r25, r25
+        ret
         st                X, r18
         out               0x3f, r25	; 63
-        ldi               r25, 0x01	; 1
-        cpi               r24, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
-        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -1609,390 +1559,240 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -2704,390 +2504,240 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         movw              r26, r24
         in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        cp                r18, r22
+        ld                r25, X
+        cp                r25, r22
 0:
         brne              0f
         st                X, r20
         out               0x3f, r24	; 63
-        ldi               r25, 0x01	; 1
-        cp                r18, r22
-        ldi               r24, 0x01	; 1
-1:
-        breq              1f
-        cpi               r18, 0x00	; 0
-2:
-        breq              2f
-        ret
         mov               r24, r1
-        cpi               r18, 0x00	; 0
-3:
-        brne              3f
-        mov               r25, r1
+        ret
+        out               0x3f, r24	; 63
+        ldi               r24, 0x01	; 1
         ret
 
 asm_test::or::u8::acqrel:
@@ -4149,34 +3799,19 @@ asm_test::load::u16::relaxed:
 
 asm_test::load::bool::seqcst:
         movw              r30, r24
-        ld                r25, Z
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r24, Z
         eor               r25, r25
         ret
 
 asm_test::load::bool::acquire:
         movw              r30, r24
-        ld                r25, Z
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r24, Z
         eor               r25, r25
         ret
 
 asm_test::load::bool::relaxed:
         movw              r30, r24
-        ld                r25, Z
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r24, Z
         eor               r25, r25
         ret
 
@@ -4287,11 +3922,7 @@ asm_test::swap::bool::acqrel:
         ld                r25, X
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4302,11 +3933,7 @@ asm_test::swap::bool::seqcst:
         ld                r25, X
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4317,11 +3944,7 @@ asm_test::swap::bool::acquire:
         ld                r25, X
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4332,11 +3955,7 @@ asm_test::swap::bool::relaxed:
         ld                r25, X
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4347,11 +3966,7 @@ asm_test::swap::bool::release:
         ld                r25, X
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4840,11 +4455,7 @@ asm_test::fetch_or::bool::acqrel:
         or                r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4856,11 +4467,7 @@ asm_test::fetch_or::bool::seqcst:
         or                r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4872,11 +4479,7 @@ asm_test::fetch_or::bool::acquire:
         or                r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4888,11 +4491,7 @@ asm_test::fetch_or::bool::relaxed:
         or                r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -4904,11 +4503,7 @@ asm_test::fetch_or::bool::release:
         or                r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -5480,11 +5075,7 @@ asm_test::fetch_and::bool::acqrel:
         and               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -5496,11 +5087,7 @@ asm_test::fetch_and::bool::seqcst:
         and               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -5512,11 +5099,7 @@ asm_test::fetch_and::bool::acquire:
         and               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -5528,11 +5111,7 @@ asm_test::fetch_and::bool::relaxed:
         and               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -5544,11 +5123,7 @@ asm_test::fetch_and::bool::release:
         and               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6119,86 +5694,66 @@ asm_test::fetch_not::u16::release:
 
 asm_test::fetch_not::bool::acqrel:
         movw              r26, r24
-        in                r25, 0x3f	; 63
+        in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        ldi               r24, 0x01	; 1
-        mov               r19, r18
-        eor               r19, r24
-        st                X, r19
-        out               0x3f, r25	; 63
-        cpi               r18, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r25, X
+        ldi               r18, 0x01	; 1
+        eor               r18, r25
+        st                X, r18
+        out               0x3f, r24	; 63
+        mov               r24, r25
         eor               r25, r25
         ret
 
 asm_test::fetch_not::bool::seqcst:
         movw              r26, r24
-        in                r25, 0x3f	; 63
+        in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        ldi               r24, 0x01	; 1
-        mov               r19, r18
-        eor               r19, r24
-        st                X, r19
-        out               0x3f, r25	; 63
-        cpi               r18, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r25, X
+        ldi               r18, 0x01	; 1
+        eor               r18, r25
+        st                X, r18
+        out               0x3f, r24	; 63
+        mov               r24, r25
         eor               r25, r25
         ret
 
 asm_test::fetch_not::bool::acquire:
         movw              r26, r24
-        in                r25, 0x3f	; 63
+        in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        ldi               r24, 0x01	; 1
-        mov               r19, r18
-        eor               r19, r24
-        st                X, r19
-        out               0x3f, r25	; 63
-        cpi               r18, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r25, X
+        ldi               r18, 0x01	; 1
+        eor               r18, r25
+        st                X, r18
+        out               0x3f, r24	; 63
+        mov               r24, r25
         eor               r25, r25
         ret
 
 asm_test::fetch_not::bool::relaxed:
         movw              r26, r24
-        in                r25, 0x3f	; 63
+        in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        ldi               r24, 0x01	; 1
-        mov               r19, r18
-        eor               r19, r24
-        st                X, r19
-        out               0x3f, r25	; 63
-        cpi               r18, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r25, X
+        ldi               r18, 0x01	; 1
+        eor               r18, r25
+        st                X, r18
+        out               0x3f, r24	; 63
+        mov               r24, r25
         eor               r25, r25
         ret
 
 asm_test::fetch_not::bool::release:
         movw              r26, r24
-        in                r25, 0x3f	; 63
+        in                r24, 0x3f	; 63
         cli
-        ld                r18, X
-        ldi               r24, 0x01	; 1
-        mov               r19, r18
-        eor               r19, r24
-        st                X, r19
-        out               0x3f, r25	; 63
-        cpi               r18, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        ld                r25, X
+        ldi               r18, 0x01	; 1
+        eor               r18, r25
+        st                X, r18
+        out               0x3f, r24	; 63
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6450,11 +6005,7 @@ asm_test::fetch_xor::bool::acqrel:
         eor               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6466,11 +6017,7 @@ asm_test::fetch_xor::bool::seqcst:
         eor               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6482,11 +6029,7 @@ asm_test::fetch_xor::bool::acquire:
         eor               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6498,11 +6041,7 @@ asm_test::fetch_xor::bool::relaxed:
         eor               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret
 
@@ -6514,10 +6053,6 @@ asm_test::fetch_xor::bool::release:
         eor               r22, r25
         st                X, r22
         out               0x3f, r24	; 63
-        ldi               r24, 0x01	; 1
-        cpi               r25, 0x00	; 0
-0:
-        brne              0f
-        mov               r24, r1
+        mov               r24, r25
         eor               r25, r25
         ret

@@ -392,13 +392,13 @@ asm_test::fetch_nand::bool::acqrel:
         xori              a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         ori               a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::fetch_nand::bool::seqcst:
@@ -409,13 +409,13 @@ asm_test::fetch_nand::bool::seqcst:
         xori              a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         ori               a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::fetch_nand::bool::acquire:
@@ -426,13 +426,13 @@ asm_test::fetch_nand::bool::acquire:
         xori              a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         ori               a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::fetch_nand::bool::relaxed:
@@ -443,13 +443,13 @@ asm_test::fetch_nand::bool::relaxed:
         xori              a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         ori               a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::fetch_nand::bool::release:
@@ -460,13 +460,13 @@ asm_test::fetch_nand::bool::release:
         xori              a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         ori               a1, a2, 0x1
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -1768,24 +1768,21 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
@@ -1797,24 +1794,21 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
@@ -1826,24 +1820,21 @@ asm_test::compare_exchange::bool::acqrel_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
@@ -1855,24 +1846,21 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
@@ -1884,24 +1872,21 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
@@ -1913,24 +1898,21 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
@@ -1942,24 +1924,21 @@ asm_test::compare_exchange::bool::release_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
@@ -1971,24 +1950,21 @@ asm_test::compare_exchange::bool::seqcst_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
@@ -2000,24 +1976,21 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
@@ -2029,24 +2002,21 @@ asm_test::compare_exchange::bool::acquire_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
@@ -2058,24 +2028,21 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
@@ -2087,24 +2054,21 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
@@ -2116,24 +2080,21 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
@@ -2145,24 +2106,21 @@ asm_test::compare_exchange::bool::release_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
@@ -2174,24 +2132,21 @@ asm_test::compare_exchange::bool::release_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -3133,24 +3088,21 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
@@ -3162,24 +3114,21 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
@@ -3191,24 +3140,21 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
@@ -3220,24 +3166,21 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
@@ -3249,24 +3192,21 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
@@ -3278,24 +3218,21 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
@@ -3307,24 +3244,21 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
@@ -3336,24 +3270,21 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
@@ -3365,24 +3296,21 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
@@ -3394,24 +3322,21 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
@@ -3423,24 +3348,21 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
@@ -3452,24 +3374,21 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
@@ -3481,24 +3400,21 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
@@ -3510,24 +3426,21 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
@@ -3539,24 +3452,21 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         sb                a2, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 0:
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 1:
         sb                zero, 0x0(a0)
         andi              a4, a4, 0x8
         csrs              mstatus, a4
-        snez              a2, a3
-        xor               a0, a1, a2
-        mv                a1, a2
+        xor               a0, a1, a3
+        mv                a1, a3
         ret
 
 asm_test::or::u8::acqrel:
@@ -4748,21 +4658,18 @@ asm_test::load::bool::seqcst:
         fence             rw, rw
         lb                a0, 0x0(a0)
         fence             r, rw
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::acquire:
         lb                a0, 0x0(a0)
         fence             r, rw
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::relaxed:
         lb                a0, 0x0(a0)
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::u8::acqrel:
@@ -4953,13 +4860,13 @@ asm_test::swap::bool::acqrel:
         sb                a1, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         sb                zero, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::swap::bool::seqcst:
@@ -4970,13 +4877,13 @@ asm_test::swap::bool::seqcst:
         sb                a1, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         sb                zero, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::swap::bool::acquire:
@@ -4987,13 +4894,13 @@ asm_test::swap::bool::acquire:
         sb                a1, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         sb                zero, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::swap::bool::relaxed:
@@ -5004,13 +4911,13 @@ asm_test::swap::bool::relaxed:
         sb                a1, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         sb                zero, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::swap::bool::release:
@@ -5021,13 +4928,13 @@ asm_test::swap::bool::release:
         sb                a1, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 0:
         sb                zero, 0x0(a0)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
-        snez              a0, a2
+        andi              a0, a2, 0x1
         ret
 
 asm_test::store::u8::seqcst:
@@ -5461,53 +5368,53 @@ asm_test::fetch_or::u32::release:
         ret
 
 asm_test::fetch_or::bool::acqrel:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        or                a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        or                a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_or::bool::seqcst:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        or                a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        or                a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_or::bool::acquire:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        or                a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        or                a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_or::bool::relaxed:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        or                a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        or                a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_or::bool::release:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        or                a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        or                a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::bit_clear::u8::acqrel:
@@ -6261,53 +6168,53 @@ asm_test::fetch_and::u32::release:
         ret
 
 asm_test::fetch_and::bool::acqrel:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        and               a1, a1, a3
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        and               a1, a1, a2
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_and::bool::seqcst:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        and               a1, a1, a3
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        and               a1, a1, a2
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_and::bool::acquire:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        and               a1, a1, a3
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        and               a1, a1, a2
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_and::bool::relaxed:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        and               a1, a1, a3
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        and               a1, a1, a2
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_and::bool::release:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        and               a1, a1, a3
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        and               a1, a1, a2
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -7366,53 +7273,53 @@ asm_test::fetch_not::u32::release:
         ret
 
 asm_test::fetch_not::bool::acqrel:
-        csrrci            a1, mstatus, 0x8
-        lbu               a2, 0x0(a0)
-        andi              a1, a1, 0x8
-        xori              a3, a2, 0x1
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        xori              a3, a1, 0x1
         sb                a3, 0x0(a0)
-        csrs              mstatus, a1
-        snez              a0, a2
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_not::bool::seqcst:
-        csrrci            a1, mstatus, 0x8
-        lbu               a2, 0x0(a0)
-        andi              a1, a1, 0x8
-        xori              a3, a2, 0x1
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        xori              a3, a1, 0x1
         sb                a3, 0x0(a0)
-        csrs              mstatus, a1
-        snez              a0, a2
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_not::bool::acquire:
-        csrrci            a1, mstatus, 0x8
-        lbu               a2, 0x0(a0)
-        andi              a1, a1, 0x8
-        xori              a3, a2, 0x1
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        xori              a3, a1, 0x1
         sb                a3, 0x0(a0)
-        csrs              mstatus, a1
-        snez              a0, a2
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_not::bool::relaxed:
-        csrrci            a1, mstatus, 0x8
-        lbu               a2, 0x0(a0)
-        andi              a1, a1, 0x8
-        xori              a3, a2, 0x1
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        xori              a3, a1, 0x1
         sb                a3, 0x0(a0)
-        csrs              mstatus, a1
-        snez              a0, a2
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_not::bool::release:
-        csrrci            a1, mstatus, 0x8
-        lbu               a2, 0x0(a0)
-        andi              a1, a1, 0x8
-        xori              a3, a2, 0x1
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        xori              a3, a1, 0x1
         sb                a3, 0x0(a0)
-        csrs              mstatus, a1
-        snez              a0, a2
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_sub::u8::acqrel:
@@ -7886,51 +7793,51 @@ asm_test::fetch_xor::u32::release:
         ret
 
 asm_test::fetch_xor::bool::acqrel:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        xor               a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        xor               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_xor::bool::seqcst:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        xor               a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        xor               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_xor::bool::acquire:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        xor               a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        xor               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_xor::bool::relaxed:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        xor               a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        xor               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret
 
 asm_test::fetch_xor::bool::release:
-        csrrci            a2, mstatus, 0x8
-        lbu               a3, 0x0(a0)
-        andi              a2, a2, 0x8
-        xor               a1, a3, a1
+        csrrci            a3, mstatus, 0x8
+        lbu               a2, 0x0(a0)
+        andi              a3, a3, 0x8
+        xor               a1, a2, a1
         sb                a1, 0x0(a0)
-        csrs              mstatus, a2
-        snez              a0, a3
+        csrs              mstatus, a3
+        mv                a0, a2
         ret

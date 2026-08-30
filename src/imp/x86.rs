@@ -194,8 +194,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTS modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
                 #[inline]
@@ -219,8 +218,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTR modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
                 #[inline]
@@ -244,8 +242,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTC modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
             }

@@ -611,8 +611,6 @@ pub(crate) fn unlikely(b: bool) -> bool {
 }
 
 // Equivalent to core::hint::assert_unchecked, but compatible with pre-1.81 rustc.
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[allow(dead_code)]
 #[inline(always)]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) unsafe fn assert_unchecked(cond: bool) {
@@ -624,6 +622,18 @@ pub(crate) unsafe fn assert_unchecked(cond: bool) {
         unsafe {
             core::hint::unreachable_unchecked()
         }
+    }
+}
+#[allow(dead_code)]
+#[inline(always)]
+pub(crate) unsafe fn bool_from_u8_unchecked(x: u8) -> bool {
+    #[allow(clippy::transmute_int_to_bool)]
+    #[allow(unknown_lints, unnecessary_transmutes)] // false positive (fixed in Rust 1.89)
+    // SAFETY: the caller must guarantee that x is 0 or 1.
+    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+    unsafe {
+        crate::utils::assert_unchecked(x == 0 || x == 1); // may help remove extra cmp/test/and
+        core::mem::transmute(x)
     }
 }
 

@@ -40,9 +40,7 @@
         li                a5, 0x1
         bne               a3, a5, 13f
         amoor.w.rl        a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -55,9 +53,7 @@
         li                a5, 0x1
         bne               a3, a5, 8f
         amoor.w.rl        a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -73,81 +69,61 @@
         li                a5, 0x1
         bne               a3, a5, 14f
         amoand.w.rl       a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 6:
         amoor.w.aqrl      a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 7:
         amoor.w           a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 8:
         amoor.w.aq        a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 9:
         amoor.w.aqrl      a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 10:
         amoand.w.aqrl     a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 11:
         amoor.w           a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 12:
         amoand.w          a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 13:
         amoor.w.aq        a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
 14:
         amoand.w.aq       a2, a2, (a4)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -527,14 +503,12 @@ asm_test::fetch_nand::bool::acqrel:
         beqz              a1, 0f
         amoxor.w.aqrl     a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         amoor.w.aqrl      a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_nand::bool::seqcst:
@@ -545,14 +519,12 @@ asm_test::fetch_nand::bool::seqcst:
         beqz              a1, 0f
         amoxor.w.aqrl     a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         amoor.w.aqrl      a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_nand::bool::acquire:
@@ -563,14 +535,12 @@ asm_test::fetch_nand::bool::acquire:
         beqz              a1, 0f
         amoxor.w.aq       a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         amoor.w.aq        a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_nand::bool::relaxed:
@@ -581,14 +551,12 @@ asm_test::fetch_nand::bool::relaxed:
         beqz              a1, 0f
         amoxor.w          a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         amoor.w           a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_nand::bool::release:
@@ -599,14 +567,12 @@ asm_test::fetch_nand::bool::release:
         beqz              a1, 0f
         amoxor.w.rl       a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         amoor.w.rl        a0, a3, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -1827,9 +1793,7 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1837,9 +1801,7 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1850,9 +1812,7 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1865,9 +1825,7 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1875,9 +1833,7 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1888,9 +1844,7 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1917,9 +1871,7 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1927,9 +1879,7 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1940,9 +1890,7 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -1997,9 +1945,7 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aq        a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -2007,9 +1953,7 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aq        a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -2020,9 +1964,7 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aq       a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -2042,9 +1984,7 @@ asm_test::compare_exchange::bool::release_acquire:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -2052,9 +1992,7 @@ asm_test::compare_exchange::bool::release_acquire:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -2065,9 +2003,7 @@ asm_test::compare_exchange::bool::release_acquire:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3017,9 +2953,7 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3027,9 +2961,7 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3040,9 +2972,7 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3055,9 +2985,7 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3065,9 +2993,7 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3078,9 +3004,7 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3107,9 +3031,7 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3117,9 +3039,7 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3130,9 +3050,7 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3187,9 +3105,7 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aq        a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3197,9 +3113,7 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aq        a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3210,9 +3124,7 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aq       a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3232,9 +3144,7 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         li                a2, 0x1
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3242,9 +3152,7 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         li                a2, 0x0
         sll               a2, a2, a0
         amoor.w.aqrl      a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -3255,9 +3163,7 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         sll               a2, a2, a0
         or                a2, a2, a4
         amoand.w.aqrl     a2, a2, (a3)
-        srl               a0, a2, a0
-        zext.b            a0, a0
-        snez              a2, a0
+        srl               a2, a2, a0
         xor               a0, a1, a2
         mv                a1, a2
         ret
@@ -4283,21 +4189,18 @@ asm_test::load::bool::seqcst:
         fence             rw, rw
         lb                a0, 0x0(a0)
         fence             r, rw
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::acquire:
         lb                a0, 0x0(a0)
         fence             r, rw
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::load::bool::relaxed:
         lb                a0, 0x0(a0)
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::u8::acqrel:
@@ -4438,8 +4341,7 @@ asm_test::swap::bool::acqrel:
         sll               a1, a1, a0
         amoor.w.aqrl      a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         li                a3, 0xff
@@ -4449,8 +4351,7 @@ asm_test::swap::bool::acqrel:
         or                a1, a1, a3
         amoand.w.aqrl     a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::bool::seqcst:
@@ -4461,8 +4362,7 @@ asm_test::swap::bool::seqcst:
         sll               a1, a1, a0
         amoor.w.aqrl      a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         li                a3, 0xff
@@ -4472,8 +4372,7 @@ asm_test::swap::bool::seqcst:
         or                a1, a1, a3
         amoand.w.aqrl     a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::bool::acquire:
@@ -4484,8 +4383,7 @@ asm_test::swap::bool::acquire:
         sll               a1, a1, a0
         amoor.w.aq        a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         li                a3, 0xff
@@ -4495,8 +4393,7 @@ asm_test::swap::bool::acquire:
         or                a1, a1, a3
         amoand.w.aq       a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::bool::relaxed:
@@ -4507,8 +4404,7 @@ asm_test::swap::bool::relaxed:
         sll               a1, a1, a0
         amoor.w           a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         li                a3, 0xff
@@ -4518,8 +4414,7 @@ asm_test::swap::bool::relaxed:
         or                a1, a1, a3
         amoand.w          a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::swap::bool::release:
@@ -4530,8 +4425,7 @@ asm_test::swap::bool::release:
         sll               a1, a1, a0
         amoor.w.rl        a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 0:
         li                a3, 0xff
@@ -4541,8 +4435,7 @@ asm_test::swap::bool::release:
         or                a1, a1, a3
         amoand.w.rl       a1, a1, (a2)
         srl               a0, a1, a0
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::store::u8::seqcst:
@@ -4896,8 +4789,7 @@ asm_test::fetch_or::bool::acqrel:
         sll               a1, a1, a2
         amoor.w.aqrl      a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_or::bool::seqcst:
@@ -4906,8 +4798,7 @@ asm_test::fetch_or::bool::seqcst:
         sll               a1, a1, a2
         amoor.w.aqrl      a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_or::bool::acquire:
@@ -4916,8 +4807,7 @@ asm_test::fetch_or::bool::acquire:
         sll               a1, a1, a2
         amoor.w.aq        a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_or::bool::relaxed:
@@ -4926,8 +4816,7 @@ asm_test::fetch_or::bool::relaxed:
         sll               a1, a1, a2
         amoor.w           a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_or::bool::release:
@@ -4936,8 +4825,7 @@ asm_test::fetch_or::bool::release:
         sll               a1, a1, a2
         amoor.w.rl        a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::bit_clear::u8::acqrel:
@@ -5650,8 +5538,7 @@ asm_test::fetch_and::bool::acqrel:
         or                a1, a1, a3
         amoand.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_and::bool::seqcst:
@@ -5664,8 +5551,7 @@ asm_test::fetch_and::bool::seqcst:
         or                a1, a1, a3
         amoand.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_and::bool::acquire:
@@ -5678,8 +5564,7 @@ asm_test::fetch_and::bool::acquire:
         or                a1, a1, a3
         amoand.w.aq       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_and::bool::relaxed:
@@ -5692,8 +5577,7 @@ asm_test::fetch_and::bool::relaxed:
         or                a1, a1, a3
         amoand.w          a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_and::bool::release:
@@ -5706,8 +5590,7 @@ asm_test::fetch_and::bool::release:
         or                a1, a1, a3
         amoand.w.rl       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -6632,8 +6515,7 @@ asm_test::fetch_not::bool::acqrel:
         sll               a1, a1, a2
         amoxor.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_not::bool::seqcst:
@@ -6643,8 +6525,7 @@ asm_test::fetch_not::bool::seqcst:
         sll               a1, a1, a2
         amoxor.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_not::bool::acquire:
@@ -6654,8 +6535,7 @@ asm_test::fetch_not::bool::acquire:
         sll               a1, a1, a2
         amoxor.w.aq       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_not::bool::relaxed:
@@ -6665,8 +6545,7 @@ asm_test::fetch_not::bool::relaxed:
         sll               a1, a1, a2
         amoxor.w          a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_not::bool::release:
@@ -6676,8 +6555,7 @@ asm_test::fetch_not::bool::release:
         sll               a1, a1, a2
         amoxor.w.rl       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_sub::u8::acqrel:
@@ -7081,8 +6959,7 @@ asm_test::fetch_xor::bool::acqrel:
         sll               a1, a1, a2
         amoxor.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_xor::bool::seqcst:
@@ -7091,8 +6968,7 @@ asm_test::fetch_xor::bool::seqcst:
         sll               a1, a1, a2
         amoxor.w.aqrl     a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_xor::bool::acquire:
@@ -7101,8 +6977,7 @@ asm_test::fetch_xor::bool::acquire:
         sll               a1, a1, a2
         amoxor.w.aq       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_xor::bool::relaxed:
@@ -7111,8 +6986,7 @@ asm_test::fetch_xor::bool::relaxed:
         sll               a1, a1, a2
         amoxor.w          a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret
 
 asm_test::fetch_xor::bool::release:
@@ -7121,6 +6995,5 @@ asm_test::fetch_xor::bool::release:
         sll               a1, a1, a2
         amoxor.w.rl       a0, a1, (a0)
         srl               a0, a0, a2
-        zext.b            a0, a0
-        snez              a0, a0
+        andi              a0, a0, 0x1
         ret

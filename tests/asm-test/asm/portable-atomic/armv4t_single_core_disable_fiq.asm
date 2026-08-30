@@ -513,17 +513,15 @@ asm_test::fetch_nand::u32::release:
 asm_test::fetch_nand::bool::acqrel:
         push              {r11, lr}
         mov               r11, sp
-        mov               r2, r0
         mrs               r3, apsr
-        orr               r0, r3, #192
-        msr               CPSR_c, r0
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
         cmp               r1, #0
-        ldrb              r0, [r2]
-        eorne             r1, r0, #1
+        ldrb              r2, [r0]
+        eorne             r1, r2, #1
         moveq             r1, #1
-        cmp               r0, #0
-        strb              r1, [r2]
-        movne             r0, #1
+        strb              r1, [r0]
+        and               r0, r2, #1
         msr               CPSR_c, r3
         pop               {r11, lr}
         bx                lr
@@ -531,17 +529,15 @@ asm_test::fetch_nand::bool::acqrel:
 asm_test::fetch_nand::bool::seqcst:
         push              {r11, lr}
         mov               r11, sp
-        mov               r2, r0
         mrs               r3, apsr
-        orr               r0, r3, #192
-        msr               CPSR_c, r0
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
         cmp               r1, #0
-        ldrb              r0, [r2]
-        eorne             r1, r0, #1
+        ldrb              r2, [r0]
+        eorne             r1, r2, #1
         moveq             r1, #1
-        cmp               r0, #0
-        strb              r1, [r2]
-        movne             r0, #1
+        strb              r1, [r0]
+        and               r0, r2, #1
         msr               CPSR_c, r3
         pop               {r11, lr}
         bx                lr
@@ -549,17 +545,15 @@ asm_test::fetch_nand::bool::seqcst:
 asm_test::fetch_nand::bool::acquire:
         push              {r11, lr}
         mov               r11, sp
-        mov               r2, r0
         mrs               r3, apsr
-        orr               r0, r3, #192
-        msr               CPSR_c, r0
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
         cmp               r1, #0
-        ldrb              r0, [r2]
-        eorne             r1, r0, #1
+        ldrb              r2, [r0]
+        eorne             r1, r2, #1
         moveq             r1, #1
-        cmp               r0, #0
-        strb              r1, [r2]
-        movne             r0, #1
+        strb              r1, [r0]
+        and               r0, r2, #1
         msr               CPSR_c, r3
         pop               {r11, lr}
         bx                lr
@@ -567,17 +561,15 @@ asm_test::fetch_nand::bool::acquire:
 asm_test::fetch_nand::bool::relaxed:
         push              {r11, lr}
         mov               r11, sp
-        mov               r2, r0
         mrs               r3, apsr
-        orr               r0, r3, #192
-        msr               CPSR_c, r0
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
         cmp               r1, #0
-        ldrb              r0, [r2]
-        eorne             r1, r0, #1
+        ldrb              r2, [r0]
+        eorne             r1, r2, #1
         moveq             r1, #1
-        cmp               r0, #0
-        strb              r1, [r2]
-        movne             r0, #1
+        strb              r1, [r0]
+        and               r0, r2, #1
         msr               CPSR_c, r3
         pop               {r11, lr}
         bx                lr
@@ -585,17 +577,15 @@ asm_test::fetch_nand::bool::relaxed:
 asm_test::fetch_nand::bool::release:
         push              {r11, lr}
         mov               r11, sp
-        mov               r2, r0
         mrs               r3, apsr
-        orr               r0, r3, #192
-        msr               CPSR_c, r0
+        orr               r2, r3, #192
+        msr               CPSR_c, r2
         cmp               r1, #0
-        ldrb              r0, [r2]
-        eorne             r1, r0, #1
+        ldrb              r2, [r0]
+        eorne             r1, r2, #1
         moveq             r1, #1
-        cmp               r0, #0
-        strb              r1, [r2]
-        movne             r0, #1
+        strb              r1, [r0]
+        and               r0, r2, #1
         msr               CPSR_c, r3
         pop               {r11, lr}
         bx                lr
@@ -2134,12 +2124,17 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2152,12 +2147,17 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2170,12 +2170,17 @@ asm_test::compare_exchange::bool::acqrel_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2188,12 +2193,17 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2206,12 +2216,17 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2224,12 +2239,17 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2242,12 +2262,17 @@ asm_test::compare_exchange::bool::release_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2260,12 +2285,17 @@ asm_test::compare_exchange::bool::seqcst_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2278,12 +2308,17 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2296,12 +2331,17 @@ asm_test::compare_exchange::bool::acquire_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2314,12 +2354,17 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2332,12 +2377,17 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2350,12 +2400,17 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2368,12 +2423,17 @@ asm_test::compare_exchange::bool::release_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -2386,12 +2446,17 @@ asm_test::compare_exchange::bool::release_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3439,12 +3504,17 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3457,12 +3527,17 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3475,12 +3550,17 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3493,12 +3573,17 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3511,12 +3596,17 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3529,12 +3619,17 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3547,12 +3642,17 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3565,12 +3665,17 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3583,12 +3688,17 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3601,12 +3711,17 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3619,12 +3734,17 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3637,12 +3757,17 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3655,12 +3780,17 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3673,12 +3803,17 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -3691,12 +3826,17 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         msr               CPSR_c, r1
         ldrb              r1, [r0]
         cmp               r1, r3
-        strbeq            r2, [r0]
+        beq               0f
+        msr               CPSR_c, r12
         subs              r0, r1, r3
         movne             r0, #1
-        cmp               r1, #0
+        pop               {r11, lr}
+        bx                lr
+0:
+        strb              r2, [r0]
         msr               CPSR_c, r12
-        movne             r1, #1
+        subs              r0, r1, r3
+        movne             r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -5413,8 +5553,7 @@ asm_test::load::bool::seqcst:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        ands              r0, r0, #255
-        movne             r0, #1
+        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -5422,8 +5561,7 @@ asm_test::load::bool::acquire:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        ands              r0, r0, #255
-        movne             r0, #1
+        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -5431,8 +5569,7 @@ asm_test::load::bool::relaxed:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        ands              r0, r0, #255
-        movne             r0, #1
+        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -5704,9 +5841,7 @@ asm_test::swap::bool::acqrel:
         msr               CPSR_c, r2
         ldrb              r2, [r0]
         strb              r1, [r0]
-        cmp               r2, #0
         msr               CPSR_c, r3
-        movne             r2, #1
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
@@ -5719,9 +5854,7 @@ asm_test::swap::bool::seqcst:
         msr               CPSR_c, r2
         ldrb              r2, [r0]
         strb              r1, [r0]
-        cmp               r2, #0
         msr               CPSR_c, r3
-        movne             r2, #1
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
@@ -5734,9 +5867,7 @@ asm_test::swap::bool::acquire:
         msr               CPSR_c, r2
         ldrb              r2, [r0]
         strb              r1, [r0]
-        cmp               r2, #0
         msr               CPSR_c, r3
-        movne             r2, #1
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
@@ -5749,9 +5880,7 @@ asm_test::swap::bool::relaxed:
         msr               CPSR_c, r2
         ldrb              r2, [r0]
         strb              r1, [r0]
-        cmp               r2, #0
         msr               CPSR_c, r3
-        movne             r2, #1
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
@@ -5764,9 +5893,7 @@ asm_test::swap::bool::release:
         msr               CPSR_c, r2
         ldrb              r2, [r0]
         strb              r1, [r0]
-        cmp               r2, #0
         msr               CPSR_c, r3
-        movne             r2, #1
         mov               r0, r2
         pop               {r11, lr}
         bx                lr
@@ -6348,10 +6475,8 @@ asm_test::fetch_or::bool::acqrel:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         orr               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -6364,10 +6489,8 @@ asm_test::fetch_or::bool::seqcst:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         orr               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -6380,10 +6503,8 @@ asm_test::fetch_or::bool::acquire:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         orr               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -6396,10 +6517,8 @@ asm_test::fetch_or::bool::relaxed:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         orr               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -6412,10 +6531,8 @@ asm_test::fetch_or::bool::release:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         orr               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -7328,10 +7445,8 @@ asm_test::fetch_and::bool::acqrel:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         and               r1, r1, r2
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -7344,10 +7459,8 @@ asm_test::fetch_and::bool::seqcst:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         and               r1, r1, r2
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -7360,10 +7473,8 @@ asm_test::fetch_and::bool::acquire:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         and               r1, r1, r2
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -7376,10 +7487,8 @@ asm_test::fetch_and::bool::relaxed:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         and               r1, r1, r2
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -7392,10 +7501,8 @@ asm_test::fetch_and::bool::release:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         and               r1, r1, r2
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -8708,10 +8815,8 @@ asm_test::fetch_not::bool::acqrel:
         orr               r1, r2, #192
         msr               CPSR_c, r1
         ldrb              r1, [r0]
-        cmp               r1, #0
         eor               r3, r1, #1
         strb              r3, [r0]
-        movne             r1, #1
         msr               CPSR_c, r2
         mov               r0, r1
         pop               {r11, lr}
@@ -8724,10 +8829,8 @@ asm_test::fetch_not::bool::seqcst:
         orr               r1, r2, #192
         msr               CPSR_c, r1
         ldrb              r1, [r0]
-        cmp               r1, #0
         eor               r3, r1, #1
         strb              r3, [r0]
-        movne             r1, #1
         msr               CPSR_c, r2
         mov               r0, r1
         pop               {r11, lr}
@@ -8740,10 +8843,8 @@ asm_test::fetch_not::bool::acquire:
         orr               r1, r2, #192
         msr               CPSR_c, r1
         ldrb              r1, [r0]
-        cmp               r1, #0
         eor               r3, r1, #1
         strb              r3, [r0]
-        movne             r1, #1
         msr               CPSR_c, r2
         mov               r0, r1
         pop               {r11, lr}
@@ -8756,10 +8857,8 @@ asm_test::fetch_not::bool::relaxed:
         orr               r1, r2, #192
         msr               CPSR_c, r1
         ldrb              r1, [r0]
-        cmp               r1, #0
         eor               r3, r1, #1
         strb              r3, [r0]
-        movne             r1, #1
         msr               CPSR_c, r2
         mov               r0, r1
         pop               {r11, lr}
@@ -8772,10 +8871,8 @@ asm_test::fetch_not::bool::release:
         orr               r1, r2, #192
         msr               CPSR_c, r1
         ldrb              r1, [r0]
-        cmp               r1, #0
         eor               r3, r1, #1
         strb              r3, [r0]
-        movne             r1, #1
         msr               CPSR_c, r2
         mov               r0, r1
         pop               {r11, lr}
@@ -9358,10 +9455,8 @@ asm_test::fetch_xor::bool::acqrel:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         eor               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -9374,10 +9469,8 @@ asm_test::fetch_xor::bool::seqcst:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         eor               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -9390,10 +9483,8 @@ asm_test::fetch_xor::bool::acquire:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         eor               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -9406,10 +9497,8 @@ asm_test::fetch_xor::bool::relaxed:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         eor               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
@@ -9422,10 +9511,8 @@ asm_test::fetch_xor::bool::release:
         orr               r2, r3, #192
         msr               CPSR_c, r2
         ldrb              r2, [r0]
-        cmp               r2, #0
         eor               r1, r2, r1
         strb              r1, [r0]
-        movne             r2, #1
         msr               CPSR_c, r3
         mov               r0, r2
         pop               {r11, lr}
