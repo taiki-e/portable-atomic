@@ -102,10 +102,13 @@ macro_rules! select_op {
     };
 }
 
-// Extracts and checks condition code.
+// Extracts and checks condition code 0.
+// https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0/llvm/lib/Target/SystemZ/SystemZISelDAGToDAG.cpp#L1968
 #[inline]
-fn extract_cc(r: i64) -> bool {
-    r.wrapping_add(-268435456) & (1 << 31) != 0
+fn extract_cc0(r: i64) -> bool {
+    const ADD: i64 = -(1 << 28);
+    const MASK: i64 = 1 << 31;
+    r.wrapping_add(ADD) & MASK != 0
 }
 
 #[inline]
@@ -178,9 +181,9 @@ unsafe fn atomic_compare_exchange(
             ($new_hi:tt, $new_lo:tt) => {
                 __asm!(
                     concat!("cdsg %r0, %", $new_hi, ", 0({dst})"), // atomic { if *dst == r0:r1 { cc = 0; *dst = new_hi:new_lo } else { cc = 1; r0:r1 = *dst } }
-                    "ipm {r}",                                     // r[:] = cc
-                    dst = in(reg) ptr_reg!(dst),
-                    r = lateout(reg) r,
+                    "ipm {dst}",                                   // dst[32..=39] = [0, cc, pm]
+                    // Reuse dst instead of using lateout to work around Valgrind false positive.
+                    dst = inout(reg) ptr_reg!(dst) => r,
                     // Quadword atomic instructions work with even/odd pair of specified register and subsequent register.
                     inout("r0") old.pair.hi => prev_hi,
                     inout("r1") old.pair.lo => prev_lo,
@@ -198,7 +201,7 @@ unsafe fn atomic_compare_exchange(
         cmpxchg!("r12", "r13");
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if extract_cc(r) { Ok(prev) } else { Err(prev) }
+    if extract_cc0(r) { Ok(prev) } else { Err(prev) }
 }
 
 // cdsg is always strong.
