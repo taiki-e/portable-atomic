@@ -1631,7 +1631,14 @@ impl AtomicBool {
         } else {
             // !(x & false) == true
             // We must set the bool to true.
-            self.swap(true, order)
+            if cfg!(any(
+                target_arch = "loongarch32",
+                all(target_arch = "xtensa", target_feature = "s32c1i"),
+            )) {
+                self.fetch_or(true, order) // LLVM generates better asm on these architectures.
+            } else {
+                self.swap(true, order)
+            }
         }
     }
 

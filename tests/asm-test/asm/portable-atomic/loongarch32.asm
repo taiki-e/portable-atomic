@@ -518,19 +518,14 @@ asm_test::fetch_nand::bool::acqrel:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
+        ori               $a2, $zero, 1
         sll.w             $a2, $a2, $a0
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
 2:
-        ll.w              $a4, $a1, 0
-        addi.w            $a5, $a3, 0
-        xor               $a5, $a4, $a5
-        and               $a5, $a5, $a2
-        xor               $a5, $a4, $a5
-        sc.w              $a5, $a1, 0
-        beq               $a5, $zero, 2b
-        srl.w             $a0, $a4, $a0
+        ll.w              $a3, $a1, 0
+        or                $a4, $a3, $a2
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 2b
+        srl.w             $a0, $a3, $a0
         andi              $a0, $a0, 1
         ret
 
@@ -553,19 +548,14 @@ asm_test::fetch_nand::bool::seqcst:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
+        ori               $a2, $zero, 1
         sll.w             $a2, $a2, $a0
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
 2:
-        ll.w              $a4, $a1, 0
-        addi.w            $a5, $a3, 0
-        xor               $a5, $a4, $a5
-        and               $a5, $a5, $a2
-        xor               $a5, $a4, $a5
-        sc.w              $a5, $a1, 0
-        beq               $a5, $zero, 2b
-        srl.w             $a0, $a4, $a0
+        ll.w              $a3, $a1, 0
+        or                $a4, $a3, $a2
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 2b
+        srl.w             $a0, $a3, $a0
         andi              $a0, $a0, 1
         ret
 
@@ -588,19 +578,14 @@ asm_test::fetch_nand::bool::acquire:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
+        ori               $a2, $zero, 1
         sll.w             $a2, $a2, $a0
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
 2:
-        ll.w              $a4, $a1, 0
-        addi.w            $a5, $a3, 0
-        xor               $a5, $a4, $a5
-        and               $a5, $a5, $a2
-        xor               $a5, $a4, $a5
-        sc.w              $a5, $a1, 0
-        beq               $a5, $zero, 2b
-        srl.w             $a0, $a4, $a0
+        ll.w              $a3, $a1, 0
+        or                $a4, $a3, $a2
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 2b
+        srl.w             $a0, $a3, $a0
         andi              $a0, $a0, 1
         ret
 
@@ -623,19 +608,14 @@ asm_test::fetch_nand::bool::relaxed:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
+        ori               $a2, $zero, 1
         sll.w             $a2, $a2, $a0
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
 2:
-        ll.w              $a4, $a1, 0
-        addi.w            $a5, $a3, 0
-        xor               $a5, $a4, $a5
-        and               $a5, $a5, $a2
-        xor               $a5, $a4, $a5
-        sc.w              $a5, $a1, 0
-        beq               $a5, $zero, 2b
-        srl.w             $a0, $a4, $a0
+        ll.w              $a3, $a1, 0
+        or                $a4, $a3, $a2
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 2b
+        srl.w             $a0, $a3, $a0
         andi              $a0, $a0, 1
         ret
 
@@ -658,19 +638,14 @@ asm_test::fetch_nand::bool::release:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
+        ori               $a2, $zero, 1
         sll.w             $a2, $a2, $a0
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
 2:
-        ll.w              $a4, $a1, 0
-        addi.w            $a5, $a3, 0
-        xor               $a5, $a4, $a5
-        and               $a5, $a5, $a2
-        xor               $a5, $a4, $a5
-        sc.w              $a5, $a1, 0
-        beq               $a5, $zero, 2b
-        srl.w             $a0, $a4, $a0
+        ll.w              $a3, $a1, 0
+        or                $a4, $a3, $a2
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 2b
+        srl.w             $a0, $a3, $a0
         andi              $a0, $a0, 1
         ret
 

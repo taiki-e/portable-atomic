@@ -115,6 +115,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_feature,values("ztso"))', # 1.88+ https://github.com/rust-lang/rust/pull/139440
     'cfg(target_feature,values("miscellaneous-extensions-3"))', # 1.89+ https://github.com/rust-lang/rust/pull/141250
     'cfg(target_feature,values("rmw"))', # 1.95+ https://github.com/rust-lang/rust/pull/146900
+    'cfg(target_feature,values("s32c1i"))', # 1.98+ https://github.com/rust-lang/rust/pull/147302
     'cfg(target_pointer_width,values("128"))',
     # Known custom cfgs, excluding those that may be set by build script.
     # Public APIs, considered unstable unless documented as stable in readme.
