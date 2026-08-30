@@ -1580,11 +1580,41 @@ impl AtomicBool {
             let _ = order;
             self.as_atomic_u8().fetch_and_bool(val)
         }
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+            any(
+                target_feature = "a",
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+                portable_atomic_force_amo,
+            ),
+        ))]
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(all(portable_atomic_no_atomic_cas, feature = "critical-section")))
+        )]
+        #[cfg_attr(
+            not(portable_atomic_no_cfg_target_has_atomic),
+            cfg(not(all(not(target_has_atomic = "ptr"), feature = "critical-section"))
+        ))]
+        {
+            let x = self.as_atomic_u8().fetch_and_bool(val, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_u8_unchecked(x) };
+        }
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
             all(target_arch = "msp430", not(feature = "critical-section")),
         )))]
+        #[cfg_attr(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            allow(unreachable_code)
+        )]
         {
             let x = self.as_atomic_u8().fetch_and(val as u8, order);
             // SAFETY: we only store 0 or 1.
@@ -1630,7 +1660,14 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().and(val as u8, order);
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+        {
+            self.fetch_and(val, order);
+        }
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+        {
+            self.as_atomic_u8().and(val as u8, order);
+        }
     }
 
     /// Logical "nand" with a boolean value.

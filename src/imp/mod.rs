@@ -33,22 +33,19 @@ pub(crate) mod arm_linux;
 pub(crate) mod msp430;
 
 // RISC-V without A-extension
-#[cfg(any(test, not(feature = "critical-section")))]
+#[cfg(all(
+    any(target_arch = "riscv32", target_arch = "riscv64"),
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        all(test, not(any(miri, portable_atomic_sanitize_thread))),
-        portable_atomic_no_atomic_cas,
-    ))
+    cfg(not(all(portable_atomic_no_atomic_cas, feature = "critical-section")))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        all(test, not(any(miri, portable_atomic_sanitize_thread))),
-        not(target_has_atomic = "ptr"),
-    ))
+    cfg(not(all(not(target_has_atomic = "ptr"), feature = "critical-section")))
 )]
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 mod riscv;
 
 // s390x-specific optimizations
