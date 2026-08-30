@@ -977,6 +977,7 @@ cfg_sel!({
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
             ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
         )
     ))]
     #[cfg_attr(
@@ -1017,6 +1018,7 @@ cfg_sel!({
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
             ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
         )
     ))]
     {
@@ -1618,6 +1620,20 @@ impl AtomicBool {
             // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
             return unsafe { crate::utils::bool_from_u8_unchecked(x) };
         }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            if val {
+                return self.as_atomic_u8().fetch_xor_bool(false);
+            }
+        });
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
@@ -1804,6 +1820,20 @@ impl AtomicBool {
                 self.fetch_nop(order)
             }
         }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            if !val {
+                return self.as_atomic_u8().fetch_xor_bool(false);
+            }
+        });
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
@@ -1950,6 +1980,16 @@ impl AtomicBool {
                 return self.fetch_nop(order);
             }
         }
+        #[cfg(all(
+            target_arch = "loongarch64",
+            any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+        ))]
+        {
+            if !val {
+                // (x ^ false) == x
+                return self.fetch_nop(order);
+            }
+        }
         #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         #[cfg_attr(
             any(target_arch = "s390x", target_arch = "x86", target_arch = "x86_64"),
@@ -2001,6 +2041,10 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
+        #[cfg(target_arch = "loongarch64")]
+        {
+            self.fetch_xor(val, order);
+        }
         #[cfg(all(
             target_arch = "s390x",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -2015,6 +2059,7 @@ impl AtomicBool {
             self.as_atomic_u8().xor_bool(val);
             return;
         });
+        #[cfg(not(target_arch = "loongarch64"))]
         #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
         {
             self.as_atomic_u8().xor(val as u8, order);

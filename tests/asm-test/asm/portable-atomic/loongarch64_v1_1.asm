@@ -3785,43 +3785,68 @@ asm_test::xor::u64::release:
         ret
 
 asm_test::xor::bool::acqrel:
-        andi              $a2, $a0, 3
+        beqz              $a1, 0f
+        andi              $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
         amxor_db.w        $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::xor::bool::seqcst:
-        andi              $a2, $a0, 3
+        beqz              $a1, 0f
+        andi              $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
         amxor_db.w        $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::xor::bool::acquire:
-        andi              $a2, $a0, 3
+        beqz              $a1, 0f
+        andi              $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
         amxor_db.w        $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::xor::bool::relaxed:
-        andi              $a2, $a0, 3
+        beqz              $a1, 0f
+        andi              $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
         amxor.w           $a2, $a1, $a0
+        ret
+0:
+        amadd.b           $a1, $zero, $a0
         ret
 
 asm_test::xor::bool::release:
-        andi              $a2, $a0, 3
+        beqz              $a1, 0f
+        andi              $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
         amxor_db.w        $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::load::u8::seqcst:
@@ -7046,46 +7071,76 @@ asm_test::fetch_xor::u64::release:
         ret
 
 asm_test::fetch_xor::bool::acqrel:
-        slli.d            $a2, $a0, 3
+        beqz              $a1, 0f
+        slli.d            $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amxor_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a1, $a3, $a1
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_xor::bool::seqcst:
-        slli.d            $a2, $a0, 3
+        beqz              $a1, 0f
+        slli.d            $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amxor_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a1, $a3, $a1
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_xor::bool::acquire:
-        slli.d            $a2, $a0, 3
+        beqz              $a1, 0f
+        slli.d            $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amxor_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a1, $a3, $a1
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_xor::bool::relaxed:
-        slli.d            $a2, $a0, 3
+        beqz              $a1, 0f
+        slli.d            $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amxor.w           $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor.w           $a3, $a2, $a0
+        srl.w             $a1, $a3, $a1
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd.b           $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_xor::bool::release:
-        slli.d            $a2, $a0, 3
+        beqz              $a1, 0f
+        slli.d            $a1, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amxor_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a1, $a3, $a1
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret

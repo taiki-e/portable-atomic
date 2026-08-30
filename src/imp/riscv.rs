@@ -30,6 +30,9 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
+// TODO: all size: and/or/xor/not (use x0 for out)
+// TODO: bool: RISC-V Zabha rm andi by using RegSize
+
 #[allow(unused_imports)]
 use core::sync::atomic::Ordering;
 
