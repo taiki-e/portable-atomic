@@ -1266,10 +1266,23 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        let x = self.as_atomic_u8().fetch_and(val as u8, order);
-        // SAFETY: we only store 0 or 1.
-        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
-        unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            if val {
+                // (x & true) == x
+                self.fetch_nop(order)
+            } else {
+                // (x & false) == false
+                self.swap(false, order)
+            }
+        }
+        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        {
+            let x = self.as_atomic_u8().fetch_and(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "and" with a boolean value.
@@ -1286,12 +1299,8 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_and` on some platforms.
     ///
-    /// - x86/x86_64: `lock and` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock and` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
     /// - MSP430: `and` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
     ///
     /// # Examples
     ///
@@ -1393,10 +1402,23 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        let x = self.as_atomic_u8().fetch_or(val as u8, order);
-        // SAFETY: we only store 0 or 1.
-        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
-        unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        {
+            if val {
+                // (x | true) == true
+                self.swap(true, order)
+            } else {
+                // (x | false) == x
+                self.fetch_nop(order)
+            }
+        }
+        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        {
+            let x = self.as_atomic_u8().fetch_or(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "or" with a boolean value.
@@ -1413,12 +1435,8 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
-    /// - x86/x86_64: `lock or` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock or` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
     /// - MSP430: `bis` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
     ///
     /// # Examples
     ///
@@ -1475,10 +1493,29 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        let x = self.as_atomic_u8().fetch_xor(val as u8, order);
-        // SAFETY: we only store 0 or 1.
-        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
-        unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[allow(clippy::redundant_else)]
+        {
+            if val {
+                #[cfg(all(
+                    not(any(miri, portable_atomic_sanitize_thread)),
+                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                ))]
+                cfg_core_atomic!({
+                    return self.as_atomic_u8().fetch_xor_bool_true();
+                });
+            } else {
+                // (x ^ false) == x
+                return self.fetch_nop(order);
+            }
+        }
+        #[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), allow(unreachable_code))]
+        {
+            let x = self.as_atomic_u8().fetch_xor(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "xor" with a boolean value.
@@ -1495,12 +1532,8 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock xor` instead of `lock xor; setz` / `lock xadd` / `cmpxchg` loop depending on the value
     /// - MSP430: `xor` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
     ///
     /// # Examples
     ///
@@ -1570,12 +1603,8 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
+    /// - x86/x86_64: `lock xor` instead of `lock xor; setz`
     /// - MSP430: `xor` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
     ///
     /// # Examples
     ///
@@ -1662,6 +1691,32 @@ impl AtomicBool {
             }
         }
         Err(prev)
+    }
+
+    // no-op RMW
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        // Avoid using non-asm fetch_{add,or}(0) (like https://github.com/rust-lang/rust/pull/119462 uses)
+        // due to LLVM bug: https://github.com/llvm/llvm-project/issues/101551
+        // See also src/imp/x86.rs.
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
+        #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
+        cfg_core_atomic!({
+            let _ = order;
+            let x = self.as_atomic_u8().fetch_nop();
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_u8_unchecked(x) };
+        });
+        #[allow(unreachable_code)]
+        {
+            let x = self.as_atomic_u8().fetch_and(1, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
     } // cfg_has_atomic_cas_or_amo32!
 
