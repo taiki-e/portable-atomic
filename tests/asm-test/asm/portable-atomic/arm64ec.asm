@@ -947,8 +947,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -957,9 +956,8 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -968,8 +966,7 @@
         ldaxrb            w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -978,8 +975,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -988,8 +984,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -998,8 +993,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -1008,9 +1002,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -1019,8 +1012,7 @@
         ldaxrb            w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -1029,8 +1021,7 @@
         ldxrb             w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -1039,8 +1030,7 @@
         ldxrb             w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -1050,8 +1040,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 1:
         mov               w8, #0x1                // =1
@@ -1060,8 +1049,7 @@
         stlxrb            w10, w8, [x0]
         cbnz              w10, 2b
         mov               w8, w9
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -1071,9 +1059,8 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 1:
         mov               w8, #0x1                // =1
@@ -1082,9 +1069,8 @@
         stlxrb            w10, w8, [x0]
         cbnz              w10, 2b
         mov               w8, w9
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -1094,8 +1080,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 1:
         mov               w8, #0x1                // =1
@@ -1104,8 +1089,7 @@
         stxrb             w10, w8, [x0]
         cbnz              w10, 2b
         mov               w8, w9
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -1115,8 +1099,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 1:
         mov               w8, #0x1                // =1
@@ -1125,8 +1108,7 @@
         stxrb             w10, w8, [x0]
         cbnz              w10, 2b
         mov               w8, w9
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -1136,8 +1118,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 1:
         mov               w8, #0x1                // =1
@@ -1146,8 +1127,7 @@
         stlxrb            w10, w8, [x0]
         cbnz              w10, 2b
         mov               w8, w9
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -3442,1458 +3422,1173 @@
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldxrb             w8, [x0]
-        cmp               w8, w1
+        ldxrb             w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, w1
+        ldaxrb            w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
+        mov               w8, w1
         mov               w9, w2
 0:
-        ldxrb             w8, [x0]
-        cmp               w8, w1
+        ldxrb             w1, [x0]
+        cmp               w1, w8
         b.ne              1f
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
-        mov               w9, #0x1                // =1
+        mov               w8, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
-        mov               w9, #0x1                // =1
+        mov               w8, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
-        mov               w9, #0x1                // =1
+        mov               w8, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
-        mov               w9, #0x1                // =1
+        mov               w8, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldxrb             w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
         eor               w0, wzr, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
-        b.ne              1f
-        stlxrb            w9, wzr, [x0]
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
-        mov               w9, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        ldxrb             w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldxrb             w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
+        ret
+1:
+        mov               w8, wzr
+        clrex
+        eor               w0, w8, #0x1
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
+        b.ne              1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+        mov               w8, #0x1                // =1
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
-        mov               w9, #0x1                // =1
+        mov               w8, #0x1                // =1
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
+        ret
+1:
+        eor               w0, wzr, #0x1
+        clrex
+        ret
+
+.text:
+0:
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        clrex
-        cmp               w8, #0x0
-        eor               w0, wzr, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-1:
-        mov               w9, wzr
-        clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
-        ret
-
-.text:
-0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stxrb             w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldxrb             w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stxrb             w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cmp               w8, #0x1
+        ldxrb             w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cmp               w8, #0x1
+        ldaxrb            w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cbnz              w8, 1f
-        mov               w9, #0x1                // =1
-        stlxrb            w10, w9, [x0]
-        cbnz              w10, 0b
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldxrb             w1, [x0]
+        cbnz              w1, 1f
+        mov               w8, #0x1                // =1
+        stlxrb            w9, w8, [x0]
+        cbnz              w9, 0b
+        eor               w0, w8, #0x1
         ret
 1:
-        mov               w9, wzr
+        mov               w8, wzr
         clrex
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cmp               w8, #0x1
+        ldxrb             w1, [x0]
+        cmp               w1, #0x1
         b.ne              1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
         dmb               ish
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cbnz              w8, 1f
-        stxrb             w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldxrb             w1, [x0]
+        cbnz              w1, 1f
+        stxrb             w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldaxrb            w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldaxrb            w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
 0:
-        ldxrb             w8, [x0]
-        cbnz              w8, 1f
-        stlxrb            w9, wzr, [x0]
-        cbnz              w9, 0b
-        mov               w9, #0x1                // =1
-        cmp               w8, #0x0
-        eor               w0, w9, #0x1
-        cset              w1, ne
+        ldxrb             w1, [x0]
+        cbnz              w1, 1f
+        stlxrb            w8, wzr, [x0]
+        cbnz              w8, 0b
+        mov               w8, #0x1                // =1
+        eor               w0, w8, #0x1
         ret
 1:
-        clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        clrex
         ret
 
 .text:
@@ -6737,15 +6432,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6757,20 +6450,17 @@
         cbnz              w10, 1f
         dmb               ish
         mov               w9, #0x1                // =1
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 1:
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6781,15 +6471,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6800,15 +6488,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6819,15 +6505,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6838,15 +6522,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6857,15 +6539,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6877,20 +6557,17 @@
         cbnz              w10, 1f
         dmb               ish
         mov               w9, #0x1                // =1
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 1:
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6902,20 +6579,17 @@
         cbnz              w10, 1f
         dmb               ish
         mov               w9, #0x1                // =1
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 1:
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6926,15 +6600,13 @@
         stxrb             w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6945,15 +6617,13 @@
         stxrb             w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6964,15 +6634,13 @@
         stxrb             w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -6983,15 +6651,13 @@
         stxrb             w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -7002,15 +6668,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -7021,15 +6685,13 @@
         stlxrb            w10, w9, [x0]
         cmp               w10, #0x0
         cset              w9, eq
-        cmp               w8, #0x0
         eor               w0, w9, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 0:
         clrex
-        cmp               w8, #0x0
         eor               w0, wzr, #0x1
-        cset              w1, ne
+        mov               w1, w8
         ret
 
 .text:
@@ -10802,21 +10464,15 @@
         ret
 
 .text:
-        ldarb             w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldarb             w0, [x0]
         ret
 
 .text:
-        ldarb             w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldarb             w0, [x0]
         ret
 
 .text:
-        ldrb              w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldrb              w0, [x0]
         ret
 
 .text:
@@ -11105,8 +10761,7 @@
         ldaxrb            w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11115,9 +10770,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -11125,8 +10779,7 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -11135,8 +10788,7 @@
         ldaxrb            w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11145,8 +10797,7 @@
         ldxrb             w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11155,8 +10806,7 @@
         ldxrb             w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11164,9 +10814,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -11174,8 +10823,7 @@
         ldaxrb            w8, [x0]
         stxrb             w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -11183,8 +10831,7 @@
         ldxrb             w8, [x0]
         stxrb             w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -11192,8 +10839,7 @@
         ldxrb             w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -11202,8 +10848,7 @@
         ldaxrb            w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11212,9 +10857,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -11223,8 +10867,7 @@
         ldaxrb            w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11233,8 +10876,7 @@
         ldxrb             w9, [x0]
         stxrb             w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -11243,8 +10885,7 @@
         ldxrb             w9, [x0]
         stlxrb            w10, w8, [x0]
         cbnz              w10, 0b
-        cmp               w9, #0x0
-        cset              w0, ne
+        and               w0, w9, #0x1
         ret
 
 .text:
@@ -12298,8 +11939,7 @@
         orr               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12308,9 +11948,8 @@
         orr               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -12318,8 +11957,7 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12328,8 +11966,7 @@
         orr               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12338,8 +11975,7 @@
         orr               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12348,8 +11984,7 @@
         orr               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12357,9 +11992,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -12367,8 +12001,7 @@
         ldaxrb            w8, [x0]
         stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12376,8 +12009,7 @@
         ldxrb             w8, [x0]
         stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12385,8 +12017,7 @@
         ldxrb             w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12395,8 +12026,7 @@
         orr               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12405,9 +12035,8 @@
         orr               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -12416,8 +12045,7 @@
         orr               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12426,8 +12054,7 @@
         orr               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -12436,8 +12063,7 @@
         orr               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14594,22 +14220,20 @@
 .text:
 0:
         ldaxrb            w8, [x0]
-        and               w9, w8, #0x1
+        and               x9, x8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
 0:
         ldaxrb            w8, [x0]
-        and               w9, w8, #0x1
+        and               x9, x8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -14617,38 +14241,34 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
 0:
         ldaxrb            w8, [x0]
-        and               w9, w8, #0x1
+        and               x9, x8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
 0:
         ldxrb             w8, [x0]
-        and               w9, w8, #0x1
+        and               x9, x8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
 0:
         ldxrb             w8, [x0]
-        and               w9, w8, #0x1
+        and               x9, x8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14656,9 +14276,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -14666,8 +14285,7 @@
         ldaxrb            w8, [x0]
         stxrb             w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14675,8 +14293,7 @@
         ldxrb             w8, [x0]
         stxrb             w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14684,8 +14301,7 @@
         ldxrb             w8, [x0]
         stlxrb            w9, wzr, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14694,8 +14310,7 @@
         and               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14704,9 +14319,8 @@
         and               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -14715,8 +14329,7 @@
         and               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14725,8 +14338,7 @@
         and               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -14735,8 +14347,7 @@
         and               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -16873,8 +16484,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -16883,9 +16493,8 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -16894,8 +16503,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -16904,8 +16512,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -16914,8 +16521,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18292,8 +17898,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18302,9 +17907,8 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -18312,8 +17916,7 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18322,8 +17925,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18332,8 +17934,7 @@
         eor               w9, w8, #0x1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18342,8 +17943,7 @@
         eor               w9, w8, #0x1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18351,9 +17951,8 @@
         ldaxrb            w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -18361,8 +17960,7 @@
         ldaxrb            w8, [x0]
         stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18370,8 +17968,7 @@
         ldxrb             w8, [x0]
         stxrb             w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18379,8 +17976,7 @@
         ldxrb             w8, [x0]
         stlxrb            w9, w8, [x0]
         cbnz              w9, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18389,8 +17985,7 @@
         eor               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18399,9 +17994,8 @@
         eor               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
+        and               w0, w8, #0x1
         dmb               ish
-        cset              w0, ne
         ret
 
 .text:
@@ -18410,8 +18004,7 @@
         eor               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18420,8 +18013,7 @@
         eor               w9, w8, w1
         stxrb             w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
@@ -18430,8 +18022,7 @@
         eor               w9, w8, w1
         stlxrb            w10, w9, [x0]
         cbnz              w10, 0b
-        cmp               w8, #0x0
-        cset              w0, ne
+        and               w0, w8, #0x1
         ret
 
 .text:
