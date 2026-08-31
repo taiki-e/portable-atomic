@@ -1797,377 +1797,529 @@ asm_test::compare_exchange::u16::release_relaxed:
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
@@ -2175,114 +2327,59 @@ asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
@@ -2290,39 +2387,19 @@ asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_true:
@@ -2330,39 +2407,19 @@ asm_test::compare_exchange::bool::acqrel_acquire_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
@@ -2370,84 +2427,42 @@ asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
@@ -2455,69 +2470,35 @@ asm_test::compare_exchange::bool::acquire_seqcst_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
@@ -2525,69 +2506,35 @@ asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #1,	r13	;r3 As==01
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_true:
@@ -2595,39 +2542,19 @@ asm_test::compare_exchange::bool::release_seqcst_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_true:
@@ -2635,39 +2562,19 @@ asm_test::compare_exchange::bool::seqcst_acquire_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
@@ -2675,84 +2582,40 @@ asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
@@ -2760,39 +2623,19 @@ asm_test::compare_exchange::bool::acquire_acquire_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_true:
@@ -2800,54 +2643,26 @@ asm_test::compare_exchange::bool::acquire_relaxed_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
@@ -2855,39 +2670,19 @@ asm_test::compare_exchange::bool::relaxed_acquire_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
@@ -2895,54 +2690,26 @@ asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
@@ -2950,39 +2717,19 @@ asm_test::compare_exchange::bool::release_acquire_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_true:
@@ -2990,174 +2737,82 @@ asm_test::compare_exchange::bool::release_relaxed_false_true:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             #0,	r13	;r3 As==00
-        jz                0f
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
-        ret
-0:
         mov.b             #1,	0(r12)	;r3 As==01
         nop
         mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        mov.b             r13,	r12	;
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        cmp.b             #1,	r13	;r3 As==01
-        jnz               0f
-        mov.b             #0,	0(r12)	;r3 As==00
-        nop
-        mov               r14,	r2	;
-        nop
-        clr.b             r12		;
-        ret
-0:
-        nop
-        mov               r14,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        mov.b             r13,	r12	;
+        xor.b             #1,	r12	;r3 As==01
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
-        mov               r2,	r14	;
-        dint
-        nop
-        mov.b             0(r12),	r13	;
-        nop
-        mov               r14,	r2	;
-        nop
-        cmp.b             #0,	r13	;r3 As==00
-        mov               r2,	r14	;
-        rra               r14		;
-        mov               #1,	r12	;r3 As==01
-        bic               r14,	r12	;
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r12	;
+        mov.b             r12,	r13	;
+        and.b             #1,	r13	;r3 As==01
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -3762,317 +3417,497 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         mov               r13,	r15	;
-        mov               r2,	r11	;
+        cmp.b             r14,	r15	;
+        jz                0f
+        cmp               #0,	r14	;r3 As==00
+        jz                1f
+        mov               r2,	r14	;
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
-        jnz               0f
-        mov.b             r14,	0(r12)	;
+        mov.b             #1,	0(r12)	;r3 As==01
         nop
-        mov               r11,	r2	;
+        mov               r14,	r2	;
         nop
-        clr.b             r12		;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 0:
-        nop
-        mov               r11,	r2	;
-        nop
-        mov.b             #1,	r12	;r3 As==01
+        and.b             #1,	0(r12)	;r3 As==01
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
+        ret
+1:
+        rra.b             0(r12)		;
+        mov               r2,	r13	;
+        xor.b             r13,	r15	;
+        and.b             #1,	r13	;r3 As==01
+        mov.b             r15,	r12	;
         ret
 
 asm_test::or::u8::acqrel_all:

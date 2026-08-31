@@ -977,6 +977,7 @@ cfg_sel!({
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
             ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
         )
     ))]
     #[cfg_attr(
@@ -1011,6 +1012,7 @@ cfg_sel!({
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
             ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
         )
     ))]
     {
