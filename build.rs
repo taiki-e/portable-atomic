@@ -68,7 +68,7 @@ fn main() {
         // TODO: handle multi-line emit_target_feature_fallback
         // grep -F 'emit_target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*emit_target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","interlocked-access1","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","interlocked-access1","lam-bh","lamcas","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
         );
         println!(
             r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_cpu,values("esp32","esp32s3"))"#
@@ -757,6 +757,36 @@ fn main() {
             emit_target_feature_fallback("distinct-ops", distinct_ops);
             // la{n,o,x}
             emit_target_feature_fallback("interlocked-access1", interlocked_access1);
+        }
+        "loongarch64" => {
+            // target_feature "lam-bh"/"lamcas" is available as unstable on rustc side
+            // since nightly-2025-03-16 (https://github.com/rust-lang/rust/pull/138056),
+            // and stabilized in Rust 1.97 (https://github.com/rust-lang/rust/pull/154510).
+            if version.llvm >= 20
+                && (!version.probe(87, 2025, 3, 15)
+                    || needs_target_feature_fallback(&version, Some(97)))
+            {
+                let mut lam_bh = false;
+                let mut lamcas = false;
+                // Note that `-C target-cpu=native` is currently ignored.
+                if let Some(cpu) = rustflags.target_cpu {
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0/llvm/lib/Target/LoongArch/LoongArch.td#L166
+                    if generated::LOONGARCH64_LAM_BH_LAMCAS_CPU.contains(&cpu) {
+                        lam_bh = true;
+                        lamcas = true;
+                    }
+                }
+                for &(enabled, name) in &rustflags.target_feature {
+                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L904
+                    match name {
+                        b"lam-bh" => lam_bh = enabled,
+                        b"lamcas" => lamcas = enabled,
+                        _ => {}
+                    }
+                }
+                emit_target_feature_fallback("lam-bh", lam_bh);
+                emit_target_feature_fallback("lamcas", lamcas);
+            }
         }
         "avr" => {
             // target_feature "rmw" is unstable and available on rustc side since nightly-2026-02-08: https://github.com/rust-lang/rust/pull/146900
