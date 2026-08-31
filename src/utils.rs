@@ -764,6 +764,31 @@ pub(crate) const fn zero_extend64_ptr(v: *mut ()) -> core::mem::MaybeUninit<u64>
 }
 
 #[allow(dead_code)]
+pub(crate) trait ZeroExtend: Copy {
+    /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
+    fn zero_extend(self) -> u32;
+}
+macro_rules! zero_extend {
+    ($int:ident, $uint:ident) => {
+        impl ZeroExtend for $uint {
+            #[inline(always)]
+            fn zero_extend(self) -> u32 {
+                self as u32
+            }
+        }
+        impl ZeroExtend for $int {
+            #[allow(clippy::cast_sign_loss)]
+            #[inline(always)]
+            fn zero_extend(self) -> u32 {
+                self as $uint as u32
+            }
+        }
+    };
+}
+zero_extend!(i8, u8);
+zero_extend!(i16, u16);
+
+#[allow(dead_code)]
 #[cfg(any(
     target_arch = "aarch64",
     target_arch = "arm64ec",
@@ -817,16 +842,16 @@ pub(crate) struct Pair<T: Copy> {
     pub(crate) lo: T,
 }
 
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
 type MinWord = u32;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
 type RetInt = u32;
-// Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.6/src/utils.rs#L255.
+// Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.21/src/utils.rs#L630.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
 // Refs: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/CodeGen/AtomicExpandPass.cpp#L811
 // (aligned_ptr, shift, mask)
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
@@ -835,11 +860,11 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
     #[cfg(portable_atomic_no_strict_provenance)]
     use self::ptr::PtrExt as _;
 
-    // RISC-V, MIPS, SPARC, LoongArch, Xtensa, BPF: shift amount of 32-bit shift instructions is 5 bits unsigned (0-31).
-    // PowerPC, C-SKY: shift amount of 32-bit shift instructions is 6 bits unsigned (0-63) and shift amount 32-63 means "clear".
+    // BPF, LoongArch, MIPS, RISC-V, SPARC, Xtensa: shift amount of 32-bit shift instructions is 5 bits unsigned (0-31).
+    // C-SKY, PowerPC, s390x: shift amount of 32-bit shift instructions is 6 bits unsigned (0-63) and shift amount 32-63 means "clear".
+    // On s390x, we use 32-bit rotate instructions instead.
     // Arm: shift amount of 32-bit shift instructions is 8 bits unsigned (0-255).
     // Hexagon: shift amount of 32-bit shift instructions is 7 bits signed (-64-63) and negative shift amount means "reverse the direction of the shift".
-    // (On s390x, we don't use the mask returned from this function.)
     // (See also https://devblogs.microsoft.com/oldnewthing/20230904-00/?p=108704 for others)
     const SHIFT_MASK: bool = !cfg!(any(
         target_arch = "bpf",
@@ -856,20 +881,22 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
         target_arch = "sparc64",
         target_arch = "xtensa",
     ));
-    let ptr_mask = mem::size_of::<MinWord>() - 1;
-    let aligned_ptr = ptr.with_addr(ptr.addr() & !ptr_mask) as *mut MinWord;
+    const PTR_MASK: usize = mem::size_of::<MinWord>() - 1;
+    const PTR_INV_MASK: usize = !PTR_MASK;
+    let aligned_ptr = ptr.with_addr(ptr.addr() & PTR_INV_MASK) as *mut MinWord;
     let ptr_lsb = if SHIFT_MASK {
-        ptr.addr() & ptr_mask
+        ptr.addr() & PTR_MASK
     } else {
-        // We use 32-bit wrapping shift instructions in asm on these platforms.
+        // We use 32-bit wrapping shift/rotate instructions in asm on these platforms.
         ptr.addr()
     };
+    // On s390x, we use 32-bit rotate instructions instead.
     let shift = if cfg!(any(target_endian = "little", target_arch = "s390x")) {
-        ptr_lsb.wrapping_mul(8)
+        ptr_lsb << 3
     } else {
-        (ptr_lsb ^ (mem::size_of::<MinWord>() - mem::size_of::<T>())).wrapping_mul(8)
+        (ptr_lsb ^ (mem::size_of::<MinWord>() - mem::size_of::<T>())) << 3
     };
-    let mut mask: RetInt = (1 << (mem::size_of::<T>() * 8)) - 1; // !(0 as T) as RetInt
+    let mut mask: RetInt = (1 << (mem::size_of::<T>() << 3)) - 1; // !(0 as T) as RetInt
     if SHIFT_MASK {
         mask <<= shift;
     }

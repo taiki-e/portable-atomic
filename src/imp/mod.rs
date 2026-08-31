@@ -51,6 +51,15 @@ pub(crate) mod msp430;
 #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 mod riscv;
 
+// s390x-specific optimizations
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(
+    target_arch = "s390x",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+))]
+mod s390x;
+
 // x86-specific optimizations
 // Miri and Sanitizer do not support inline assembly.
 #[cfg(all(
