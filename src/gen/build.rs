@@ -84,6 +84,9 @@ pub(crate) static POWERPC_QUADWORD_ATOMICS_CPU: &[&str] = &[
     "pwr8",
     "pwr9",
 ];
+pub(crate) static LOONGARCH64_LAM_BH_LAMCAS_CPU: &[&str] = &[
+    "la664",
+];
 pub(crate) static AVR_RMW_CPU: &[&str] = &[
     "atxmega128a1u",
     "atxmega128a3u",

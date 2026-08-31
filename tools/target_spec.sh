@@ -209,6 +209,27 @@ while IFS= read -r cpu; do
   fi
 done < <(grep -E '^    ' <<<"${cpus}" | sed -E 's/^    //g; s/ .*//g; /^native$/d')
 
+target=loongarch64-unknown-linux-gnu
+loongarch64_lam_bh=()
+loongarch64_lamcas=()
+cpus=$(rustc --print target-cpus --target "${target}")
+while IFS= read -r cpu; do
+  cfgs=$(rustc --print cfg --target "${target}" -C target-cpu="${cpu}")
+  target_features=$(grep -E '^target_feature=' <<<"${cfgs}" || true)
+  if [[ "${target_features}" == *"\"lam-bh\""* ]]; then
+    loongarch64_lam_bh+=("${cpu}")
+  fi
+  if [[ "${target_features}" == *"\"lamcas\""* ]]; then
+    loongarch64_lamcas+=("${cpu}")
+  fi
+done < <(grep -E '^    ' <<<"${cpus}" | sed -E 's/^    //g; s/ .*//g; /^native$/d')
+if [[ "${loongarch64_lam_bh[*]}" != "${loongarch64_lamcas[*]}" ]]; then
+  bail "loongarch64_lam_bh and loongarch64_lamcas cannot be merged"
+fi
+loongarch64_lam_bh_lamcas=("${loongarch64_lam_bh[@]}")
+unset loongarch64_lam_bh
+unset loongarch64_lamcas
+
 target=avr-none
 avr_rmw=()
 cpus=$(rustc --print target-cpus --target "${target}")
@@ -226,6 +247,7 @@ no_atomic_cas=($(LC_ALL=C sort -u <<<"${no_atomic_cas[*]}" | sed -E 's/^/    "/g
 no_atomic_64=($(LC_ALL=C sort -u <<<"${no_atomic_64[*]}" | sed -E 's/^/    "/g; s/$/",/g; /^ *"",/d'))
 no_atomic=($(LC_ALL=C sort -u <<<"${no_atomic[*]}" | sed -E 's/^/    "/g; s/$/",/g; /^ *"",/d'))
 powerpc_quadword_atomics=($(LC_ALL=C sort -u <<<"${powerpc_quadword_atomics[*]}" | sed -E 's/^/    "/g; s/$/",/g; /^ *"",/d'))
+loongarch64_lam_bh_lamcas=($(LC_ALL=C sort -u <<<"${loongarch64_lam_bh_lamcas[*]}" | sed -E 's/^/    "/g; s/$/",/g; /^ *"",/d'))
 avr_rmw=($(LC_ALL=C sort -u <<<"${avr_rmw[*]}" | sed -E 's/^/    "/g; s/$/",/g; /^ *"",/d'))
 IFS=$'\n\t'
 
@@ -260,4 +282,5 @@ EOF
 }
 print_list NO_ATOMIC "${no_atomic[@]}"
 print_list POWERPC_QUADWORD_ATOMICS_CPU "${powerpc_quadword_atomics[@]}"
+print_list LOONGARCH64_LAM_BH_LAMCAS_CPU "${loongarch64_lam_bh_lamcas[@]}"
 print_list AVR_RMW_CPU "${avr_rmw[@]}"
