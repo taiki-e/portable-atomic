@@ -777,6 +777,9 @@ build() {
       CARGO_TARGET_DIR="${target_dir}/z196" \
         RUSTFLAGS="${target_rustflags} -C target-cpu=z196" \
         x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/zec12" \
+        RUSTFLAGS="${target_rustflags} -C target-cpu=zEC12" \
+        x_cargo "${args[@]}" "$@"
       CARGO_TARGET_DIR="${target_dir}/z15" \
         RUSTFLAGS="${target_rustflags} -C target-cpu=z15" \
         x_cargo "${args[@]}" "$@"

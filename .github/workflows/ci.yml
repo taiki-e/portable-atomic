@@ -332,6 +332,12 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
         if: startsWith(matrix.target, 's390x')
+      # s390x zEC12 (arch10)
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=zEC12
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=zEC12
+        if: startsWith(matrix.target, 's390x')
       # s390x z15 (arch13)
       - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
         env:
@@ -1391,6 +1397,12 @@ jobs:
         env:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z196
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z196
+        if: startsWith(matrix.target, 's390x')
+      # s390x zEC12 (arch10)
+      - run: tools/test.sh "${VALGRIND}" -vv ${TARGET:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=zEC12
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=zEC12
         if: startsWith(matrix.target, 's390x')
       # s390x z15 (arch13)
       - run: tools/test.sh "${VALGRIND}" -vv ${TARGET:-}
