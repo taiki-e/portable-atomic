@@ -938,23 +938,13 @@ asm_test::fetch_nand::u64::release:
         ret
 
 asm_test::fetch_nand::bool::acqrel_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_nand::bool::seqcst_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_nand::bool::acqrel_false:
@@ -963,33 +953,18 @@ asm_test::fetch_nand::bool::acqrel_false:
         ret
 
 asm_test::fetch_nand::bool::acquire_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_nand::bool::relaxed_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_nand::bool::release_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_nand::bool::seqcst_false:
@@ -1014,80 +989,55 @@ asm_test::fetch_nand::bool::release_false:
 
 asm_test::fetch_nand::bool::acqrel:
         test              esi, esi
-        je                1f
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr [rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
-1:
+0:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_nand::bool::seqcst:
         test              esi, esi
-        je                1f
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr [rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
-1:
+0:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_nand::bool::acquire:
         test              esi, esi
-        je                1f
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr [rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
-1:
+0:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_nand::bool::relaxed:
         test              esi, esi
-        je                1f
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr [rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
-1:
+0:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_nand::bool::release:
         test              esi, esi
-        je                1f
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr [rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
-1:
+0:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
         ret
@@ -8436,128 +8386,108 @@ asm_test::fetch_or::u64::release:
         ret
 
 asm_test::fetch_or::bool::acqrel_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        or                cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::seqcst_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        or                cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::acqrel_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::acquire_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        or                cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::relaxed_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        or                cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::release_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        or                cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::seqcst_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::acquire_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::relaxed_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::release_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::acqrel:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        or                cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::seqcst:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        or                cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::acquire:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        or                cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::relaxed:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        or                cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::bool::release:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        mov               al, 0x1
+        xchg              byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        or                cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_or::u128::acqrel_all:
@@ -10276,23 +10206,13 @@ asm_test::fetch_and::u64::release:
         ret
 
 asm_test::fetch_and::bool::acqrel_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        and               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::seqcst_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        and               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::acqrel_false:
@@ -10301,33 +10221,18 @@ asm_test::fetch_and::bool::acqrel_false:
         ret
 
 asm_test::fetch_and::bool::acquire_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        and               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::relaxed_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        and               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::release_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        and               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::seqcst_false:
@@ -10351,53 +10256,53 @@ asm_test::fetch_and::bool::release_false:
         ret
 
 asm_test::fetch_and::bool::acqrel:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        xor               eax, eax
+        test              esi, esi
+        je                0f
+        lock xadd         byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        and               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::seqcst:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        xor               eax, eax
+        test              esi, esi
+        je                0f
+        lock xadd         byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        and               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::acquire:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        xor               eax, eax
+        test              esi, esi
+        je                0f
+        lock xadd         byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        and               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::relaxed:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        xor               eax, eax
+        test              esi, esi
+        je                0f
+        lock xadd         byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        and               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::bool::release:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        xor               eax, eax
+        test              esi, esi
+        je                0f
+        lock xadd         byte ptr [rdi], al
+        ret
 0:
-        mov               ecx, eax
-        and               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::fetch_and::u128::acqrel_all:
@@ -12101,53 +12006,28 @@ asm_test::fetch_not::u64::release:
         ret
 
 asm_test::fetch_not::bool::acqrel:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_not::bool::seqcst:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_not::bool::acquire:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_not::bool::relaxed:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_not::bool::release:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_not::u128::acqrel:
@@ -13111,128 +12991,108 @@ asm_test::fetch_xor::u64::release:
         ret
 
 asm_test::fetch_xor::bool::acqrel_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_xor::bool::seqcst_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_xor::bool::acqrel_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::acquire_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_xor::bool::relaxed_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_xor::bool::release_true:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
-0:
-        mov               ecx, eax
-        xor               cl, 0x1
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
         ret
 
 asm_test::fetch_xor::bool::seqcst_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::acquire_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::relaxed_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::release_false:
-        lock or           dword ptr [rsp - 0x40], 0x0
-        movzx             eax, byte ptr [rdi]
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::acqrel:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
+        ret
 0:
-        mov               ecx, eax
-        xor               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::seqcst:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
+        ret
 0:
-        mov               ecx, eax
-        xor               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::acquire:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
+        ret
 0:
-        mov               ecx, eax
-        xor               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::relaxed:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
+        ret
 0:
-        mov               ecx, eax
-        xor               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::bool::release:
-        movzx             eax, byte ptr [rdi]
-        nop               word ptr cs:[rax + rax]
+        test              esi, esi
+        je                0f
+        lock xor          byte ptr [rdi], 0x1
+        sete              al
+        ret
 0:
-        mov               ecx, eax
-        xor               cl, sil
-        lock cmpxchg      byte ptr [rdi], cl
-        jne               0b
+        xor               eax, eax
+        lock xadd         byte ptr [rdi], al
         ret
 
 asm_test::fetch_xor::u128::acqrel_zero:
