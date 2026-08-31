@@ -338,6 +338,13 @@ jobs:
           RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-cpu=z15
           RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-cpu=z15
         if: startsWith(matrix.target, 's390x')
+      # loongarch64 v1.1
+      - run: tools/test.sh -vv --tests ${TARGET:-} ${BUILD_STD:-}
+        env:
+          RUSTDOCFLAGS: ${{ env.RUSTDOCFLAGS }} -C target-feature=+lam-bh,+lamcas,+scq
+          RUSTFLAGS: ${{ env.RUSTFLAGS }} -C target-feature=+lam-bh,+lamcas,+scq
+          QEMU_CPU: max
+        if: startsWith(matrix.target, 'loongarch64') && !startsWith(matrix.rust, '1.7') && !startsWith(matrix.rust, 'nightly-2023')
 
       # Skip targets that also checked by "build" job.
       - run: tools/build.sh "${TARGET}"

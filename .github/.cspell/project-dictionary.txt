@@ -5,6 +5,7 @@ aeabi
 aghi
 alcgr
 algr
+amadd
 amocas
 andi
 aqrl

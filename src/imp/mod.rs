@@ -28,6 +28,15 @@ mod avr;
 ))]
 pub(crate) mod arm_linux;
 
+// LoongArch64-specific optimizations
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(
+    target_arch = "loongarch64",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(portable_atomic_no_asm),
+))]
+mod loongarch64;
+
 // MSP430
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
