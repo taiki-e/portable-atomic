@@ -781,6 +781,205 @@ impl std::panic::RefUnwindSafe for AtomicBool {}
 
 impl_debug_and_serde!(AtomicBool);
 
+cfg_sel!({
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+                not(all(
+                    portable_atomic_no_atomic_cas,
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+                not(all(
+                    not(target_has_atomic = "ptr"),
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_swap {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_swap {
+            ($($tt:tt)*) => {};
+        }
+    }
+    #[cfg(else)]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_swap {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_swap {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+    }
+});
+cfg_sel!({
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(all(
+                    any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                    any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                    not(portable_atomic_no_atomic_cas), // see top-level comment in src/imp/riscv.rs.
+                    not(portable_atomic_pre_llvm_20),
+                )),
+                not(all(
+                    portable_atomic_no_atomic_cas,
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(all(
+                    any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                    any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                    target_has_atomic = "ptr", // see top-level comment in src/imp/riscv.rs.
+                    not(portable_atomic_pre_llvm_20),
+                )),
+                not(all(
+                    not(target_has_atomic = "ptr"),
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch32",
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+    }
+    #[cfg(else)]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+    }
+});
+
 impl AtomicBool {
     /// Creates a new `AtomicBool`.
     ///
@@ -1024,43 +1223,13 @@ impl AtomicBool {
                 return self.fetch_and(false, order);
             }
         }
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-        ))]
-        {
+        cfg_emulate_bool_swap! {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-        )))]
-        {
+        cfg_no_emulate_bool_swap! {
             let x = self.as_atomic_u8().swap(val as u8, order);
             // SAFETY: we only store 0 or 1.
             // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
@@ -1117,27 +1286,7 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-            all(
-                target_arch = "avr",
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-                not(feature = "critical-section"),
-            ),
-        ))]
-        {
+        cfg_emulate_bool_cas! {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
@@ -1153,27 +1302,7 @@ impl AtomicBool {
             };
             if old == current { Ok(old) } else { Err(old) }
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-            all(
-                target_arch = "avr",
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-                not(feature = "critical-section"),
-            ),
-        )))]
-        {
+        cfg_no_emulate_bool_cas! {
             match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
                 // SAFETY: we only store 0 or 1.
                 // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
@@ -1233,53 +1362,13 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-            all(
-                target_arch = "avr",
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-                not(feature = "critical-section"),
-            ),
-        ))]
-        {
+        cfg_emulate_bool_cas! {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
             self.compare_exchange(current, new, success, failure)
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-            all(
-                target_arch = "s390x",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
-                any(
-                    target_feature = "interlocked-access1",
-                    portable_atomic_target_feature = "interlocked-access1",
-                ),
-            ),
-            all(
-                target_arch = "avr",
-                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
-                not(feature = "critical-section"),
-            ),
-        )))]
-        {
+        cfg_no_emulate_bool_cas! {
             match self
                 .as_atomic_u8()
                 .compare_exchange_weak(current as u8, new as u8, success, failure)

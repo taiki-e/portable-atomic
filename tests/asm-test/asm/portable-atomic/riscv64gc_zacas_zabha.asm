@@ -1005,7 +1005,7 @@ asm_test::fetch_nand::bool::seqcst_true:
 
 asm_test::fetch_nand::bool::acqrel_false:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         zext.b            a0, a0
         ret
 
@@ -1029,25 +1029,25 @@ asm_test::fetch_nand::bool::release_true:
 
 asm_test::fetch_nand::bool::seqcst_false:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::fetch_nand::bool::acquire_false:
         li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
+        amoswap.b.aq      a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::fetch_nand::bool::relaxed_false:
         li                a1, 0x1
-        amoor.b           a0, a1, (a0)
+        amoswap.b         a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::fetch_nand::bool::release_false:
         li                a1, 0x1
-        amoor.b.rl        a0, a1, (a0)
+        amoswap.b.rl      a0, a1, (a0)
         zext.b            a0, a0
         ret
 
@@ -1059,7 +1059,7 @@ asm_test::fetch_nand::bool::acqrel:
         ret
 0:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         andi              a0, a0, 0x1
         ret
 
@@ -1071,7 +1071,7 @@ asm_test::fetch_nand::bool::seqcst:
         ret
 0:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         andi              a0, a0, 0x1
         ret
 
@@ -1083,7 +1083,7 @@ asm_test::fetch_nand::bool::acquire:
         ret
 0:
         li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
+        amoswap.b.aq      a0, a1, (a0)
         andi              a0, a0, 0x1
         ret
 
@@ -1095,7 +1095,7 @@ asm_test::fetch_nand::bool::relaxed:
         ret
 0:
         li                a1, 0x1
-        amoor.b           a0, a1, (a0)
+        amoswap.b         a0, a1, (a0)
         andi              a0, a0, 0x1
         ret
 
@@ -1107,7 +1107,7 @@ asm_test::fetch_nand::bool::release:
         ret
 0:
         li                a1, 0x1
-        amoor.b.rl        a0, a1, (a0)
+        amoswap.b.rl      a0, a1, (a0)
         andi              a0, a0, 0x1
         ret
 
@@ -2707,603 +2707,553 @@ asm_test::compare_exchange::u64::release_relaxed:
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b           a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b           a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b         a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b          a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.rl        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.rl        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.rl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.rl       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
-        amoor.b.aq        a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
-        amoor.b.aq        a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
-        amoor.b.aq        a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
-        amoor.b           a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b          a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
-        amoor.b.aqrl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
-        amoor.b.rl        a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.rl       a1, a1, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
-        li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aq       a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_false:
-        amoswap.b.aq      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_true:
-        li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aq       a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_false:
-        amoswap.b.aq      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
-        li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aq       a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_false:
-        amoswap.b.aq      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aq       a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
-        li                a1, 0x1
-        amoor.b           a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b          a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
-        amoswap.b         a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b          a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.aqrl     a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_false:
-        amoswap.b.aqrl    a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.aqrl     a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_true:
-        li                a1, 0x1
-        amoor.b.rl        a0, a1, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        li                a2, 0x1
+        amocas.b.rl       a1, a2, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_false:
-        amoswap.b.rl      a1, zero, (a0)
-        xori              a0, a1, 0x1
+        li                a1, 0x1
+        amocas.b.rl       a1, zero, (a0)
+        addi              a0, a1, -0x1
+        snez              a0, a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        fence             rw, rw
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
-        amoor.b.aq        a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aq       a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
-        amoor.b.aq        a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aq       a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
-        amoor.b.aq        a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aq       a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
-        amoor.b           a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b          a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
-        amoor.b.aqrl      a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.aqrl     a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
-        amoor.b.rl        a0, zero, (a0)
-        mv                a1, a0
+        li                a1, 0x0
+        amocas.b.rl       a1, zero, (a0)
+        snez              a0, a1
         ret
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
@@ -4422,288 +4372,128 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        fence             rw, rw
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aq        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aq        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aq      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aq       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b           a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b           a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b         a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b          a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.aqrl      a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.aqrl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.aqrl    a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.aqrl     a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
-        beq               a1, a2, 0f
-        beqz              a2, 1f
-        li                a2, 0x1
-        amoor.b.rl        a2, a2, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-0:
-        amoor.b.rl        a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
-        ret
-1:
-        amoswap.b.rl      a2, zero, (a0)
-        xor               a0, a1, a2
-        mv                a1, a2
+        mv                a3, a1
+        amocas.b.rl       a3, a2, (a0)
+        xor               a1, a1, a3
+        snez              a0, a1
+        mv                a1, a3
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
@@ -7994,13 +7784,13 @@ asm_test::swap::u64::release:
 
 asm_test::swap::bool::acqrel_true:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::swap::bool::seqcst_true:
         li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
+        amoswap.b.aqrl    a0, a1, (a0)
         zext.b            a0, a0
         ret
 
@@ -8011,19 +7801,19 @@ asm_test::swap::bool::acqrel_false:
 
 asm_test::swap::bool::acquire_true:
         li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
+        amoswap.b.aq      a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::swap::bool::relaxed_true:
         li                a1, 0x1
-        amoor.b           a0, a1, (a0)
+        amoswap.b         a0, a1, (a0)
         zext.b            a0, a0
         ret
 
 asm_test::swap::bool::release_true:
         li                a1, 0x1
-        amoor.b.rl        a0, a1, (a0)
+        amoswap.b.rl      a0, a1, (a0)
         zext.b            a0, a0
         ret
 
@@ -8048,58 +7838,28 @@ asm_test::swap::bool::release_false:
         ret
 
 asm_test::swap::bool::acqrel:
-        beqz              a1, 0f
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        andi              a0, a0, 0x1
-        ret
-0:
-        amoswap.b.aqrl    a0, zero, (a0)
-        andi              a0, a0, 0x1
+        amoswap.b.aqrl    a0, a1, (a0)
+        zext.b            a0, a0
         ret
 
 asm_test::swap::bool::seqcst:
-        beqz              a1, 0f
-        li                a1, 0x1
-        amoor.b.aqrl      a0, a1, (a0)
-        andi              a0, a0, 0x1
-        ret
-0:
-        amoswap.b.aqrl    a0, zero, (a0)
-        andi              a0, a0, 0x1
+        amoswap.b.aqrl    a0, a1, (a0)
+        zext.b            a0, a0
         ret
 
 asm_test::swap::bool::acquire:
-        beqz              a1, 0f
-        li                a1, 0x1
-        amoor.b.aq        a0, a1, (a0)
-        andi              a0, a0, 0x1
-        ret
-0:
-        amoswap.b.aq      a0, zero, (a0)
-        andi              a0, a0, 0x1
+        amoswap.b.aq      a0, a1, (a0)
+        zext.b            a0, a0
         ret
 
 asm_test::swap::bool::relaxed:
-        beqz              a1, 0f
-        li                a1, 0x1
-        amoor.b           a0, a1, (a0)
-        andi              a0, a0, 0x1
-        ret
-0:
-        amoswap.b         a0, zero, (a0)
-        andi              a0, a0, 0x1
+        amoswap.b         a0, a1, (a0)
+        zext.b            a0, a0
         ret
 
 asm_test::swap::bool::release:
-        beqz              a1, 0f
-        li                a1, 0x1
-        amoor.b.rl        a0, a1, (a0)
-        andi              a0, a0, 0x1
-        ret
-0:
-        amoswap.b.rl      a0, zero, (a0)
-        andi              a0, a0, 0x1
+        amoswap.b.rl      a0, a1, (a0)
+        zext.b            a0, a0
         ret
 
 asm_test::swap::u128::acqrel:
