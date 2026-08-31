@@ -782,6 +782,7 @@ impl std::panic::RefUnwindSafe for AtomicBool {}
 impl_debug_and_serde!(AtomicBool);
 
 cfg_sel!({
+    // Architectures without 8-bit swap instruction, but with fetch_{and,or} instructions.
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
@@ -875,17 +876,75 @@ cfg_sel!({
     }
 });
 cfg_sel!({
+    // Architectures with 8-bit CAS instruction without setting flags.
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                not(portable_atomic_no_atomic_cas), // see top-level comment in src/imp/riscv.rs.
+                not(portable_atomic_pre_llvm_20),
+            ),
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas"),
+            ),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                target_has_atomic = "ptr", // see top-level comment in src/imp/riscv.rs.
+                not(portable_atomic_pre_llvm_20),
+            ),
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas"),
+            ),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
+    }
+    // Architectures without 8-bit CAS instruction, but with fetch_{and,or} instructions.
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(
             all(
                 any(target_arch = "riscv32", target_arch = "riscv64"),
-                not(all(
-                    any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
-                    any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
-                    not(portable_atomic_no_atomic_cas), // see top-level comment in src/imp/riscv.rs.
-                    not(portable_atomic_pre_llvm_20),
-                )),
                 not(all(
                     portable_atomic_no_atomic_cas,
                     any(
@@ -898,10 +957,7 @@ cfg_sel!({
                     ),
                 )),
             ),
-            all(
-                target_arch = "loongarch64",
-                not(any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas")),
-            ),
+            target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
@@ -924,12 +980,6 @@ cfg_sel!({
             all(
                 any(target_arch = "riscv32", target_arch = "riscv64"),
                 not(all(
-                    any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
-                    any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
-                    target_has_atomic = "ptr", // see top-level comment in src/imp/riscv.rs.
-                    not(portable_atomic_pre_llvm_20),
-                )),
-                not(all(
                     not(target_has_atomic = "ptr"),
                     any(
                         feature = "critical-section",
@@ -941,10 +991,7 @@ cfg_sel!({
                     ),
                 )),
             ),
-            all(
-                target_arch = "loongarch64",
-                not(any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas")),
-            ),
+            target_arch = "loongarch64",
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
@@ -972,6 +1019,16 @@ cfg_sel!({
         macro_rules! cfg_no_emulate_bool_cas {
             ($($tt:tt)*) => {};
         }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
     }
     #[cfg(else)]
     {
@@ -981,6 +1038,16 @@ cfg_sel!({
         }
         #[allow(unused_macros)]
         macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
             ($($tt:tt)*) => {
                 $($tt)*
             };
@@ -1324,13 +1391,29 @@ impl AtomicBool {
             if old == current { Ok(old) } else { Err(old) }
         }
         cfg_no_emulate_bool_cas! {
-            match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
-                // SAFETY: we only store 0 or 1.
-                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
-                Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
-                // SAFETY: we only store 0 or 1.
-                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
-                Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+            cfg_emulate_bool_weak_cas! {
+                let old = match self
+                    .as_atomic_u8()
+                    .compare_exchange(current as u8, new as u8, success, failure)
+                {
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Ok(x) | Err(x) => unsafe { crate::utils::bool_from_u8_unchecked(x) },
+                };
+                if old == current { Ok(old) } else { Err(old) }
+            }
+            cfg_no_emulate_bool_weak_cas! {
+                match self
+                    .as_atomic_u8()
+                    .compare_exchange(current as u8, new as u8, success, failure)
+                {
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                }
             }
         }
     }
@@ -1383,10 +1466,10 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        cfg_emulate_bool_cas! {
+        cfg_emulate_bool_weak_cas! {
             self.compare_exchange(current, new, success, failure)
         }
-        cfg_no_emulate_bool_cas! {
+        cfg_no_emulate_bool_weak_cas! {
             match self
                 .as_atomic_u8()
                 .compare_exchange_weak(current as u8, new as u8, success, failure)
