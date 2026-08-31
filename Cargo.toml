@@ -111,6 +111,7 @@ unexpected_cfgs = { level = "warn", check-cfg = [
     'cfg(target_feature,values("quadword-atomics"))', # 1.83+ https://github.com/rust-lang/rust/pull/130873
     'cfg(target_feature,values("zaamo","zabha"))', # 1.83+ https://github.com/rust-lang/rust/pull/130877
     'cfg(target_feature,values("zacas"))', # 1.87+ https://github.com/rust-lang/rust/pull/137417
+    'cfg(target_feature,values("lam-bh","lamcas"))', # 1.87+ https://github.com/rust-lang/rust/pull/138056
     'cfg(target_feature,values("ztso"))', # 1.88+ https://github.com/rust-lang/rust/pull/139440
     'cfg(target_feature,values("miscellaneous-extensions-3"))', # 1.89+ https://github.com/rust-lang/rust/pull/141250
     'cfg(target_feature,values("rmw"))', # 1.95+ https://github.com/rust-lang/rust/pull/146900
