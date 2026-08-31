@@ -800,7 +800,10 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch64",
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh")),
+            ),
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
@@ -830,7 +833,10 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch64",
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh")),
+            ),
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
@@ -892,7 +898,10 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch64",
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas")),
+            ),
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
@@ -932,7 +941,10 @@ cfg_sel!({
                     ),
                 )),
             ),
-            target_arch = "loongarch64",
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas")),
+            ),
             all(
                 target_arch = "s390x",
                 not(any(miri, portable_atomic_sanitize_thread)),
