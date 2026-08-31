@@ -95,6 +95,8 @@ items!({
 
     #[cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))]
     items!({
+        use crate::utils::ZeroExtend;
+
         #[cfg(target_arch = "riscv32")]
         macro_rules! w {
             () => {
@@ -143,30 +145,6 @@ items!({
                 }
             };
         }
-
-        trait ZeroExtend: Copy {
-            /// Zero-extends `self` to `u32` if it is smaller than 32-bit.
-            fn zero_extend(self) -> u32;
-        }
-        macro_rules! zero_extend {
-            ($int:ident, $uint:ident) => {
-                impl ZeroExtend for $uint {
-                    #[inline(always)]
-                    fn zero_extend(self) -> u32 {
-                        self as u32
-                    }
-                }
-                impl ZeroExtend for $int {
-                    #[allow(clippy::cast_sign_loss)]
-                    #[inline(always)]
-                    fn zero_extend(self) -> u32 {
-                        self as $uint as u32
-                    }
-                }
-            };
-        }
-        zero_extend!(i8, u8);
-        zero_extend!(i16, u16);
     });
 });
 
@@ -413,8 +391,7 @@ macro_rules! atomic_sub_word {
                             let (dst, shift, mut mask) =
                                 crate::utils::create_sub_word_mask_values(dst);
                             mask = !sllw(mask, shift);
-                            let mut val = sllw(ZeroExtend::zero_extend(val), shift);
-                            val |= mask;
+                            let val = sllw(ZeroExtend::zero_extend(val), shift) | mask;
                             // SAFETY: any data races are prevented by atomic intrinsics and the raw
                             // pointer passed in is valid because we got it from a reference.
                             let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };

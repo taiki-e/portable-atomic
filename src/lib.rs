@@ -1029,6 +1029,15 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
         ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
@@ -1041,6 +1050,15 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
         )))]
         {
             let x = self.as_atomic_u8().swap(val as u8, order);
@@ -1105,6 +1123,15 @@ impl AtomicBool {
             target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
                 target_arch = "avr",
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
@@ -1131,6 +1158,15 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
             all(
                 target_arch = "avr",
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
@@ -1203,6 +1239,15 @@ impl AtomicBool {
             target_arch = "loongarch32",
             target_arch = "loongarch64",
             all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
                 target_arch = "avr",
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
                 not(feature = "critical-section"),
@@ -1219,6 +1264,15 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
             all(
                 target_arch = "avr",
                 any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
