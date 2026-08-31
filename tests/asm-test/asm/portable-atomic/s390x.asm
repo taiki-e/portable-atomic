@@ -6513,10 +6513,7 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6529,10 +6526,7 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6545,10 +6539,7 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6561,10 +6552,7 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6577,10 +6565,7 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6593,10 +6578,7 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6609,10 +6591,7 @@ asm_test::compare_exchange::u128::release_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6625,10 +6604,7 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6641,10 +6617,7 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6657,10 +6630,7 @@ asm_test::compare_exchange::u128::acquire_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6673,10 +6643,7 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6689,10 +6656,7 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6705,10 +6669,7 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6721,10 +6682,7 @@ asm_test::compare_exchange::u128::release_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -6737,10 +6695,7 @@ asm_test::compare_exchange::u128::release_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8523,10 +8478,7 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8539,10 +8491,7 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8555,10 +8504,7 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8571,10 +8517,7 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8587,10 +8530,7 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8603,10 +8543,7 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8619,10 +8556,7 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8635,10 +8569,7 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8651,10 +8582,7 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8667,10 +8595,7 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8683,10 +8608,7 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8699,10 +8621,7 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8715,10 +8634,7 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8731,10 +8647,7 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)
@@ -8747,10 +8660,7 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         lg                %r5,8(%r5)
         cdsg              %r0,%r4,0(%r3)
         ipm               %r3
-        algfi             %r3,4026531840
-        lcgr              %r3,%r3
-        aghi              %r3,-1
-        risbgz            %r3,%r3,63,63,33
+        risbgz            %r3,%r3,63,63,36
         stg               %r1,16(%r2)
         stg               %r0,8(%r2)
         stg               %r3,0(%r2)

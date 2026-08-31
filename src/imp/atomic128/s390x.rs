@@ -102,13 +102,11 @@ macro_rules! select_op {
     };
 }
 
-// Extracts and checks condition code 0.
+// Extracts and checks condition code 0 from condition code 0-1.
 // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0/llvm/lib/Target/SystemZ/SystemZISelDAGToDAG.cpp#L1968
 #[inline]
-fn extract_cc0(r: i64) -> bool {
-    const ADD: i64 = -(1 << 28);
-    const MASK: i64 = 1 << 31;
-    r.wrapping_add(ADD) & MASK != 0
+fn extract_cc0_from_cc01(r: i64) -> bool {
+    (r >> 28) & 1 == 0
 }
 
 #[inline]
@@ -201,7 +199,7 @@ unsafe fn atomic_compare_exchange(
         cmpxchg!("r12", "r13");
         U128 { pair: Pair { hi: prev_hi, lo: prev_lo } }.whole
     };
-    if extract_cc0(r) { Ok(prev) } else { Err(prev) }
+    if extract_cc0_from_cc01(r) { Ok(prev) } else { Err(prev) }
 }
 
 // cdsg is always strong.
