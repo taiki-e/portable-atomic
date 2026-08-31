@@ -902,8 +902,6 @@ asm_test::fetch_nand::bool::acqrel_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -917,8 +915,6 @@ asm_test::fetch_nand::bool::seqcst_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -931,8 +927,6 @@ asm_test::fetch_nand::bool::acqrel_false:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -946,8 +940,6 @@ asm_test::fetch_nand::bool::acquire_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -961,8 +953,6 @@ asm_test::fetch_nand::bool::relaxed_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -976,8 +966,6 @@ asm_test::fetch_nand::bool::release_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -990,8 +978,6 @@ asm_test::fetch_nand::bool::seqcst_false:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -1004,8 +990,6 @@ asm_test::fetch_nand::bool::acquire_false:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -1018,8 +1002,6 @@ asm_test::fetch_nand::bool::relaxed_false:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -1032,8 +1014,6 @@ asm_test::fetch_nand::bool::release_false:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -1050,15 +1030,15 @@ asm_test::fetch_nand::bool::acqrel:
         eors              r1, r0
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 0:
         movs              r1, #0x1
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_nand::bool::seqcst:
@@ -1074,15 +1054,15 @@ asm_test::fetch_nand::bool::seqcst:
         eors              r1, r0
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 0:
         movs              r1, #0x1
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_nand::bool::acquire:
@@ -1098,15 +1078,15 @@ asm_test::fetch_nand::bool::acquire:
         eors              r1, r0
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 0:
         movs              r1, #0x1
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_nand::bool::relaxed:
@@ -1122,15 +1102,15 @@ asm_test::fetch_nand::bool::relaxed:
         eors              r1, r0
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 0:
         movs              r1, #0x1
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_nand::bool::release:
@@ -1146,15 +1126,15 @@ asm_test::fetch_nand::bool::release:
         eors              r1, r0
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 0:
         movs              r1, #0x1
         strb              r1, [r2]
         msr               primask, r3
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
+        movs              r1, #0x1
+        ands              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_umax::u8::acqrel:
@@ -2745,15 +2725,18 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
@@ -2764,15 +2747,18 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_acquire:
@@ -2783,15 +2769,18 @@ asm_test::compare_exchange::bool::acqrel_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
@@ -2802,15 +2791,18 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acquire_seqcst:
@@ -2821,15 +2813,18 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
@@ -2840,15 +2835,18 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::release_seqcst:
@@ -2859,15 +2857,18 @@ asm_test::compare_exchange::bool::release_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_acquire:
@@ -2878,15 +2879,18 @@ asm_test::compare_exchange::bool::seqcst_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
@@ -2897,15 +2901,18 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire:
@@ -2916,15 +2923,18 @@ asm_test::compare_exchange::bool::acquire_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acquire_relaxed:
@@ -2935,15 +2945,18 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_acquire:
@@ -2954,15 +2967,18 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
@@ -2973,15 +2989,18 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::release_acquire:
@@ -2992,15 +3011,18 @@ asm_test::compare_exchange::bool::release_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::release_relaxed:
@@ -3011,15 +3033,18 @@ asm_test::compare_exchange::bool::release_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
@@ -3030,7 +3055,6 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3043,7 +3067,6 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3056,7 +3079,6 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3069,7 +3091,6 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3077,19 +3098,23 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
@@ -3099,13 +3124,17 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3118,7 +3147,6 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3131,7 +3159,6 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3144,7 +3171,6 @@ asm_test::compare_exchange::bool::release_seqcst_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3157,7 +3183,6 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3170,7 +3195,6 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3178,19 +3202,23 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
@@ -3200,13 +3228,17 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3214,19 +3246,23 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
 asm_test::compare_exchange::bool::acqrel_acquire_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_false:
@@ -3236,13 +3272,17 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3250,19 +3290,23 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_false:
 asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
@@ -3272,13 +3316,17 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3286,13 +3334,13 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
@@ -3303,7 +3351,6 @@ asm_test::compare_exchange::bool::acquire_acquire_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3316,7 +3363,6 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3324,19 +3370,23 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_true:
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_false:
@@ -3346,13 +3396,17 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3365,7 +3419,6 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3378,7 +3431,6 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3386,19 +3438,23 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
@@ -3408,13 +3464,17 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3427,7 +3487,6 @@ asm_test::compare_exchange::bool::release_acquire_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3440,7 +3499,6 @@ asm_test::compare_exchange::bool::release_relaxed_true_true:
         ldrb              r1, [r0]
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3448,19 +3506,23 @@ asm_test::compare_exchange::bool::release_relaxed_true_true:
 asm_test::compare_exchange::bool::release_seqcst_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_seqcst_true_false:
@@ -3470,13 +3532,17 @@ asm_test::compare_exchange::bool::release_seqcst_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3484,19 +3550,23 @@ asm_test::compare_exchange::bool::release_seqcst_true_false:
 asm_test::compare_exchange::bool::seqcst_acquire_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_false:
@@ -3506,13 +3576,17 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3520,19 +3594,23 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_false:
 asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
@@ -3542,13 +3620,17 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3556,55 +3638,59 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire_true_false:
@@ -3614,13 +3700,17 @@ asm_test::compare_exchange::bool::acquire_acquire_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3628,19 +3718,23 @@ asm_test::compare_exchange::bool::acquire_acquire_true_false:
 asm_test::compare_exchange::bool::acquire_relaxed_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_false:
@@ -3650,13 +3744,17 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3664,31 +3762,35 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_false:
@@ -3698,13 +3800,17 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3712,19 +3818,23 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_false:
 asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
@@ -3734,13 +3844,17 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3748,31 +3862,35 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_acquire_true_false:
@@ -3782,13 +3900,17 @@ asm_test::compare_exchange::bool::release_acquire_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3796,19 +3918,23 @@ asm_test::compare_exchange::bool::release_acquire_true_false:
 asm_test::compare_exchange::bool::release_relaxed_false_true:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mov               r1, r0
         mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        cmp               r0, #0x0
-        bne               0f
-        movs              r3, #0x1
-        strb              r3, [r1]
-0:
+        ldrb              r1, [r0]
+        cmp               r1, #0x0
+        beq               0f
         msr               primask, r2
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x1
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_relaxed_true_false:
@@ -3818,13 +3944,17 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, #0x1
-        bne               0f
-        movs              r3, #0x0
-        strb              r3, [r0]
-0:
+        beq               0f
         msr               primask, r2
         subs              r0, r1, #0x1
-        sbcs              r1, r0
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
+        pop               {r7, pc}
+0:
+        movs              r3, #0x0
+        strb              r3, [r0]
+        msr               primask, r2
+        subs              r0, r1, #0x1
         subs              r2, r0, #0x1
         sbcs              r0, r2
         pop               {r7, pc}
@@ -3832,109 +3962,109 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
 asm_test::compare_exchange::bool::release_seqcst_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
         push              {r7, lr}
         add               r7, sp, #0x0
-        mrs               r1, primask
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
-        mov               r1, r0
+        ldrb              r1, [r0]
+        msr               primask, r2
+        subs              r2, r1, #0x1
+        mov               r0, r1
+        sbcs              r0, r2
         pop               {r7, pc}
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -5025,15 +5155,18 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
@@ -5044,15 +5177,18 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
@@ -5063,15 +5199,18 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
@@ -5082,15 +5221,18 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
@@ -5101,15 +5243,18 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
@@ -5120,15 +5265,18 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
@@ -5139,15 +5287,18 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
@@ -5158,15 +5309,18 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
@@ -5177,15 +5331,18 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
@@ -5196,15 +5353,18 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
@@ -5215,15 +5375,18 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
@@ -5234,15 +5397,18 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
@@ -5253,15 +5419,18 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::release_acquire:
@@ -5272,15 +5441,18 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
@@ -5291,15 +5463,18 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         cpsid             i
         ldrb              r1, [r0]
         cmp               r1, r3
-        bne               0f
-        strb              r2, [r0]
-0:
+        beq               0f
         msr               primask, r4
         subs              r0, r1, r3
         subs              r2, r0, #0x1
         sbcs              r0, r2
-        subs              r2, r1, #0x1
-        sbcs              r1, r2
+        pop               {r4, r6, r7, pc}
+0:
+        strb              r2, [r0]
+        msr               primask, r4
+        subs              r0, r1, r3
+        subs              r2, r0, #0x1
+        sbcs              r0, r2
         pop               {r4, r6, r7, pc}
 
 asm_test::or::u8::acqrel_all:
@@ -7991,8 +8166,6 @@ asm_test::load::bool::seqcst:
         push              {r7, lr}
         add               r7, sp, #0x0
         ldrb              r0, [r0]
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         dmb               sy
         pop               {r7, pc}
 
@@ -8000,8 +8173,6 @@ asm_test::load::bool::acquire:
         push              {r7, lr}
         add               r7, sp, #0x0
         ldrb              r0, [r0]
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         dmb               sy
         pop               {r7, pc}
 
@@ -8009,8 +8180,6 @@ asm_test::load::bool::relaxed:
         push              {r7, lr}
         add               r7, sp, #0x0
         ldrb              r0, [r0]
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::swap::u8::acqrel:
@@ -8242,8 +8411,6 @@ asm_test::swap::bool::acqrel_true:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8256,8 +8423,6 @@ asm_test::swap::bool::seqcst_true:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8270,8 +8435,6 @@ asm_test::swap::bool::acqrel_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8284,8 +8447,6 @@ asm_test::swap::bool::acquire_true:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8298,8 +8459,6 @@ asm_test::swap::bool::relaxed_true:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8312,8 +8471,6 @@ asm_test::swap::bool::release_true:
         movs              r3, #0x1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8326,8 +8483,6 @@ asm_test::swap::bool::seqcst_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8340,8 +8495,6 @@ asm_test::swap::bool::acquire_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8354,8 +8507,6 @@ asm_test::swap::bool::relaxed_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8368,8 +8519,6 @@ asm_test::swap::bool::release_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -8381,8 +8530,6 @@ asm_test::swap::bool::acqrel:
         ldrb              r2, [r0]
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -8394,8 +8541,6 @@ asm_test::swap::bool::seqcst:
         ldrb              r2, [r0]
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -8407,8 +8552,6 @@ asm_test::swap::bool::acquire:
         ldrb              r2, [r0]
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -8420,8 +8563,6 @@ asm_test::swap::bool::relaxed:
         ldrb              r2, [r0]
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -8433,8 +8574,6 @@ asm_test::swap::bool::release:
         ldrb              r2, [r0]
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -9363,8 +9502,6 @@ asm_test::fetch_or::bool::acqrel_true:
         orrs              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -9378,8 +9515,6 @@ asm_test::fetch_or::bool::seqcst_true:
         orrs              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -9390,8 +9525,6 @@ asm_test::fetch_or::bool::acqrel_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_or::bool::acquire_true:
@@ -9404,8 +9537,6 @@ asm_test::fetch_or::bool::acquire_true:
         orrs              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -9419,8 +9550,6 @@ asm_test::fetch_or::bool::relaxed_true:
         orrs              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -9434,8 +9563,6 @@ asm_test::fetch_or::bool::release_true:
         orrs              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -9446,8 +9573,6 @@ asm_test::fetch_or::bool::seqcst_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_or::bool::acquire_false:
@@ -9457,8 +9582,6 @@ asm_test::fetch_or::bool::acquire_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_or::bool::relaxed_false:
@@ -9468,8 +9591,6 @@ asm_test::fetch_or::bool::relaxed_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_or::bool::release_false:
@@ -9479,8 +9600,6 @@ asm_test::fetch_or::bool::release_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_or::bool::acqrel:
@@ -9492,8 +9611,6 @@ asm_test::fetch_or::bool::acqrel:
         orrs              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -9506,8 +9623,6 @@ asm_test::fetch_or::bool::seqcst:
         orrs              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -9520,8 +9635,6 @@ asm_test::fetch_or::bool::acquire:
         orrs              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -9534,8 +9647,6 @@ asm_test::fetch_or::bool::relaxed:
         orrs              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -9548,8 +9659,6 @@ asm_test::fetch_or::bool::release:
         orrs              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -11048,8 +11157,6 @@ asm_test::fetch_and::bool::acqrel_true:
         ands              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11063,8 +11170,6 @@ asm_test::fetch_and::bool::seqcst_true:
         ands              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11077,8 +11182,6 @@ asm_test::fetch_and::bool::acqrel_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11092,8 +11195,6 @@ asm_test::fetch_and::bool::acquire_true:
         ands              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11107,8 +11208,6 @@ asm_test::fetch_and::bool::relaxed_true:
         ands              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11122,8 +11221,6 @@ asm_test::fetch_and::bool::release_true:
         ands              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11136,8 +11233,6 @@ asm_test::fetch_and::bool::seqcst_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11150,8 +11245,6 @@ asm_test::fetch_and::bool::acquire_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11164,8 +11257,6 @@ asm_test::fetch_and::bool::relaxed_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11178,8 +11269,6 @@ asm_test::fetch_and::bool::release_false:
         movs              r3, #0x0
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -11192,8 +11281,6 @@ asm_test::fetch_and::bool::acqrel:
         ands              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -11206,8 +11293,6 @@ asm_test::fetch_and::bool::seqcst:
         ands              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -11220,8 +11305,6 @@ asm_test::fetch_and::bool::acquire:
         ands              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -11234,8 +11317,6 @@ asm_test::fetch_and::bool::relaxed:
         ands              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -11248,8 +11329,6 @@ asm_test::fetch_and::bool::release:
         ands              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -12503,8 +12582,6 @@ asm_test::fetch_not::bool::acqrel:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -12518,8 +12595,6 @@ asm_test::fetch_not::bool::seqcst:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -12533,8 +12608,6 @@ asm_test::fetch_not::bool::acquire:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -12548,8 +12621,6 @@ asm_test::fetch_not::bool::relaxed:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -12563,8 +12634,6 @@ asm_test::fetch_not::bool::release:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13468,8 +13537,6 @@ asm_test::fetch_xor::bool::acqrel_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13483,8 +13550,6 @@ asm_test::fetch_xor::bool::seqcst_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13495,8 +13560,6 @@ asm_test::fetch_xor::bool::acqrel_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_xor::bool::acquire_true:
@@ -13509,8 +13572,6 @@ asm_test::fetch_xor::bool::acquire_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13524,8 +13585,6 @@ asm_test::fetch_xor::bool::relaxed_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13539,8 +13598,6 @@ asm_test::fetch_xor::bool::release_true:
         eors              r3, r1
         strb              r3, [r0]
         msr               primask, r2
-        subs              r0, r1, #0x1
-        sbcs              r1, r0
         mov               r0, r1
         pop               {r7, pc}
 
@@ -13551,8 +13608,6 @@ asm_test::fetch_xor::bool::seqcst_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_xor::bool::acquire_false:
@@ -13562,8 +13617,6 @@ asm_test::fetch_xor::bool::acquire_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_xor::bool::relaxed_false:
@@ -13573,8 +13626,6 @@ asm_test::fetch_xor::bool::relaxed_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_xor::bool::release_false:
@@ -13584,8 +13635,6 @@ asm_test::fetch_xor::bool::release_false:
         cpsid             i
         ldrb              r0, [r0]
         msr               primask, r1
-        subs              r1, r0, #0x1
-        sbcs              r0, r1
         pop               {r7, pc}
 
 asm_test::fetch_xor::bool::acqrel:
@@ -13597,8 +13646,6 @@ asm_test::fetch_xor::bool::acqrel:
         eors              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -13611,8 +13658,6 @@ asm_test::fetch_xor::bool::seqcst:
         eors              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -13625,8 +13670,6 @@ asm_test::fetch_xor::bool::acquire:
         eors              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -13639,8 +13682,6 @@ asm_test::fetch_xor::bool::relaxed:
         eors              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
 
@@ -13653,7 +13694,5 @@ asm_test::fetch_xor::bool::release:
         eors              r1, r2
         strb              r1, [r0]
         msr               primask, r3
-        subs              r0, r2, #0x1
-        sbcs              r2, r0
         mov               r0, r2
         pop               {r7, pc}
