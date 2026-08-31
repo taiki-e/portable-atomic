@@ -15,8 +15,6 @@ fn test() {
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_ilp32", "aarch64-unknown-linux-gnu_ilp32")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
-        Revision::new("aarch64_apple", "aarch64-apple-darwin")
-            .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_msvc", "aarch64-pc-windows-msvc")
             .rustc_args(["-C", "target-feature=-outline-atomics"]),
         Revision::new("aarch64_lse", "aarch64-unknown-linux-gnu")
