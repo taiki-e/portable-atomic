@@ -189,6 +189,106 @@ asm_test::bit_toggle::u64::release:
         snez              a0, a0
         ret
 
+asm_test::fetch_nand::u8::acqrel_all:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sb                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::seqcst_all:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sb                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::acqrel_zero:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        li                a3, -0x1
+        sb                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::acquire_all:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sb                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::relaxed_all:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sb                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::release_all:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sb                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::seqcst_zero:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        li                a3, -0x1
+        sb                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::acquire_zero:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        li                a3, -0x1
+        sb                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::relaxed_zero:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        li                a3, -0x1
+        sb                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u8::release_zero:
+        csrrci            a2, mstatus, 0x8
+        lbu               a1, 0x0(a0)
+        li                a3, -0x1
+        sb                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         csrrci            a3, mstatus, 0x8
         lbu               a2, 0x0(a0)
@@ -242,6 +342,106 @@ asm_test::fetch_nand::u8::release:
         sb                a1, 0x0(a0)
         csrs              mstatus, a3
         mv                a0, a2
+        ret
+
+asm_test::fetch_nand::u16::acqrel_all:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sh                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::seqcst_all:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sh                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::acqrel_zero:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        li                a3, -0x1
+        sh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::acquire_all:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sh                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::relaxed_all:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sh                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::release_all:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sh                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::seqcst_zero:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        li                a3, -0x1
+        sh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::acquire_zero:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        li                a3, -0x1
+        sh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::relaxed_zero:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        li                a3, -0x1
+        sh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u16::release_zero:
+        csrrci            a2, mstatus, 0x8
+        lh                a1, 0x0(a0)
+        li                a3, -0x1
+        sh                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_nand::u16::acqrel:
@@ -299,6 +499,106 @@ asm_test::fetch_nand::u16::release:
         mv                a0, a2
         ret
 
+asm_test::fetch_nand::u32::acqrel_all:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sw                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::seqcst_all:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sw                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::acqrel_zero:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        li                a3, -0x1
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::acquire_all:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sw                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::relaxed_all:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sw                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::release_all:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sw                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::seqcst_zero:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        li                a3, -0x1
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::acquire_zero:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        li                a3, -0x1
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::relaxed_zero:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        li                a3, -0x1
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u32::release_zero:
+        csrrci            a2, mstatus, 0x8
+        lw                a1, 0x0(a0)
+        li                a3, -0x1
+        sw                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
 asm_test::fetch_nand::u32::acqrel:
         csrrci            a3, mstatus, 0x8
         lw                a2, 0x0(a0)
@@ -354,6 +654,106 @@ asm_test::fetch_nand::u32::release:
         mv                a0, a2
         ret
 
+asm_test::fetch_nand::u64::acqrel_all:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sd                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::seqcst_all:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sd                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::acqrel_zero:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        li                a3, -0x1
+        sd                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::acquire_all:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sd                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::relaxed_all:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sd                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::release_all:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        not               a3, a1
+        sd                a3, 0x0(a0)
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::seqcst_zero:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        li                a3, -0x1
+        sd                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::acquire_zero:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        li                a3, -0x1
+        sd                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::relaxed_zero:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        li                a3, -0x1
+        sd                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_nand::u64::release_zero:
+        csrrci            a2, mstatus, 0x8
+        ld                a1, 0x0(a0)
+        li                a3, -0x1
+        sd                a3, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
 asm_test::fetch_nand::u64::acqrel:
         csrrci            a3, mstatus, 0x8
         ld                a2, 0x0(a0)
@@ -407,6 +807,76 @@ asm_test::fetch_nand::u64::release:
         sd                a1, 0x0(a0)
         csrs              mstatus, a3
         mv                a0, a2
+        ret
+
+asm_test::fetch_nand::bool::acqrel_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::seqcst_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::acqrel_false:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::acquire_true:
+        li                a1, 0x1
+        amoxor.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::relaxed_true:
+        li                a1, 0x1
+        amoxor.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::release_true:
+        li                a1, 0x1
+        amoxor.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::seqcst_false:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::acquire_false:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::relaxed_false:
+        li                a1, 0x1
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_nand::bool::release_false:
+        li                a1, 0x1
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_nand::bool::acqrel:
@@ -2439,6 +2909,486 @@ asm_test::compare_exchange::bool::release_relaxed:
         mv                a1, a2
         ret
 
+asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_true:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_true:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_true:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_true:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_true:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
+        li                a1, 0x1
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_true:
+        li                a1, 0x1
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_false:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
+        zext.b            a1, a0
+        seqz              a0, a1
+        snez              a1, a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_false:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_false:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_false:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_false:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        mv                a1, a0
+        ret
+
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
@@ -4239,6 +5189,56 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         mv                a1, a2
         ret
 
+asm_test::or::u8::acqrel_all:
+        li                a1, 0xff
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u8::seqcst_all:
+        li                a1, 0xff
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u8::acqrel_zero:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u8::acquire_all:
+        li                a1, 0xff
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u8::relaxed_all:
+        li                a1, 0xff
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::or::u8::release_all:
+        li                a1, 0xff
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u8::seqcst_zero:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u8::acquire_zero:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u8::relaxed_zero:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::or::u8::release_zero:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
 asm_test::or::u8::acqrel:
         amoor.b.aqrl      a0, a1, (a0)
         ret
@@ -4257,6 +5257,61 @@ asm_test::or::u8::relaxed:
 
 asm_test::or::u8::release:
         amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u16::acqrel_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u16::seqcst_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u16::acqrel_zero:
+        li                a1, 0x0
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u16::acquire_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u16::relaxed_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h           a0, a1, (a0)
+        ret
+
+asm_test::or::u16::release_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u16::seqcst_zero:
+        li                a1, 0x0
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u16::acquire_zero:
+        li                a1, 0x0
+        amoor.h.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u16::relaxed_zero:
+        li                a1, 0x0
+        amoor.h           a0, a1, (a0)
+        ret
+
+asm_test::or::u16::release_zero:
+        li                a1, 0x0
+        amoor.h.rl        a0, a1, (a0)
         ret
 
 asm_test::or::u16::acqrel:
@@ -4279,6 +5334,56 @@ asm_test::or::u16::release:
         amoor.h.rl        a0, a1, (a0)
         ret
 
+asm_test::or::u32::acqrel_all:
+        li                a1, -0x1
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u32::seqcst_all:
+        li                a1, -0x1
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u32::acqrel_zero:
+        li                a1, 0x0
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u32::acquire_all:
+        li                a1, -0x1
+        amoor.w.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u32::relaxed_all:
+        li                a1, -0x1
+        amoor.w           a0, a1, (a0)
+        ret
+
+asm_test::or::u32::release_all:
+        li                a1, -0x1
+        amoor.w.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u32::seqcst_zero:
+        li                a1, 0x0
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u32::acquire_zero:
+        li                a1, 0x0
+        amoor.w.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u32::relaxed_zero:
+        li                a1, 0x0
+        amoor.w           a0, a1, (a0)
+        ret
+
+asm_test::or::u32::release_zero:
+        li                a1, 0x0
+        amoor.w.rl        a0, a1, (a0)
+        ret
+
 asm_test::or::u32::acqrel:
         amoor.w.aqrl      a0, a1, (a0)
         ret
@@ -4297,6 +5402,56 @@ asm_test::or::u32::relaxed:
 
 asm_test::or::u32::release:
         amoor.w.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u64::acqrel_all:
+        li                a1, -0x1
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u64::seqcst_all:
+        li                a1, -0x1
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u64::acqrel_zero:
+        li                a1, 0x0
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u64::acquire_all:
+        li                a1, -0x1
+        amoor.d.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u64::relaxed_all:
+        li                a1, -0x1
+        amoor.d           a0, a1, (a0)
+        ret
+
+asm_test::or::u64::release_all:
+        li                a1, -0x1
+        amoor.d.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::u64::seqcst_zero:
+        li                a1, 0x0
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::u64::acquire_zero:
+        li                a1, 0x0
+        amoor.d.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::u64::relaxed_zero:
+        li                a1, 0x0
+        amoor.d           a0, a1, (a0)
+        ret
+
+asm_test::or::u64::release_zero:
+        li                a1, 0x0
+        amoor.d.rl        a0, a1, (a0)
         ret
 
 asm_test::or::u64::acqrel:
@@ -4319,6 +5474,56 @@ asm_test::or::u64::release:
         amoor.d.rl        a0, a1, (a0)
         ret
 
+asm_test::or::bool::acqrel_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::seqcst_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::acqrel_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::acquire_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::bool::relaxed_true:
+        li                a1, 0x1
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::or::bool::release_true:
+        li                a1, 0x1
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::or::bool::seqcst_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::or::bool::acquire_false:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::or::bool::relaxed_false:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::or::bool::release_false:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
 asm_test::or::bool::acqrel:
         amoor.b.aqrl      a0, a1, (a0)
         ret
@@ -4337,6 +5542,31 @@ asm_test::or::bool::relaxed:
 
 asm_test::or::bool::release:
         amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::add::u8::acqrel_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u8::seqcst_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u8::acquire_zero:
+        li                a1, 0x0
+        amoadd.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::add::u8::relaxed_zero:
+        li                a1, 0x0
+        amoadd.b          a0, a1, (a0)
+        ret
+
+asm_test::add::u8::release_zero:
+        li                a1, 0x0
+        amoadd.b.rl       a0, a1, (a0)
         ret
 
 asm_test::add::u8::acqrel:
@@ -4359,6 +5589,31 @@ asm_test::add::u8::release:
         amoadd.b.rl       a0, a1, (a0)
         ret
 
+asm_test::add::u16::acqrel_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u16::seqcst_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u16::acquire_zero:
+        li                a1, 0x0
+        amoadd.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::add::u16::relaxed_zero:
+        li                a1, 0x0
+        amoadd.h          a0, a1, (a0)
+        ret
+
+asm_test::add::u16::release_zero:
+        li                a1, 0x0
+        amoadd.h.rl       a0, a1, (a0)
+        ret
+
 asm_test::add::u16::acqrel:
         amoadd.h.aqrl     a0, a1, (a0)
         ret
@@ -4377,6 +5632,31 @@ asm_test::add::u16::relaxed:
 
 asm_test::add::u16::release:
         amoadd.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::add::u32::acqrel_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u32::seqcst_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u32::acquire_zero:
+        li                a1, 0x0
+        amoadd.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::add::u32::relaxed_zero:
+        li                a1, 0x0
+        amoadd.w          a0, a1, (a0)
+        ret
+
+asm_test::add::u32::release_zero:
+        li                a1, 0x0
+        amoadd.w.rl       a0, a1, (a0)
         ret
 
 asm_test::add::u32::acqrel:
@@ -4399,6 +5679,31 @@ asm_test::add::u32::release:
         amoadd.w.rl       a0, a1, (a0)
         ret
 
+asm_test::add::u64::acqrel_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u64::seqcst_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::add::u64::acquire_zero:
+        li                a1, 0x0
+        amoadd.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::add::u64::relaxed_zero:
+        li                a1, 0x0
+        amoadd.d          a0, a1, (a0)
+        ret
+
+asm_test::add::u64::release_zero:
+        li                a1, 0x0
+        amoadd.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::add::u64::acqrel:
         amoadd.d.aqrl     a0, a1, (a0)
         ret
@@ -4417,6 +5722,56 @@ asm_test::add::u64::relaxed:
 
 asm_test::add::u64::release:
         amoadd.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u8::acqrel_all:
+        li                a1, 0xff
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u8::seqcst_all:
+        li                a1, 0xff
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u8::acqrel_zero:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u8::acquire_all:
+        li                a1, 0xff
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u8::relaxed_all:
+        li                a1, 0xff
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::and::u8::release_all:
+        li                a1, 0xff
+        amoand.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u8::seqcst_zero:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u8::acquire_zero:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u8::relaxed_zero:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::and::u8::release_zero:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
         ret
 
 asm_test::and::u8::acqrel:
@@ -4439,6 +5794,61 @@ asm_test::and::u8::release:
         amoand.b.rl       a0, a1, (a0)
         ret
 
+asm_test::and::u16::acqrel_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u16::seqcst_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u16::acqrel_zero:
+        li                a1, 0x0
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u16::acquire_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u16::relaxed_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h          a0, a1, (a0)
+        ret
+
+asm_test::and::u16::release_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u16::seqcst_zero:
+        li                a1, 0x0
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u16::acquire_zero:
+        li                a1, 0x0
+        amoand.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u16::relaxed_zero:
+        li                a1, 0x0
+        amoand.h          a0, a1, (a0)
+        ret
+
+asm_test::and::u16::release_zero:
+        li                a1, 0x0
+        amoand.h.rl       a0, a1, (a0)
+        ret
+
 asm_test::and::u16::acqrel:
         amoand.h.aqrl     a0, a1, (a0)
         ret
@@ -4457,6 +5867,56 @@ asm_test::and::u16::relaxed:
 
 asm_test::and::u16::release:
         amoand.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u32::acqrel_all:
+        li                a1, -0x1
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u32::seqcst_all:
+        li                a1, -0x1
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u32::acqrel_zero:
+        li                a1, 0x0
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u32::acquire_all:
+        li                a1, -0x1
+        amoand.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u32::relaxed_all:
+        li                a1, -0x1
+        amoand.w          a0, a1, (a0)
+        ret
+
+asm_test::and::u32::release_all:
+        li                a1, -0x1
+        amoand.w.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u32::seqcst_zero:
+        li                a1, 0x0
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u32::acquire_zero:
+        li                a1, 0x0
+        amoand.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u32::relaxed_zero:
+        li                a1, 0x0
+        amoand.w          a0, a1, (a0)
+        ret
+
+asm_test::and::u32::release_zero:
+        li                a1, 0x0
+        amoand.w.rl       a0, a1, (a0)
         ret
 
 asm_test::and::u32::acqrel:
@@ -4479,6 +5939,56 @@ asm_test::and::u32::release:
         amoand.w.rl       a0, a1, (a0)
         ret
 
+asm_test::and::u64::acqrel_all:
+        li                a1, -0x1
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u64::seqcst_all:
+        li                a1, -0x1
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u64::acqrel_zero:
+        li                a1, 0x0
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u64::acquire_all:
+        li                a1, -0x1
+        amoand.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u64::relaxed_all:
+        li                a1, -0x1
+        amoand.d          a0, a1, (a0)
+        ret
+
+asm_test::and::u64::release_all:
+        li                a1, -0x1
+        amoand.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::u64::seqcst_zero:
+        li                a1, 0x0
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::u64::acquire_zero:
+        li                a1, 0x0
+        amoand.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::u64::relaxed_zero:
+        li                a1, 0x0
+        amoand.d          a0, a1, (a0)
+        ret
+
+asm_test::and::u64::release_zero:
+        li                a1, 0x0
+        amoand.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::and::u64::acqrel:
         amoand.d.aqrl     a0, a1, (a0)
         ret
@@ -4497,6 +6007,56 @@ asm_test::and::u64::relaxed:
 
 asm_test::and::u64::release:
         amoand.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acqrel_true:
+        li                a1, 0x1
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::seqcst_true:
+        li                a1, 0x1
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acqrel_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acquire_true:
+        li                a1, 0x1
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::relaxed_true:
+        li                a1, 0x1
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::and::bool::release_true:
+        li                a1, 0x1
+        amoand.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::seqcst_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::and::bool::acquire_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::and::bool::relaxed_false:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::and::bool::release_false:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
         ret
 
 asm_test::and::bool::acqrel:
@@ -4824,6 +6384,31 @@ asm_test::not::bool::release:
         amoxor.b.rl       a0, a1, (a0)
         ret
 
+asm_test::sub::u8::acqrel_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u8::seqcst_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u8::acquire_zero:
+        li                a1, 0x0
+        amoadd.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::sub::u8::relaxed_zero:
+        li                a1, 0x0
+        amoadd.b          a0, a1, (a0)
+        ret
+
+asm_test::sub::u8::release_zero:
+        li                a1, 0x0
+        amoadd.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::sub::u8::acqrel:
         neg               a1, a1
         amoadd.b.aqrl     a0, a1, (a0)
@@ -4847,6 +6432,31 @@ asm_test::sub::u8::relaxed:
 asm_test::sub::u8::release:
         neg               a1, a1
         amoadd.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::sub::u16::acqrel_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u16::seqcst_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u16::acquire_zero:
+        li                a1, 0x0
+        amoadd.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::sub::u16::relaxed_zero:
+        li                a1, 0x0
+        amoadd.h          a0, a1, (a0)
+        ret
+
+asm_test::sub::u16::release_zero:
+        li                a1, 0x0
+        amoadd.h.rl       a0, a1, (a0)
         ret
 
 asm_test::sub::u16::acqrel:
@@ -4874,6 +6484,31 @@ asm_test::sub::u16::release:
         amoadd.h.rl       a0, a1, (a0)
         ret
 
+asm_test::sub::u32::acqrel_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u32::seqcst_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u32::acquire_zero:
+        li                a1, 0x0
+        amoadd.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::sub::u32::relaxed_zero:
+        li                a1, 0x0
+        amoadd.w          a0, a1, (a0)
+        ret
+
+asm_test::sub::u32::release_zero:
+        li                a1, 0x0
+        amoadd.w.rl       a0, a1, (a0)
+        ret
+
 asm_test::sub::u32::acqrel:
         negw              a1, a1
         amoadd.w.aqrl     a0, a1, (a0)
@@ -4897,6 +6532,31 @@ asm_test::sub::u32::relaxed:
 asm_test::sub::u32::release:
         negw              a1, a1
         amoadd.w.rl       a0, a1, (a0)
+        ret
+
+asm_test::sub::u64::acqrel_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u64::seqcst_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::sub::u64::acquire_zero:
+        li                a1, 0x0
+        amoadd.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::sub::u64::relaxed_zero:
+        li                a1, 0x0
+        amoadd.d          a0, a1, (a0)
+        ret
+
+asm_test::sub::u64::release_zero:
+        li                a1, 0x0
+        amoadd.d.rl       a0, a1, (a0)
         ret
 
 asm_test::sub::u64::acqrel:
@@ -4924,6 +6584,31 @@ asm_test::sub::u64::release:
         amoadd.d.rl       a0, a1, (a0)
         ret
 
+asm_test::xor::u8::acqrel_zero:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u8::seqcst_zero:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u8::acquire_zero:
+        li                a1, 0x0
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::u8::relaxed_zero:
+        li                a1, 0x0
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::xor::u8::release_zero:
+        li                a1, 0x0
+        amoxor.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::xor::u8::acqrel:
         amoxor.b.aqrl     a0, a1, (a0)
         ret
@@ -4942,6 +6627,31 @@ asm_test::xor::u8::relaxed:
 
 asm_test::xor::u8::release:
         amoxor.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::xor::u16::acqrel_zero:
+        li                a1, 0x0
+        amoxor.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u16::seqcst_zero:
+        li                a1, 0x0
+        amoxor.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u16::acquire_zero:
+        li                a1, 0x0
+        amoxor.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::u16::relaxed_zero:
+        li                a1, 0x0
+        amoxor.h          a0, a1, (a0)
+        ret
+
+asm_test::xor::u16::release_zero:
+        li                a1, 0x0
+        amoxor.h.rl       a0, a1, (a0)
         ret
 
 asm_test::xor::u16::acqrel:
@@ -4964,6 +6674,31 @@ asm_test::xor::u16::release:
         amoxor.h.rl       a0, a1, (a0)
         ret
 
+asm_test::xor::u32::acqrel_zero:
+        li                a1, 0x0
+        amoxor.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u32::seqcst_zero:
+        li                a1, 0x0
+        amoxor.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u32::acquire_zero:
+        li                a1, 0x0
+        amoxor.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::u32::relaxed_zero:
+        li                a1, 0x0
+        amoxor.w          a0, a1, (a0)
+        ret
+
+asm_test::xor::u32::release_zero:
+        li                a1, 0x0
+        amoxor.w.rl       a0, a1, (a0)
+        ret
+
 asm_test::xor::u32::acqrel:
         amoxor.w.aqrl     a0, a1, (a0)
         ret
@@ -4984,6 +6719,31 @@ asm_test::xor::u32::release:
         amoxor.w.rl       a0, a1, (a0)
         ret
 
+asm_test::xor::u64::acqrel_zero:
+        li                a1, 0x0
+        amoxor.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u64::seqcst_zero:
+        li                a1, 0x0
+        amoxor.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::u64::acquire_zero:
+        li                a1, 0x0
+        amoxor.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::u64::relaxed_zero:
+        li                a1, 0x0
+        amoxor.d          a0, a1, (a0)
+        ret
+
+asm_test::xor::u64::release_zero:
+        li                a1, 0x0
+        amoxor.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::xor::u64::acqrel:
         amoxor.d.aqrl     a0, a1, (a0)
         ret
@@ -5002,6 +6762,56 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         amoxor.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acqrel_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::seqcst_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acqrel_false:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acquire_true:
+        li                a1, 0x1
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::relaxed_true:
+        li                a1, 0x1
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::release_true:
+        li                a1, 0x1
+        amoxor.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::seqcst_false:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::acquire_false:
+        li                a1, 0x0
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::relaxed_false:
+        li                a1, 0x0
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::xor::bool::release_false:
+        li                a1, 0x0
+        amoxor.b.rl       a0, a1, (a0)
         ret
 
 asm_test::xor::bool::acqrel:
@@ -5253,6 +7063,76 @@ asm_test::swap::u64::relaxed:
 
 asm_test::swap::u64::release:
         amoswap.d.rl      a0, a1, (a0)
+        ret
+
+asm_test::swap::bool::acqrel_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::seqcst_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::acqrel_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::acquire_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::relaxed_true:
+        li                a1, 0x1
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::release_true:
+        li                a1, 0x1
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::seqcst_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::acquire_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::relaxed_false:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::swap::bool::release_false:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::swap::bool::acqrel:
@@ -5600,6 +7480,56 @@ asm_test::bit_set::u64::release:
         snez              a0, a0
         ret
 
+asm_test::fetch_or::u8::acqrel_all:
+        li                a1, 0xff
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::seqcst_all:
+        li                a1, 0xff
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::acqrel_zero:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::acquire_all:
+        li                a1, 0xff
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::relaxed_all:
+        li                a1, 0xff
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::release_all:
+        li                a1, 0xff
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::seqcst_zero:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::acquire_zero:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::relaxed_zero:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u8::release_zero:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         amoor.b.aqrl      a0, a1, (a0)
         ret
@@ -5618,6 +7548,61 @@ asm_test::fetch_or::u8::relaxed:
 
 asm_test::fetch_or::u8::release:
         amoor.b.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::acqrel_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::seqcst_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::acqrel_zero:
+        li                a1, 0x0
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::acquire_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::relaxed_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::release_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoor.h.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::seqcst_zero:
+        li                a1, 0x0
+        amoor.h.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::acquire_zero:
+        li                a1, 0x0
+        amoor.h.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::relaxed_zero:
+        li                a1, 0x0
+        amoor.h           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u16::release_zero:
+        li                a1, 0x0
+        amoor.h.rl        a0, a1, (a0)
         ret
 
 asm_test::fetch_or::u16::acqrel:
@@ -5640,6 +7625,56 @@ asm_test::fetch_or::u16::release:
         amoor.h.rl        a0, a1, (a0)
         ret
 
+asm_test::fetch_or::u32::acqrel_all:
+        li                a1, -0x1
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::seqcst_all:
+        li                a1, -0x1
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::acqrel_zero:
+        li                a1, 0x0
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::acquire_all:
+        li                a1, -0x1
+        amoor.w.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::relaxed_all:
+        li                a1, -0x1
+        amoor.w           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::release_all:
+        li                a1, -0x1
+        amoor.w.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::seqcst_zero:
+        li                a1, 0x0
+        amoor.w.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::acquire_zero:
+        li                a1, 0x0
+        amoor.w.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::relaxed_zero:
+        li                a1, 0x0
+        amoor.w           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u32::release_zero:
+        li                a1, 0x0
+        amoor.w.rl        a0, a1, (a0)
+        ret
+
 asm_test::fetch_or::u32::acqrel:
         amoor.w.aqrl      a0, a1, (a0)
         ret
@@ -5660,6 +7695,56 @@ asm_test::fetch_or::u32::release:
         amoor.w.rl        a0, a1, (a0)
         ret
 
+asm_test::fetch_or::u64::acqrel_all:
+        li                a1, -0x1
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::seqcst_all:
+        li                a1, -0x1
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::acqrel_zero:
+        li                a1, 0x0
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::acquire_all:
+        li                a1, -0x1
+        amoor.d.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::relaxed_all:
+        li                a1, -0x1
+        amoor.d           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::release_all:
+        li                a1, -0x1
+        amoor.d.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::seqcst_zero:
+        li                a1, 0x0
+        amoor.d.aqrl      a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::acquire_zero:
+        li                a1, 0x0
+        amoor.d.aq        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::relaxed_zero:
+        li                a1, 0x0
+        amoor.d           a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::u64::release_zero:
+        li                a1, 0x0
+        amoor.d.rl        a0, a1, (a0)
+        ret
+
 asm_test::fetch_or::u64::acqrel:
         amoor.d.aqrl      a0, a1, (a0)
         ret
@@ -5678,6 +7763,76 @@ asm_test::fetch_or::u64::relaxed:
 
 asm_test::fetch_or::u64::release:
         amoor.d.rl        a0, a1, (a0)
+        ret
+
+asm_test::fetch_or::bool::acqrel_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::seqcst_true:
+        li                a1, 0x1
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::acqrel_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::acquire_true:
+        li                a1, 0x1
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::relaxed_true:
+        li                a1, 0x1
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::release_true:
+        li                a1, 0x1
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::seqcst_false:
+        li                a1, 0x0
+        amoor.b.aqrl      a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::acquire_false:
+        li                a1, 0x0
+        amoor.b.aq        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::relaxed_false:
+        li                a1, 0x0
+        amoor.b           a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_or::bool::release_false:
+        li                a1, 0x0
+        amoor.b.rl        a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_or::bool::acqrel:
@@ -5965,6 +8120,31 @@ asm_test::fetch_abs::f64::release:
         amoand.d.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_add::u8::acqrel_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u8::seqcst_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u8::acquire_zero:
+        li                a1, 0x0
+        amoadd.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u8::relaxed_zero:
+        li                a1, 0x0
+        amoadd.b          a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u8::release_zero:
+        li                a1, 0x0
+        amoadd.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         amoadd.b.aqrl     a0, a1, (a0)
         ret
@@ -5983,6 +8163,186 @@ asm_test::fetch_add::u8::relaxed:
 
 asm_test::fetch_add::u8::release:
         amoadd.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::f32::acqrel_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        lw                a0, 0x0(a0)
+        sext.w            a1, s1
+        beq               a0, a1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f32::seqcst_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        lw                a0, 0x0(a0)
+        sext.w            a1, s1
+        beq               a0, a1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f32::acquire_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        lw                a0, 0x0(a0)
+        sext.w            a1, s1
+        beq               a0, a1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f32::relaxed_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        lw                a0, 0x0(a0)
+        sext.w            a1, s1
+        beq               a0, a1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f32::release_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        lw                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        lw                a0, 0x0(a0)
+        sext.w            a1, s1
+        beq               a0, a1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        lw                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
         ret
 
 asm_test::fetch_add::f32::acqrel:
@@ -6156,6 +8516,181 @@ asm_test::fetch_add::f32::release:
         jalr              r2b
         andi              a1, s2, 0x8
         sw                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f64::acqrel_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        ld                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        ld                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        ld                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sd                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f64::seqcst_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        ld                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        ld                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        ld                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sd                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f64::acquire_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        ld                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        ld                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        ld                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sd                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f64::relaxed_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        ld                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        ld                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        ld                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sd                a0, 0x0(s0)
+        csrs              mstatus, a1
+        mv                a0, s1
+        ld                ra, 0x18(sp)
+        ld                s0, 0x10(sp)
+        ld                s1, 0x8(sp)
+        ld                s2, 0x0(sp)
+        addi              sp, sp, 0x20
+        ret
+
+asm_test::fetch_add::f64::release_zero:
+        addi              sp, sp, -0x20
+        sd                ra, 0x18(sp)
+        sd                s0, 0x10(sp)
+        sd                s1, 0x8(sp)
+        sd                s2, 0x0(sp)
+        mv                s0, a0
+        ld                s1, 0x0(a0)
+        csrrci            s2, mstatus, 0x8
+        ld                a0, 0x0(a0)
+        beq               a0, s1, 1f
+0:
+        andi              a1, s2, 0x8
+        csrs              mstatus, a1
+        csrrci            s2, mstatus, 0x8
+        mv                s1, a0
+        ld                a0, 0x0(s0)
+        bne               a0, s1, 0b
+1:
+        mv                a0, s1
+        li                a1, 0x0
+2:
+        auipc             ra, 0x0
+        jalr              r2b
+        andi              a1, s2, 0x8
+        sd                a0, 0x0(s0)
         csrs              mstatus, a1
         mv                a0, s1
         ld                ra, 0x18(sp)
@@ -6340,6 +8875,31 @@ asm_test::fetch_add::f64::release:
         addi              sp, sp, 0x20
         ret
 
+asm_test::fetch_add::u16::acqrel_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u16::seqcst_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u16::acquire_zero:
+        li                a1, 0x0
+        amoadd.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u16::relaxed_zero:
+        li                a1, 0x0
+        amoadd.h          a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u16::release_zero:
+        li                a1, 0x0
+        amoadd.h.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_add::u16::acqrel:
         amoadd.h.aqrl     a0, a1, (a0)
         ret
@@ -6358,6 +8918,31 @@ asm_test::fetch_add::u16::relaxed:
 
 asm_test::fetch_add::u16::release:
         amoadd.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u32::acqrel_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u32::seqcst_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u32::acquire_zero:
+        li                a1, 0x0
+        amoadd.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u32::relaxed_zero:
+        li                a1, 0x0
+        amoadd.w          a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u32::release_zero:
+        li                a1, 0x0
+        amoadd.w.rl       a0, a1, (a0)
         ret
 
 asm_test::fetch_add::u32::acqrel:
@@ -6380,6 +8965,31 @@ asm_test::fetch_add::u32::release:
         amoadd.w.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_add::u64::acqrel_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u64::seqcst_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u64::acquire_zero:
+        li                a1, 0x0
+        amoadd.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u64::relaxed_zero:
+        li                a1, 0x0
+        amoadd.d          a0, a1, (a0)
+        ret
+
+asm_test::fetch_add::u64::release_zero:
+        li                a1, 0x0
+        amoadd.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_add::u64::acqrel:
         amoadd.d.aqrl     a0, a1, (a0)
         ret
@@ -6398,6 +9008,56 @@ asm_test::fetch_add::u64::relaxed:
 
 asm_test::fetch_add::u64::release:
         amoadd.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::acqrel_all:
+        li                a1, 0xff
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::seqcst_all:
+        li                a1, 0xff
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::acqrel_zero:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::acquire_all:
+        li                a1, 0xff
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::relaxed_all:
+        li                a1, 0xff
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::release_all:
+        li                a1, 0xff
+        amoand.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::seqcst_zero:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::acquire_zero:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::relaxed_zero:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u8::release_zero:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
         ret
 
 asm_test::fetch_and::u8::acqrel:
@@ -6420,6 +9080,61 @@ asm_test::fetch_and::u8::release:
         amoand.b.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_and::u16::acqrel_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::seqcst_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::acqrel_zero:
+        li                a1, 0x0
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::acquire_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::relaxed_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::release_all:
+        lui               a1, 0x10
+        addi              a1, a1, -0x1
+        amoand.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::seqcst_zero:
+        li                a1, 0x0
+        amoand.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::acquire_zero:
+        li                a1, 0x0
+        amoand.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::relaxed_zero:
+        li                a1, 0x0
+        amoand.h          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u16::release_zero:
+        li                a1, 0x0
+        amoand.h.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_and::u16::acqrel:
         amoand.h.aqrl     a0, a1, (a0)
         ret
@@ -6438,6 +9153,56 @@ asm_test::fetch_and::u16::relaxed:
 
 asm_test::fetch_and::u16::release:
         amoand.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::acqrel_all:
+        li                a1, -0x1
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::seqcst_all:
+        li                a1, -0x1
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::acqrel_zero:
+        li                a1, 0x0
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::acquire_all:
+        li                a1, -0x1
+        amoand.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::relaxed_all:
+        li                a1, -0x1
+        amoand.w          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::release_all:
+        li                a1, -0x1
+        amoand.w.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::seqcst_zero:
+        li                a1, 0x0
+        amoand.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::acquire_zero:
+        li                a1, 0x0
+        amoand.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::relaxed_zero:
+        li                a1, 0x0
+        amoand.w          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u32::release_zero:
+        li                a1, 0x0
+        amoand.w.rl       a0, a1, (a0)
         ret
 
 asm_test::fetch_and::u32::acqrel:
@@ -6460,6 +9225,56 @@ asm_test::fetch_and::u32::release:
         amoand.w.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_and::u64::acqrel_all:
+        li                a1, -0x1
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::seqcst_all:
+        li                a1, -0x1
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::acqrel_zero:
+        li                a1, 0x0
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::acquire_all:
+        li                a1, -0x1
+        amoand.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::relaxed_all:
+        li                a1, -0x1
+        amoand.d          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::release_all:
+        li                a1, -0x1
+        amoand.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::seqcst_zero:
+        li                a1, 0x0
+        amoand.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::acquire_zero:
+        li                a1, 0x0
+        amoand.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::relaxed_zero:
+        li                a1, 0x0
+        amoand.d          a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::u64::release_zero:
+        li                a1, 0x0
+        amoand.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_and::u64::acqrel:
         amoand.d.aqrl     a0, a1, (a0)
         ret
@@ -6478,6 +9293,76 @@ asm_test::fetch_and::u64::relaxed:
 
 asm_test::fetch_and::u64::release:
         amoand.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_and::bool::acqrel_true:
+        li                a1, 0x1
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::seqcst_true:
+        li                a1, 0x1
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::acqrel_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::acquire_true:
+        li                a1, 0x1
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::relaxed_true:
+        li                a1, 0x1
+        amoand.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::release_true:
+        li                a1, 0x1
+        amoand.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::seqcst_false:
+        li                a1, 0x0
+        amoand.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::acquire_false:
+        li                a1, 0x0
+        amoand.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::relaxed_false:
+        li                a1, 0x0
+        amoand.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_and::bool::release_false:
+        li                a1, 0x0
+        amoand.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_and::bool::acqrel:
@@ -7750,6 +10635,31 @@ asm_test::fetch_not::bool::release:
         snez              a0, a0
         ret
 
+asm_test::fetch_sub::u8::acqrel_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u8::seqcst_zero:
+        li                a1, 0x0
+        amoadd.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u8::acquire_zero:
+        li                a1, 0x0
+        amoadd.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u8::relaxed_zero:
+        li                a1, 0x0
+        amoadd.b          a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u8::release_zero:
+        li                a1, 0x0
+        amoadd.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_sub::u8::acqrel:
         neg               a1, a1
         amoadd.b.aqrl     a0, a1, (a0)
@@ -7773,6 +10683,106 @@ asm_test::fetch_sub::u8::relaxed:
 asm_test::fetch_sub::u8::release:
         neg               a1, a1
         amoadd.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::f32::acqrel_zero:
+        lw                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        lw                a3, 0x0(a0)
+        sext.w            a4, a1
+        beq               a3, a4, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f32::seqcst_zero:
+        lw                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        lw                a3, 0x0(a0)
+        sext.w            a4, a1
+        beq               a3, a4, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f32::acquire_zero:
+        lw                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        lw                a3, 0x0(a0)
+        sext.w            a4, a1
+        beq               a3, a4, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f32::relaxed_zero:
+        lw                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        lw                a3, 0x0(a0)
+        sext.w            a4, a1
+        beq               a3, a4, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f32::release_zero:
+        lw                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        lw                a3, 0x0(a0)
+        sext.w            a4, a1
+        beq               a3, a4, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        lw                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sw                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
         ret
 
 asm_test::fetch_sub::f32::acqrel:
@@ -7950,6 +10960,101 @@ asm_test::fetch_sub::f32::release:
         addi              sp, sp, 0x20
         ret
 
+asm_test::fetch_sub::f64::acqrel_zero:
+        ld                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        ld                a3, 0x0(a0)
+        beq               a3, a1, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        ld                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sd                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f64::seqcst_zero:
+        ld                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        ld                a3, 0x0(a0)
+        beq               a3, a1, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        ld                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sd                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f64::acquire_zero:
+        ld                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        ld                a3, 0x0(a0)
+        beq               a3, a1, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        ld                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sd                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f64::relaxed_zero:
+        ld                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        ld                a3, 0x0(a0)
+        beq               a3, a1, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        ld                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sd                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
+asm_test::fetch_sub::f64::release_zero:
+        ld                a1, 0x0(a0)
+        csrrci            a2, mstatus, 0x8
+        ld                a3, 0x0(a0)
+        beq               a3, a1, 1f
+0:
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        csrrci            a2, mstatus, 0x8
+        mv                a1, a3
+        ld                a3, 0x0(a0)
+        bne               a3, a1, 0b
+1:
+        sd                a1, 0x0(a0)
+        andi              a2, a2, 0x8
+        csrs              mstatus, a2
+        mv                a0, a1
+        ret
+
 asm_test::fetch_sub::f64::acqrel:
         addi              sp, sp, -0x20
         sd                ra, 0x18(sp)
@@ -8120,6 +11225,31 @@ asm_test::fetch_sub::f64::release:
         addi              sp, sp, 0x20
         ret
 
+asm_test::fetch_sub::u16::acqrel_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u16::seqcst_zero:
+        li                a1, 0x0
+        amoadd.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u16::acquire_zero:
+        li                a1, 0x0
+        amoadd.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u16::relaxed_zero:
+        li                a1, 0x0
+        amoadd.h          a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u16::release_zero:
+        li                a1, 0x0
+        amoadd.h.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_sub::u16::acqrel:
         neg               a1, a1
         amoadd.h.aqrl     a0, a1, (a0)
@@ -8143,6 +11273,31 @@ asm_test::fetch_sub::u16::relaxed:
 asm_test::fetch_sub::u16::release:
         neg               a1, a1
         amoadd.h.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u32::acqrel_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u32::seqcst_zero:
+        li                a1, 0x0
+        amoadd.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u32::acquire_zero:
+        li                a1, 0x0
+        amoadd.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u32::relaxed_zero:
+        li                a1, 0x0
+        amoadd.w          a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u32::release_zero:
+        li                a1, 0x0
+        amoadd.w.rl       a0, a1, (a0)
         ret
 
 asm_test::fetch_sub::u32::acqrel:
@@ -8170,6 +11325,31 @@ asm_test::fetch_sub::u32::release:
         amoadd.w.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_sub::u64::acqrel_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u64::seqcst_zero:
+        li                a1, 0x0
+        amoadd.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u64::acquire_zero:
+        li                a1, 0x0
+        amoadd.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u64::relaxed_zero:
+        li                a1, 0x0
+        amoadd.d          a0, a1, (a0)
+        ret
+
+asm_test::fetch_sub::u64::release_zero:
+        li                a1, 0x0
+        amoadd.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_sub::u64::acqrel:
         neg               a1, a1
         amoadd.d.aqrl     a0, a1, (a0)
@@ -8195,6 +11375,31 @@ asm_test::fetch_sub::u64::release:
         amoadd.d.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_xor::u8::acqrel_zero:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u8::seqcst_zero:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u8::acquire_zero:
+        li                a1, 0x0
+        amoxor.b.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u8::relaxed_zero:
+        li                a1, 0x0
+        amoxor.b          a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u8::release_zero:
+        li                a1, 0x0
+        amoxor.b.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_xor::u8::acqrel:
         amoxor.b.aqrl     a0, a1, (a0)
         ret
@@ -8213,6 +11418,31 @@ asm_test::fetch_xor::u8::relaxed:
 
 asm_test::fetch_xor::u8::release:
         amoxor.b.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u16::acqrel_zero:
+        li                a1, 0x0
+        amoxor.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u16::seqcst_zero:
+        li                a1, 0x0
+        amoxor.h.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u16::acquire_zero:
+        li                a1, 0x0
+        amoxor.h.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u16::relaxed_zero:
+        li                a1, 0x0
+        amoxor.h          a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u16::release_zero:
+        li                a1, 0x0
+        amoxor.h.rl       a0, a1, (a0)
         ret
 
 asm_test::fetch_xor::u16::acqrel:
@@ -8235,6 +11465,31 @@ asm_test::fetch_xor::u16::release:
         amoxor.h.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_xor::u32::acqrel_zero:
+        li                a1, 0x0
+        amoxor.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u32::seqcst_zero:
+        li                a1, 0x0
+        amoxor.w.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u32::acquire_zero:
+        li                a1, 0x0
+        amoxor.w.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u32::relaxed_zero:
+        li                a1, 0x0
+        amoxor.w          a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u32::release_zero:
+        li                a1, 0x0
+        amoxor.w.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_xor::u32::acqrel:
         amoxor.w.aqrl     a0, a1, (a0)
         ret
@@ -8255,6 +11510,31 @@ asm_test::fetch_xor::u32::release:
         amoxor.w.rl       a0, a1, (a0)
         ret
 
+asm_test::fetch_xor::u64::acqrel_zero:
+        li                a1, 0x0
+        amoxor.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u64::seqcst_zero:
+        li                a1, 0x0
+        amoxor.d.aqrl     a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u64::acquire_zero:
+        li                a1, 0x0
+        amoxor.d.aq       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u64::relaxed_zero:
+        li                a1, 0x0
+        amoxor.d          a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::u64::release_zero:
+        li                a1, 0x0
+        amoxor.d.rl       a0, a1, (a0)
+        ret
+
 asm_test::fetch_xor::u64::acqrel:
         amoxor.d.aqrl     a0, a1, (a0)
         ret
@@ -8273,6 +11553,76 @@ asm_test::fetch_xor::u64::relaxed:
 
 asm_test::fetch_xor::u64::release:
         amoxor.d.rl       a0, a1, (a0)
+        ret
+
+asm_test::fetch_xor::bool::acqrel_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::seqcst_true:
+        li                a1, 0x1
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::acqrel_false:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::acquire_true:
+        li                a1, 0x1
+        amoxor.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::relaxed_true:
+        li                a1, 0x1
+        amoxor.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::release_true:
+        li                a1, 0x1
+        amoxor.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::seqcst_false:
+        li                a1, 0x0
+        amoxor.b.aqrl     a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::acquire_false:
+        li                a1, 0x0
+        amoxor.b.aq       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::relaxed_false:
+        li                a1, 0x0
+        amoxor.b          a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
+        ret
+
+asm_test::fetch_xor::bool::release_false:
+        li                a1, 0x0
+        amoxor.b.rl       a0, a1, (a0)
+        zext.b            a0, a0
+        snez              a0, a0
         ret
 
 asm_test::fetch_xor::bool::acqrel:

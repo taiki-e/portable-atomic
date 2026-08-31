@@ -224,6 +224,121 @@ asm_test::bit_toggle::u64::release:
         sltu              $a0, $zero, $a0
         ret
 
+asm_test::fetch_nand::u8::acqrel_all:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::seqcst_all:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::acqrel_zero:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::acquire_all:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::relaxed_all:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.b           $a3, $a0
+        amcas.b           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::release_all:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::seqcst_zero:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::acquire_zero:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::relaxed_zero:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.b           $a3, $a0
+        amcas.b           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u8::release_zero:
+        move              $a1, $a0
+        ld.b              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.b           $a3, $a0
+        amcas_db.b        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
         move              $a2, $a0
         ld.b              $a0, $a0, 0
@@ -287,6 +402,121 @@ asm_test::fetch_nand::u8::release:
         ext.w.b           $a4, $a0
         amcas_db.b        $a0, $a3, $a2
         bne               $a0, $a4, 0b
+        ret
+
+asm_test::fetch_nand::u16::acqrel_all:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::seqcst_all:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::acqrel_zero:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::acquire_all:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::relaxed_all:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.h           $a3, $a0
+        amcas.h           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::release_all:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        nop
+        nop
+0:
+        nor               $a2, $a0, $zero
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::seqcst_zero:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::acquire_zero:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::relaxed_zero:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.h           $a3, $a0
+        amcas.h           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u16::release_zero:
+        move              $a1, $a0
+        ld.h              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        ext.w.h           $a3, $a0
+        amcas_db.h        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
         ret
 
 asm_test::fetch_nand::u16::acqrel:
@@ -354,6 +584,121 @@ asm_test::fetch_nand::u16::release:
         bne               $a0, $a4, 0b
         ret
 
+asm_test::fetch_nand::u32::acqrel_all:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.w        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u32::seqcst_all:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.w        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u32::acqrel_zero:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.w        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u32::acquire_all:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.w        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u32::relaxed_all:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas.w           $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u32::release_all:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.w        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u32::seqcst_zero:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.w        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u32::acquire_zero:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.w        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u32::relaxed_zero:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas.w           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u32::release_zero:
+        move              $a1, $a0
+        ld.w              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.w        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
 asm_test::fetch_nand::u32::acqrel:
         move              $a2, $a0
         ld.w              $a0, $a0, 0
@@ -416,6 +761,121 @@ asm_test::fetch_nand::u32::release:
         and               $a4, $a0, $a1
         nor               $a4, $a4, $zero
         amcas_db.w        $a0, $a4, $a2
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u64::acqrel_all:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.d        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u64::seqcst_all:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.d        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u64::acqrel_zero:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.d        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u64::acquire_all:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.d        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u64::relaxed_all:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas.d           $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u64::release_all:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        nop
+        nop
+0:
+        move              $a2, $a0
+        nor               $a3, $a0, $zero
+        amcas_db.d        $a0, $a3, $a1
+        bne               $a0, $a2, 0b
+        ret
+
+asm_test::fetch_nand::u64::seqcst_zero:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.d        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u64::acquire_zero:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.d        $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u64::relaxed_zero:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas.d           $a0, $a2, $a1
+        bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::u64::release_zero:
+        move              $a1, $a0
+        ld.d              $a0, $a0, 0
+        addi.w            $a2, $zero, -1
+        nop
+0:
+        move              $a3, $a0
+        amcas_db.d        $a0, $a2, $a1
         bne               $a0, $a3, 0b
         ret
 
@@ -482,6 +942,116 @@ asm_test::fetch_nand::u64::release:
         nor               $a4, $a4, $zero
         amcas_db.d        $a0, $a4, $a2
         bne               $a0, $a3, 0b
+        ret
+
+asm_test::fetch_nand::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::acqrel_false:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor.w           $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::seqcst_false:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::acquire_false:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::relaxed_false:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor.w            $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_nand::bool::release_false:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::fetch_nand::bool::acqrel:
@@ -2164,6 +2734,606 @@ asm_test::compare_exchange::bool::release_relaxed:
         move              $a1, $a2
         ret
 
+asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a1, $a0, 255
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor.w            $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
+        amswap.b          $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltui             $a0, $a1, 1
+        sltu              $a1, $zero, $a1
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        move              $a1, $a0
+        ret
+
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         ext.w.b           $a3, $a1
         amcas_db.b        $a1, $a2, $a0
@@ -3304,6 +4474,56 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         move              $a1, $a2
         ret
 
+asm_test::or::u8::acqrel_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+
+asm_test::or::u8::seqcst_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+
+asm_test::or::u8::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u8::acquire_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+
+asm_test::or::u8::relaxed_all:
+        addi.w            $a1, $zero, -1
+        amswap.b          $a2, $a1, $a0
+        ret
+
+asm_test::or::u8::release_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+
+asm_test::or::u8::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u8::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u8::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::or::u8::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::or::u8::acqrel:
         andi              $a2, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
@@ -3342,6 +4562,56 @@ asm_test::or::u8::release:
         slli.d            $a2, $a2, 3
         sll.w             $a1, $a1, $a2
         amor_db.w         $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::acqrel_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.h       $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::seqcst_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.h       $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u16::acquire_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.h       $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::relaxed_all:
+        addi.w            $a1, $zero, -1
+        amswap.h          $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::release_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.h       $a2, $a1, $a0
+        ret
+
+asm_test::or::u16::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u16::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u16::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::or::u16::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::or::u16::acqrel:
@@ -3384,6 +4654,51 @@ asm_test::or::u16::release:
         amor_db.w         $a2, $a1, $a0
         ret
 
+asm_test::or::u32::acqrel_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.w       $a2, $a1, $a0
+        ret
+
+asm_test::or::u32::seqcst_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.w       $a2, $a1, $a0
+        ret
+
+asm_test::or::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u32::acquire_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.w       $a2, $a1, $a0
+        ret
+
+asm_test::or::u32::relaxed_all:
+        addi.w            $a1, $zero, -1
+        amswap.w          $a2, $a1, $a0
+        ret
+
+asm_test::or::u32::release_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.w       $a2, $a1, $a0
+        ret
+
+asm_test::or::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::or::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::or::u32::acqrel:
         amor_db.w         $a2, $a1, $a0
         ret
@@ -3404,6 +4719,51 @@ asm_test::or::u32::release:
         amor_db.w         $a2, $a1, $a0
         ret
 
+asm_test::or::u64::acqrel_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.d       $a2, $a1, $a0
+        ret
+
+asm_test::or::u64::seqcst_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.d       $a2, $a1, $a0
+        ret
+
+asm_test::or::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::or::u64::acquire_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.d       $a2, $a1, $a0
+        ret
+
+asm_test::or::u64::relaxed_all:
+        addi.w            $a1, $zero, -1
+        amswap.d          $a2, $a1, $a0
+        ret
+
+asm_test::or::u64::release_all:
+        addi.w            $a1, $zero, -1
+        amswap_db.d       $a2, $a1, $a0
+        ret
+
+asm_test::or::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::or::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::or::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        ret
+
+asm_test::or::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
 asm_test::or::u64::acqrel:
         amor_db.d         $a2, $a1, $a0
         ret
@@ -3422,6 +4782,76 @@ asm_test::or::u64::relaxed:
 
 asm_test::or::u64::release:
         amor_db.d         $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::acqrel_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amor_db.w         $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::seqcst_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amor_db.w         $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::acqrel_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::bool::acquire_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amor_db.w         $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::relaxed_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amor.w            $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::release_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amor_db.w         $a2, $a1, $a0
+        ret
+
+asm_test::or::bool::seqcst_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::bool::acquire_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::or::bool::relaxed_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::or::bool::release_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::or::bool::acqrel:
@@ -3464,6 +4894,31 @@ asm_test::or::bool::release:
         amor_db.w         $a2, $a1, $a0
         ret
 
+asm_test::add::u8::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u8::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u8::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u8::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::add::u8::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::add::u8::acqrel:
         amadd_db.b        $a2, $a1, $a0
         ret
@@ -3482,6 +4937,31 @@ asm_test::add::u8::relaxed:
 
 asm_test::add::u8::release:
         amadd_db.b        $a2, $a1, $a0
+        ret
+
+asm_test::add::u16::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u16::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u16::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u16::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::add::u16::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::add::u16::acqrel:
@@ -3504,6 +4984,26 @@ asm_test::add::u16::release:
         amadd_db.h        $a2, $a1, $a0
         ret
 
+asm_test::add::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::add::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::add::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::add::u32::acqrel:
         amadd_db.w        $a2, $a1, $a0
         ret
@@ -3524,6 +5024,26 @@ asm_test::add::u32::release:
         amadd_db.w        $a2, $a1, $a0
         ret
 
+asm_test::add::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::add::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::add::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::add::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        ret
+
+asm_test::add::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
 asm_test::add::u64::acqrel:
         amadd_db.d        $a2, $a1, $a0
         ret
@@ -3542,6 +5062,51 @@ asm_test::add::u64::relaxed:
 
 asm_test::add::u64::release:
         amadd_db.d        $a2, $a1, $a0
+        ret
+
+asm_test::and::u8::acqrel_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::seqcst_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::acqrel_zero:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::acquire_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::relaxed_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::release_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::seqcst_zero:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::acquire_zero:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::relaxed_zero:
+        amswap.b          $a1, $zero, $a0
+        ret
+
+asm_test::and::u8::release_zero:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::and::u8::acqrel:
@@ -3592,6 +5157,51 @@ asm_test::and::u8::release:
         sll.w             $a1, $a1, $a2
         orn               $a1, $a1, $a3
         amand_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::and::u16::acqrel_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::seqcst_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::acqrel_zero:
+        amswap_db.h       $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::acquire_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::relaxed_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::release_all:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::seqcst_zero:
+        amswap_db.h       $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::acquire_zero:
+        amswap_db.h       $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::relaxed_zero:
+        amswap.h          $a1, $zero, $a0
+        ret
+
+asm_test::and::u16::release_zero:
+        amswap_db.h       $a1, $zero, $a0
         ret
 
 asm_test::and::u16::acqrel:
@@ -3649,6 +5259,46 @@ asm_test::and::u16::release:
         amand_db.w        $a2, $a1, $a0
         ret
 
+asm_test::and::u32::acqrel_all:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::seqcst_all:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::acqrel_zero:
+        amswap_db.w       $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::acquire_all:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::relaxed_all:
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::release_all:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::seqcst_zero:
+        amswap_db.w       $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::acquire_zero:
+        amswap_db.w       $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::relaxed_zero:
+        amswap.w          $a1, $zero, $a0
+        ret
+
+asm_test::and::u32::release_zero:
+        amswap_db.w       $a1, $zero, $a0
+        ret
+
 asm_test::and::u32::acqrel:
         amand_db.w        $a2, $a1, $a0
         ret
@@ -3669,6 +5319,46 @@ asm_test::and::u32::release:
         amand_db.w        $a2, $a1, $a0
         ret
 
+asm_test::and::u64::acqrel_all:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::seqcst_all:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::acqrel_zero:
+        amswap_db.d       $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::acquire_all:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::relaxed_all:
+        amor.d            $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::release_all:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::seqcst_zero:
+        amswap_db.d       $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::acquire_zero:
+        amswap_db.d       $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::relaxed_zero:
+        amswap.d          $a1, $zero, $a0
+        ret
+
+asm_test::and::u64::release_zero:
+        amswap_db.d       $a1, $zero, $a0
+        ret
+
 asm_test::and::u64::acqrel:
         amand_db.d        $a2, $a1, $a0
         ret
@@ -3687,6 +5377,81 @@ asm_test::and::u64::relaxed:
 
 asm_test::and::u64::release:
         amand_db.d        $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a1, $a3, $a1
+        orn               $a1, $a1, $a2
+        amand_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a1, $a3, $a1
+        orn               $a1, $a1, $a2
+        amand_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::acqrel_false:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a1, $a3, $a1
+        orn               $a1, $a1, $a2
+        amand_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a1, $a3, $a1
+        orn               $a1, $a1, $a2
+        amand.w           $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a1, $a3, $a1
+        orn               $a1, $a1, $a2
+        amand_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::and::bool::seqcst_false:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::bool::acquire_false:
+        amswap_db.b       $a1, $zero, $a0
+        ret
+
+asm_test::and::bool::relaxed_false:
+        amswap.b          $a1, $zero, $a0
+        ret
+
+asm_test::and::bool::release_false:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::and::bool::acqrel:
@@ -4169,6 +5934,31 @@ asm_test::not::bool::release:
         amxor_db.w        $a2, $a1, $a0
         ret
 
+asm_test::sub::u8::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u8::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u8::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u8::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::sub::u8::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::sub::u8::acqrel:
         sub.w             $a1, $zero, $a1
         amadd_db.b        $a2, $a1, $a0
@@ -4192,6 +5982,31 @@ asm_test::sub::u8::relaxed:
 asm_test::sub::u8::release:
         sub.w             $a1, $zero, $a1
         amadd_db.b        $a2, $a1, $a0
+        ret
+
+asm_test::sub::u16::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u16::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u16::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u16::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::sub::u16::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::sub::u16::acqrel:
@@ -4219,6 +6034,26 @@ asm_test::sub::u16::release:
         amadd_db.h        $a2, $a1, $a0
         ret
 
+asm_test::sub::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::sub::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::sub::u32::acqrel:
         sub.w             $a1, $zero, $a1
         amadd_db.w        $a2, $a1, $a0
@@ -4244,6 +6079,26 @@ asm_test::sub::u32::release:
         amadd_db.w        $a2, $a1, $a0
         ret
 
+asm_test::sub::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::sub::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        ret
+
+asm_test::sub::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
 asm_test::sub::u64::acqrel:
         sub.d             $a1, $zero, $a1
         amadd_db.d        $a2, $a1, $a0
@@ -4267,6 +6122,31 @@ asm_test::sub::u64::relaxed:
 asm_test::sub::u64::release:
         sub.d             $a1, $zero, $a1
         amadd_db.d        $a2, $a1, $a0
+        ret
+
+asm_test::xor::u8::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u8::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u8::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u8::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::xor::u8::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::xor::u8::acqrel:
@@ -4309,6 +6189,31 @@ asm_test::xor::u8::release:
         amxor_db.w        $a2, $a1, $a0
         ret
 
+asm_test::xor::u16::acqrel_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u16::seqcst_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u16::acquire_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u16::relaxed_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::xor::u16::release_zero:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::xor::u16::acqrel:
         andi              $a2, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
@@ -4349,6 +6254,26 @@ asm_test::xor::u16::release:
         amxor_db.w        $a2, $a1, $a0
         ret
 
+asm_test::xor::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::xor::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        ret
+
 asm_test::xor::u32::acqrel:
         amxor_db.w        $a2, $a1, $a0
         ret
@@ -4369,6 +6294,26 @@ asm_test::xor::u32::release:
         amxor_db.w        $a2, $a1, $a0
         ret
 
+asm_test::xor::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
+asm_test::xor::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        ret
+
+asm_test::xor::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        ret
+
 asm_test::xor::u64::acqrel:
         amxor_db.d        $a2, $a1, $a0
         ret
@@ -4387,6 +6332,76 @@ asm_test::xor::u64::relaxed:
 
 asm_test::xor::u64::release:
         amxor_db.d        $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::acqrel_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amxor_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::seqcst_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amxor_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::acqrel_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::bool::acquire_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amxor_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::relaxed_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amxor.w           $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::release_true:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        slli.d            $a1, $a1, 3
+        ori               $a2, $zero, 1
+        sll.w             $a1, $a2, $a1
+        amxor_db.w        $a2, $a1, $a0
+        ret
+
+asm_test::xor::bool::seqcst_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::bool::acquire_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
+        ret
+
+asm_test::xor::bool::relaxed_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a1, $zero, $a0
+        ret
+
+asm_test::xor::bool::release_false:
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a1, $zero, $a0
         ret
 
 asm_test::xor::bool::acqrel:
@@ -4694,6 +6709,86 @@ asm_test::swap::u64::relaxed:
 asm_test::swap::u64::release:
         amswap_db.d       $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::swap::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::swap::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::swap::bool::acqrel_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::swap::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::swap::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor.w            $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::swap::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::swap::bool::seqcst_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::swap::bool::acquire_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::swap::bool::relaxed_false:
+        amswap.b          $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::swap::bool::release_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
         ret
 
 asm_test::swap::bool::acqrel:
@@ -5090,6 +7185,76 @@ asm_test::bit_set::u64::release:
         sltu              $a0, $zero, $a0
         ret
 
+asm_test::fetch_or::u8::acqrel_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.b       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u8::seqcst_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.b       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u8::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u8::acquire_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.b       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u8::relaxed_all:
+        addi.w            $a2, $zero, -1
+        amswap.b          $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u8::release_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.b       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u8::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u8::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u8::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u8::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         slli.d            $a2, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
@@ -5128,6 +7293,76 @@ asm_test::fetch_or::u8::release:
         sll.w             $a1, $a1, $a2
         amor_db.w         $a3, $a1, $a0
         srl.w             $a0, $a3, $a2
+        ret
+
+asm_test::fetch_or::u16::acqrel_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.h       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u16::seqcst_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.h       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u16::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u16::acquire_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.h       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u16::relaxed_all:
+        addi.w            $a2, $zero, -1
+        amswap.h          $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u16::release_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.h       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u16::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u16::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u16::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_or::u16::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
         ret
 
 asm_test::fetch_or::u16::acqrel:
@@ -5170,6 +7405,61 @@ asm_test::fetch_or::u16::release:
         srl.w             $a0, $a3, $a2
         ret
 
+asm_test::fetch_or::u32::acqrel_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.w       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::seqcst_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.w       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::acquire_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.w       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::relaxed_all:
+        addi.w            $a2, $zero, -1
+        amswap.w          $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::release_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.w       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_or::u32::acqrel:
         amor_db.w         $a2, $a1, $a0
         move              $a0, $a2
@@ -5195,6 +7485,61 @@ asm_test::fetch_or::u32::release:
         move              $a0, $a2
         ret
 
+asm_test::fetch_or::u64::acqrel_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.d       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::seqcst_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.d       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::acquire_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.d       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::relaxed_all:
+        addi.w            $a2, $zero, -1
+        amswap.d          $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::release_all:
+        addi.w            $a2, $zero, -1
+        amswap_db.d       $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_or::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_or::u64::acqrel:
         amor_db.d         $a2, $a1, $a0
         move              $a0, $a2
@@ -5218,6 +7563,111 @@ asm_test::fetch_or::u64::relaxed:
 asm_test::fetch_or::u64::release:
         amor_db.d         $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_or::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::acqrel_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor.w            $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amor_db.w         $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::seqcst_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::acquire_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::relaxed_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_or::bool::release_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::fetch_or::bool::acqrel:
@@ -5605,6 +8055,46 @@ asm_test::fetch_abs::f64::release:
         movgr2fr.d        $fa0, $a2
         ret
 
+asm_test::fetch_add::u8::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u8::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u8::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u8::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u8::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         amadd_db.b        $a2, $a1, $a0
         move              $a0, $a2
@@ -5628,6 +8118,81 @@ asm_test::fetch_add::u8::relaxed:
 asm_test::fetch_add::u8::release:
         amadd_db.b        $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_add::f32::acqrel_zero:
+        ld.w              $a1, $a0, 0
+        movgr2fr.w        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.w        $fa1, $a1
+        fadd.s            $fa1, $fa1, $fa0
+        movfr2gr.s        $a3, $fa1
+        amcas_db.w        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f32::seqcst_zero:
+        ld.w              $a1, $a0, 0
+        movgr2fr.w        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.w        $fa1, $a1
+        fadd.s            $fa1, $fa1, $fa0
+        movfr2gr.s        $a3, $fa1
+        amcas_db.w        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f32::acquire_zero:
+        ld.w              $a1, $a0, 0
+        movgr2fr.w        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.w        $fa1, $a1
+        fadd.s            $fa1, $fa1, $fa0
+        movfr2gr.s        $a3, $fa1
+        amcas_db.w        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f32::relaxed_zero:
+        ld.w              $a1, $a0, 0
+        movgr2fr.w        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.w        $fa1, $a1
+        fadd.s            $fa1, $fa1, $fa0
+        movfr2gr.s        $a3, $fa1
+        amcas.w           $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f32::release_zero:
+        ld.w              $a1, $a0, 0
+        movgr2fr.w        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.w        $fa1, $a1
+        fadd.s            $fa1, $fa1, $fa0
+        movfr2gr.s        $a3, $fa1
+        amcas_db.w        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
         ret
 
 asm_test::fetch_add::f32::acqrel:
@@ -5705,6 +8270,81 @@ asm_test::fetch_add::f32::release:
         movgr2fr.w        $fa0, $a1
         ret
 
+asm_test::fetch_add::f64::acqrel_zero:
+        ld.d              $a1, $a0, 0
+        movgr2fr.d        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.d        $fa1, $a1
+        fadd.d            $fa1, $fa1, $fa0
+        movfr2gr.d        $a3, $fa1
+        amcas_db.d        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f64::seqcst_zero:
+        ld.d              $a1, $a0, 0
+        movgr2fr.d        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.d        $fa1, $a1
+        fadd.d            $fa1, $fa1, $fa0
+        movfr2gr.d        $a3, $fa1
+        amcas_db.d        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f64::acquire_zero:
+        ld.d              $a1, $a0, 0
+        movgr2fr.d        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.d        $fa1, $a1
+        fadd.d            $fa1, $fa1, $fa0
+        movfr2gr.d        $a3, $fa1
+        amcas_db.d        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f64::relaxed_zero:
+        ld.d              $a1, $a0, 0
+        movgr2fr.d        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.d        $fa1, $a1
+        fadd.d            $fa1, $fa1, $fa0
+        movfr2gr.d        $a3, $fa1
+        amcas.d           $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_add::f64::release_zero:
+        ld.d              $a1, $a0, 0
+        movgr2fr.d        $fa0, $zero
+        nop
+        nop
+0:
+        move              $a2, $a1
+        movgr2fr.d        $fa1, $a1
+        fadd.d            $fa1, $fa1, $fa0
+        movfr2gr.d        $a3, $fa1
+        amcas_db.d        $a1, $a3, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
 asm_test::fetch_add::f64::acqrel:
         ld.d              $a1, $a0, 0
         nop
@@ -5780,6 +8420,46 @@ asm_test::fetch_add::f64::release:
         movgr2fr.d        $fa0, $a1
         ret
 
+asm_test::fetch_add::u16::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u16::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u16::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u16::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_add::u16::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_add::u16::acqrel:
         amadd_db.h        $a2, $a1, $a0
         move              $a0, $a2
@@ -5803,6 +8483,31 @@ asm_test::fetch_add::u16::relaxed:
 asm_test::fetch_add::u16::release:
         amadd_db.h        $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_add::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_add::u32::acqrel:
@@ -5830,6 +8535,31 @@ asm_test::fetch_add::u32::release:
         move              $a0, $a2
         ret
 
+asm_test::fetch_add::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_add::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_add::u64::acqrel:
         amadd_db.d        $a2, $a1, $a0
         move              $a0, $a2
@@ -5853,6 +8583,71 @@ asm_test::fetch_add::u64::relaxed:
 asm_test::fetch_add::u64::release:
         amadd_db.d        $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_and::u8::acqrel_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u8::seqcst_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u8::acqrel_zero:
+        amswap_db.b       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u8::acquire_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u8::relaxed_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u8::release_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u8::seqcst_zero:
+        amswap_db.b       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u8::acquire_zero:
+        amswap_db.b       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u8::relaxed_zero:
+        amswap.b          $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u8::release_zero:
+        amswap_db.b       $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::u8::acqrel:
@@ -5908,6 +8703,71 @@ asm_test::fetch_and::u8::release:
         orn               $a1, $a1, $a3
         amand_db.w        $a3, $a1, $a0
         srl.w             $a0, $a3, $a2
+        ret
+
+asm_test::fetch_and::u16::acqrel_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u16::seqcst_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u16::acqrel_zero:
+        amswap_db.h       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u16::acquire_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u16::relaxed_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u16::release_all:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_and::u16::seqcst_zero:
+        amswap_db.h       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u16::acquire_zero:
+        amswap_db.h       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u16::relaxed_zero:
+        amswap.h          $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u16::release_zero:
+        amswap_db.h       $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::u16::acqrel:
@@ -5970,6 +8830,56 @@ asm_test::fetch_and::u16::release:
         srl.w             $a0, $a3, $a2
         ret
 
+asm_test::fetch_and::u32::acqrel_all:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::seqcst_all:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::acqrel_zero:
+        amswap_db.w       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::acquire_all:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::relaxed_all:
+        amor.w            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::release_all:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::seqcst_zero:
+        amswap_db.w       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::acquire_zero:
+        amswap_db.w       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::relaxed_zero:
+        amswap.w          $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u32::release_zero:
+        amswap_db.w       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_and::u32::acqrel:
         amand_db.w        $a2, $a1, $a0
         move              $a0, $a2
@@ -5995,6 +8905,56 @@ asm_test::fetch_and::u32::release:
         move              $a0, $a2
         ret
 
+asm_test::fetch_and::u64::acqrel_all:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::seqcst_all:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::acqrel_zero:
+        amswap_db.d       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::acquire_all:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::relaxed_all:
+        amor.d            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::release_all:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::seqcst_zero:
+        amswap_db.d       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::acquire_zero:
+        amswap_db.d       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::relaxed_zero:
+        amswap.d          $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_and::u64::release_zero:
+        amswap_db.d       $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_and::u64::acqrel:
         amand_db.d        $a2, $a1, $a0
         move              $a0, $a2
@@ -6018,6 +8978,101 @@ asm_test::fetch_and::u64::relaxed:
 asm_test::fetch_and::u64::release:
         amand_db.d        $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_and::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a1
+        orn               $a2, $a3, $a2
+        amand_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_and::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a1
+        orn               $a2, $a3, $a2
+        amand_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_and::bool::acqrel_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::fetch_and::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a1
+        orn               $a2, $a3, $a2
+        amand_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_and::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a1
+        orn               $a2, $a3, $a2
+        amand.w           $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_and::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a1
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a1
+        orn               $a2, $a3, $a2
+        amand_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_and::bool::seqcst_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::fetch_and::bool::acquire_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::fetch_and::bool::relaxed_false:
+        amswap.b          $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
+        ret
+
+asm_test::fetch_and::bool::release_false:
+        amswap_db.b       $a1, $zero, $a0
+        sltu              $a0, $zero, $a1
         ret
 
 asm_test::fetch_and::bool::acqrel:
@@ -7325,6 +10380,46 @@ asm_test::fetch_not::bool::release:
         sltu              $a0, $zero, $a0
         ret
 
+asm_test::fetch_sub::u8::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u8::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u8::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u8::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u8::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_sub::u8::acqrel:
         sub.w             $a2, $zero, $a1
         amadd_db.b        $a1, $a2, $a0
@@ -7353,6 +10448,66 @@ asm_test::fetch_sub::u8::release:
         sub.w             $a2, $zero, $a1
         amadd_db.b        $a1, $a2, $a0
         move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::f32::acqrel_zero:
+        ld.w              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.w        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f32::seqcst_zero:
+        ld.w              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.w        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f32::acquire_zero:
+        ld.w              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.w        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f32::relaxed_zero:
+        ld.w              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas.w           $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f32::release_zero:
+        ld.w              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.w        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.w        $fa0, $a1
         ret
 
 asm_test::fetch_sub::f32::acqrel:
@@ -7430,6 +10585,66 @@ asm_test::fetch_sub::f32::release:
         movgr2fr.w        $fa0, $a1
         ret
 
+asm_test::fetch_sub::f64::acqrel_zero:
+        ld.d              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.d        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f64::seqcst_zero:
+        ld.d              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.d        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f64::acquire_zero:
+        ld.d              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.d        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f64::relaxed_zero:
+        ld.d              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas.d           $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
+asm_test::fetch_sub::f64::release_zero:
+        ld.d              $a1, $a0, 0
+        nop
+        nop
+        nop
+0:
+        move              $a2, $a1
+        amcas_db.d        $a1, $a2, $a0
+        bne               $a1, $a2, 0b
+        movgr2fr.d        $fa0, $a1
+        ret
+
 asm_test::fetch_sub::f64::acqrel:
         ld.d              $a1, $a0, 0
         nop
@@ -7505,6 +10720,46 @@ asm_test::fetch_sub::f64::release:
         movgr2fr.d        $fa0, $a1
         ret
 
+asm_test::fetch_sub::u16::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u16::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u16::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u16::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_sub::u16::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_sub::u16::acqrel:
         sub.w             $a2, $zero, $a1
         amadd_db.h        $a1, $a2, $a0
@@ -7532,6 +10787,31 @@ asm_test::fetch_sub::u16::relaxed:
 asm_test::fetch_sub::u16::release:
         sub.w             $a2, $zero, $a1
         amadd_db.h        $a1, $a2, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
         move              $a0, $a1
         ret
 
@@ -7565,6 +10845,31 @@ asm_test::fetch_sub::u32::release:
         move              $a0, $a1
         ret
 
+asm_test::fetch_sub::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_sub::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_sub::u64::acqrel:
         sub.d             $a2, $zero, $a1
         amadd_db.d        $a1, $a2, $a0
@@ -7593,6 +10898,46 @@ asm_test::fetch_sub::u64::release:
         sub.d             $a2, $zero, $a1
         amadd_db.d        $a1, $a2, $a0
         move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u8::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u8::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u8::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u8::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u8::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
         ret
 
 asm_test::fetch_xor::u8::acqrel:
@@ -7635,6 +10980,46 @@ asm_test::fetch_xor::u8::release:
         srl.w             $a0, $a3, $a2
         ret
 
+asm_test::fetch_xor::u16::acqrel_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u16::seqcst_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u16::acquire_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u16::relaxed_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
+asm_test::fetch_xor::u16::release_zero:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        ret
+
 asm_test::fetch_xor::u16::acqrel:
         slli.d            $a2, $a0, 3
         bstrins.d         $a0, $zero, 1, 0
@@ -7675,6 +11060,31 @@ asm_test::fetch_xor::u16::release:
         srl.w             $a0, $a3, $a2
         ret
 
+asm_test::fetch_xor::u32::acqrel_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u32::seqcst_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u32::acquire_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u32::relaxed_zero:
+        amor.w            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u32::release_zero:
+        amor_db.w         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_xor::u32::acqrel:
         amxor_db.w        $a2, $a1, $a0
         move              $a0, $a2
@@ -7700,6 +11110,31 @@ asm_test::fetch_xor::u32::release:
         move              $a0, $a2
         ret
 
+asm_test::fetch_xor::u64::acqrel_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u64::seqcst_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u64::acquire_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u64::relaxed_zero:
+        amor.d            $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
+asm_test::fetch_xor::u64::release_zero:
+        amor_db.d         $a1, $zero, $a0
+        move              $a0, $a1
+        ret
+
 asm_test::fetch_xor::u64::acqrel:
         amxor_db.d        $a2, $a1, $a0
         move              $a0, $a2
@@ -7723,6 +11158,111 @@ asm_test::fetch_xor::u64::relaxed:
 asm_test::fetch_xor::u64::release:
         amxor_db.d        $a2, $a1, $a0
         move              $a0, $a2
+        ret
+
+asm_test::fetch_xor::bool::acqrel_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::seqcst_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::acqrel_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::acquire_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::relaxed_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor.w           $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::release_true:
+        slli.d            $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        ori               $a2, $zero, 1
+        sll.w             $a2, $a2, $a1
+        amxor_db.w        $a3, $a2, $a0
+        srl.w             $a0, $a3, $a1
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::seqcst_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::acquire_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::relaxed_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor.w            $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
+        ret
+
+asm_test::fetch_xor::bool::release_false:
+        andi              $a1, $a0, 3
+        bstrins.d         $a0, $zero, 1, 0
+        amor_db.w         $a2, $zero, $a0
+        slli.d            $a0, $a1, 3
+        srl.w             $a0, $a2, $a0
+        andi              $a0, $a0, 255
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::fetch_xor::bool::acqrel:

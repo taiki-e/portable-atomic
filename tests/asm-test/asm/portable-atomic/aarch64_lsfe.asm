@@ -444,6 +444,96 @@ asm_test::bit_toggle::u128::release:
         cset              w0, ne
         ret
 
+asm_test::fetch_nand::u8::acqrel_all:
+0:
+        ldaxrb            w8, [x0]
+        mvn               w9, w8
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::seqcst_all:
+0:
+        ldaxrb            w8, [x0]
+        mvn               w9, w8
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::acqrel_zero:
+        mov               w9, #0xff               // =255
+0:
+        ldaxrb            w8, [x0]
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::acquire_all:
+0:
+        ldaxrb            w8, [x0]
+        mvn               w9, w8
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::relaxed_all:
+0:
+        ldxrb             w8, [x0]
+        mvn               w9, w8
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::release_all:
+0:
+        ldxrb             w8, [x0]
+        mvn               w9, w8
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::seqcst_zero:
+        mov               w9, #0xff               // =255
+0:
+        ldaxrb            w8, [x0]
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::acquire_zero:
+        mov               w9, #0xff               // =255
+0:
+        ldaxrb            w8, [x0]
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::relaxed_zero:
+        mov               w9, #0xff               // =255
+0:
+        ldxrb             w8, [x0]
+        stxrb             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u8::release_zero:
+        mov               w9, #0xff               // =255
+0:
+        ldxrb             w8, [x0]
+        stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
 asm_test::fetch_nand::u8::acqrel:
 0:
         ldaxrb            w8, [x0]
@@ -490,6 +580,96 @@ asm_test::fetch_nand::u8::release:
         and               w9, w8, w1
         mvn               w9, w9
         stlxrb            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::acqrel_all:
+0:
+        ldaxrh            w8, [x0]
+        mvn               w9, w8
+        stlxrh            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::seqcst_all:
+0:
+        ldaxrh            w8, [x0]
+        mvn               w9, w8
+        stlxrh            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::acqrel_zero:
+        mov               w9, #0xffff             // =65535
+0:
+        ldaxrh            w8, [x0]
+        stlxrh            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::acquire_all:
+0:
+        ldaxrh            w8, [x0]
+        mvn               w9, w8
+        stxrh             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::relaxed_all:
+0:
+        ldxrh             w8, [x0]
+        mvn               w9, w8
+        stxrh             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::release_all:
+0:
+        ldxrh             w8, [x0]
+        mvn               w9, w8
+        stlxrh            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::seqcst_zero:
+        mov               w9, #0xffff             // =65535
+0:
+        ldaxrh            w8, [x0]
+        stlxrh            w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::acquire_zero:
+        mov               w9, #0xffff             // =65535
+0:
+        ldaxrh            w8, [x0]
+        stxrh             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::relaxed_zero:
+        mov               w9, #0xffff             // =65535
+0:
+        ldxrh             w8, [x0]
+        stxrh             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u16::release_zero:
+        mov               w9, #0xffff             // =65535
+0:
+        ldxrh             w8, [x0]
+        stlxrh            w10, w9, [x0]
         cbnz              w10, 0b
         mov               w0, w8
         ret
@@ -544,6 +724,96 @@ asm_test::fetch_nand::u16::release:
         mov               w0, w8
         ret
 
+asm_test::fetch_nand::u32::acqrel_all:
+0:
+        ldaxr             w8, [x0]
+        mvn               w9, w8
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::seqcst_all:
+0:
+        ldaxr             w8, [x0]
+        mvn               w9, w8
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::acqrel_zero:
+        mov               w9, #-0x1               // =-1
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::acquire_all:
+0:
+        ldaxr             w8, [x0]
+        mvn               w9, w8
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::relaxed_all:
+0:
+        ldxr              w8, [x0]
+        mvn               w9, w8
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::release_all:
+0:
+        ldxr              w8, [x0]
+        mvn               w9, w8
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::seqcst_zero:
+        mov               w9, #-0x1               // =-1
+0:
+        ldaxr             w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::acquire_zero:
+        mov               w9, #-0x1               // =-1
+0:
+        ldaxr             w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::relaxed_zero:
+        mov               w9, #-0x1               // =-1
+0:
+        ldxr              w8, [x0]
+        stxr              w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
+asm_test::fetch_nand::u32::release_zero:
+        mov               w9, #-0x1               // =-1
+0:
+        ldxr              w8, [x0]
+        stlxr             w10, w9, [x0]
+        cbnz              w10, 0b
+        mov               w0, w8
+        ret
+
 asm_test::fetch_nand::u32::acqrel:
 0:
         ldaxr             w8, [x0]
@@ -594,6 +864,96 @@ asm_test::fetch_nand::u32::release:
         mov               w0, w8
         ret
 
+asm_test::fetch_nand::u64::acqrel_all:
+        mov               x8, x0
+0:
+        ldaxr             x0, [x8]
+        mvn               x9, x0
+        stlxr             w10, x9, [x8]
+        cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::u64::seqcst_all:
+        mov               x8, x0
+0:
+        ldaxr             x0, [x8]
+        mvn               x9, x0
+        stlxr             w10, x9, [x8]
+        cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::u64::acqrel_zero:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxr             x8, [x0]
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u64::acquire_all:
+        mov               x8, x0
+0:
+        ldaxr             x0, [x8]
+        mvn               x9, x0
+        stxr              w10, x9, [x8]
+        cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::u64::relaxed_all:
+        mov               x8, x0
+0:
+        ldxr              x0, [x8]
+        mvn               x9, x0
+        stxr              w10, x9, [x8]
+        cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::u64::release_all:
+        mov               x8, x0
+0:
+        ldxr              x0, [x8]
+        mvn               x9, x0
+        stlxr             w10, x9, [x8]
+        cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::u64::seqcst_zero:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxr             x8, [x0]
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u64::acquire_zero:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxr             x8, [x0]
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u64::relaxed_zero:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxr              x8, [x0]
+        stxr              w10, x9, [x0]
+        cbnz              w10, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u64::release_zero:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxr              x8, [x0]
+        stlxr             w10, x9, [x0]
+        cbnz              w10, 0b
+        mov               x0, x8
+        ret
+
 asm_test::fetch_nand::u64::acqrel:
         mov               x8, x0
 0:
@@ -642,6 +1002,126 @@ asm_test::fetch_nand::u64::release:
         mvn               x9, x9
         stlxr             w10, x9, [x8]
         cbnz              w10, 0b
+        ret
+
+asm_test::fetch_nand::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::fetch_nand::bool::acqrel:
@@ -752,6 +1232,136 @@ asm_test::fetch_nand::bool::release:
         tst               w0, #0xff
         cset              w0, ne
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_nand::u128::acqrel_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::seqcst_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::acquire_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::relaxed_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::release_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_nand::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        mvn               x10, x10
+        mvn               x11, x11
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
         ret
 
 asm_test::fetch_nand::u128::acqrel:
@@ -3349,6 +3959,936 @@ asm_test::compare_exchange::bool::release_relaxed:
         ldp               x29, x30, [sp], #0x20
         ret
 
+asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_true_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, #0x1                // =1
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x1
+        cset              w8, eq
+        cmp               w0, #0x0
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_seqcst_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_acquire_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_acquire_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::compare_exchange::bool::release_relaxed_false_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x2, x0
+        mov               w0, wzr
+        mov               w1, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w8, eq
+        cset              w1, ne
+        eor               w0, w8, #0x1
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::compare_exchange::u128::acqrel_seqcst:
 0:
         ldaxp             x9, x10, [x0]
@@ -5824,6 +7364,106 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         stp               x9, xzr, [x8]
         ret
 
+asm_test::or::u8::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::or::u8::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -5874,6 +7514,106 @@ asm_test::or::u8::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -5934,6 +7674,106 @@ asm_test::or::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::or::u32::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::or::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -5984,6 +7824,106 @@ asm_test::or::u32::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -6044,6 +7984,106 @@ asm_test::or::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::or::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::or::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::or::bool::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -6099,6 +8139,106 @@ asm_test::or::bool::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::or::u128::acqrel_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::seqcst_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::acqrel_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::acquire_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::relaxed_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldxp              x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::release_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldxp              x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::seqcst_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::acquire_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::relaxed_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::or::u128::release_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        orr               x11, x9, x8
+        orr               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
 asm_test::or::u128::acqrel:
 0:
         ldaxp             x8, x9, [x0]
@@ -6142,6 +8282,56 @@ asm_test::or::u128::release:
         orr               x11, x9, x3
         stlxp             w12, x10, x11, [x0]
         cbnz              w12, 0b
+        ret
+
+asm_test::add::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::add::u8::acqrel:
@@ -6194,6 +8384,56 @@ asm_test::add::u8::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -6254,6 +8494,56 @@ asm_test::add::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::add::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::add::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -6304,6 +8594,56 @@ asm_test::add::u32::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::add::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -6364,6 +8704,56 @@ asm_test::add::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::add::u128::acqrel_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        adds              x11, x9, x8
+        adc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::add::u128::seqcst_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        adds              x11, x9, x8
+        adc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::add::u128::acquire_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        adds              x11, x9, x8
+        adc               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::add::u128::relaxed_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        adds              x11, x9, x8
+        adc               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::add::u128::release_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        adds              x11, x9, x8
+        adc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
 asm_test::add::u128::acqrel:
 0:
         ldaxp             x8, x9, [x0]
@@ -6407,6 +8797,106 @@ asm_test::add::u128::release:
         adc               x11, x9, x3
         stlxp             w12, x10, x11, [x0]
         cbnz              w12, 0b
+        ret
+
+asm_test::and::u8::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::and::u8::acqrel:
@@ -6459,6 +8949,106 @@ asm_test::and::u8::release:
         mov               x8, x0
         mvn               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -6519,6 +9109,106 @@ asm_test::and::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::and::u32::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::and::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -6569,6 +9259,106 @@ asm_test::and::u32::release:
         mov               x8, x0
         mvn               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -6629,6 +9419,106 @@ asm_test::and::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::and::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::and::bool::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -6682,6 +9572,106 @@ asm_test::and::bool::release:
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::and::u128::acqrel_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::seqcst_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::acqrel_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::acquire_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::relaxed_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldxp              x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::release_all:
+        mov               x8, #-0x1               // =-1
+0:
+        ldxp              x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::seqcst_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::acquire_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::relaxed_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::and::u128::release_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        and               x11, x9, x8
+        and               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
         ret
 
 asm_test::and::u128::acqrel:
@@ -7449,6 +10439,56 @@ asm_test::not::u128::release:
         cbnz              w12, 0b
         ret
 
+asm_test::sub::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::sub::u8::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -7499,6 +10539,56 @@ asm_test::sub::u8::release:
         mov               x8, x0
         neg               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -7559,6 +10649,56 @@ asm_test::sub::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::sub::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::sub::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -7609,6 +10749,56 @@ asm_test::sub::u32::release:
         mov               x8, x0
         neg               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::sub::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -7669,6 +10859,56 @@ asm_test::sub::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::sub::u128::acqrel_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        subs              x11, x9, x8
+        sbc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::sub::u128::seqcst_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        subs              x11, x9, x8
+        sbc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::sub::u128::acquire_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        subs              x11, x9, x8
+        sbc               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::sub::u128::relaxed_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        subs              x11, x9, x8
+        sbc               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::sub::u128::release_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        subs              x11, x9, x8
+        sbc               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
 asm_test::sub::u128::acqrel:
 0:
         ldaxp             x8, x9, [x0]
@@ -7712,6 +10952,56 @@ asm_test::sub::u128::release:
         sbc               x11, x9, x3
         stlxp             w12, x10, x11, [x0]
         cbnz              w12, 0b
+        ret
+
+asm_test::xor::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::xor::u8::acqrel:
@@ -7764,6 +11054,56 @@ asm_test::xor::u8::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -7824,6 +11164,56 @@ asm_test::xor::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::xor::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::xor::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -7874,6 +11264,56 @@ asm_test::xor::u32::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -7934,6 +11374,106 @@ asm_test::xor::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::xor::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::xor::bool::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -7987,6 +11527,56 @@ asm_test::xor::bool::release:
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::xor::u128::acqrel_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        eor               x11, x9, x8
+        eor               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::xor::u128::seqcst_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        eor               x11, x9, x8
+        eor               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::xor::u128::acquire_zero:
+        mov               x8, xzr
+0:
+        ldaxp             x9, x10, [x0]
+        eor               x11, x9, x8
+        eor               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::xor::u128::relaxed_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        eor               x11, x9, x8
+        eor               x12, x10, x8
+        stxp              w13, x11, x12, [x0]
+        cbnz              w13, 0b
+        ret
+
+asm_test::xor::u128::release_zero:
+        mov               x8, xzr
+0:
+        ldxp              x9, x10, [x0]
+        eor               x11, x9, x8
+        eor               x12, x10, x8
+        stlxp             w13, x11, x12, [x0]
+        cbnz              w13, 0b
         ret
 
 asm_test::xor::u128::acqrel:
@@ -8479,6 +12069,126 @@ asm_test::swap::u64::release:
         mov               x1, x8
 0:
         bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::swap::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -9126,6 +12836,106 @@ asm_test::bit_set::u128::release:
         cset              w0, ne
         ret
 
+asm_test::fetch_or::u8::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_or::u8::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -9176,6 +12986,106 @@ asm_test::fetch_or::u8::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -9236,6 +13146,106 @@ asm_test::fetch_or::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_or::u32::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_or::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -9286,6 +13296,106 @@ asm_test::fetch_or::u32::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, #-0x1               // =-1
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -9343,6 +13453,126 @@ asm_test::fetch_or::u64::release:
         mov               x1, x8
 0:
         bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -9409,6 +13639,116 @@ asm_test::fetch_or::bool::release:
         cmp               w0, #0x0
         cset              w0, ne
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_or::u128::acqrel_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::seqcst_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::acquire_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::relaxed_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::release_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_or::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        orr               x10, x8, x9
+        orr               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
         ret
 
 asm_test::fetch_or::u128::acqrel:
@@ -10011,6 +14351,56 @@ asm_test::fetch_abs::f64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_add::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_add::u8::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -10066,6 +14456,31 @@ asm_test::fetch_add::u8::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_add::f32::acqrel_zero:
+        movi              d0, #0000000000000000
+        ldfaddal          s0, s0, [x0]
+        ret
+
+asm_test::fetch_add::f32::seqcst_zero:
+        movi              d0, #0000000000000000
+        ldfaddal          s0, s0, [x0]
+        ret
+
+asm_test::fetch_add::f32::acquire_zero:
+        movi              d0, #0000000000000000
+        ldfadda           s0, s0, [x0]
+        ret
+
+asm_test::fetch_add::f32::relaxed_zero:
+        movi              d0, #0000000000000000
+        ldfadd            s0, s0, [x0]
+        ret
+
+asm_test::fetch_add::f32::release_zero:
+        movi              d0, #0000000000000000
+        ldfaddl           s0, s0, [x0]
+        ret
+
 asm_test::fetch_add::f32::acqrel:
         ldfaddal          s0, s0, [x0]
         ret
@@ -10086,6 +14501,31 @@ asm_test::fetch_add::f32::release:
         ldfaddl           s0, s0, [x0]
         ret
 
+asm_test::fetch_add::f64::acqrel_zero:
+        movi              d0, #0000000000000000
+        ldfaddal          d0, d0, [x0]
+        ret
+
+asm_test::fetch_add::f64::seqcst_zero:
+        movi              d0, #0000000000000000
+        ldfaddal          d0, d0, [x0]
+        ret
+
+asm_test::fetch_add::f64::acquire_zero:
+        movi              d0, #0000000000000000
+        ldfadda           d0, d0, [x0]
+        ret
+
+asm_test::fetch_add::f64::relaxed_zero:
+        movi              d0, #0000000000000000
+        ldfadd            d0, d0, [x0]
+        ret
+
+asm_test::fetch_add::f64::release_zero:
+        movi              d0, #0000000000000000
+        ldfaddl           d0, d0, [x0]
+        ret
+
 asm_test::fetch_add::f64::acqrel:
         ldfaddal          d0, d0, [x0]
         ret
@@ -10104,6 +14544,56 @@ asm_test::fetch_add::f64::relaxed:
 
 asm_test::fetch_add::f64::release:
         ldfaddl           d0, d0, [x0]
+        ret
+
+asm_test::fetch_add::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::fetch_add::u16::acqrel:
@@ -10156,6 +14646,56 @@ asm_test::fetch_add::u16::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -10216,6 +14756,56 @@ asm_test::fetch_add::u32::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_add::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_add::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_add::u64::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -10271,6 +14861,61 @@ asm_test::fetch_add::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_add::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        adds              x10, x8, x9
+        adc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_add::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        adds              x10, x8, x9
+        adc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_add::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        adds              x10, x8, x9
+        adc               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_add::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        adds              x10, x8, x9
+        adc               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_add::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        adds              x10, x8, x9
+        adc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
 asm_test::fetch_add::u128::acqrel:
 0:
         ldaxp             x8, x1, [x0]
@@ -10319,6 +14964,106 @@ asm_test::fetch_add::u128::release:
         stlxp             w11, x9, x10, [x0]
         cbnz              w11, 0b
         mov               x0, x8
+        ret
+
+asm_test::fetch_and::u8::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::fetch_and::u8::acqrel:
@@ -10371,6 +15116,106 @@ asm_test::fetch_and::u8::release:
         mov               x8, x0
         mvn               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -10431,6 +15276,106 @@ asm_test::fetch_and::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_and::u32::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_and::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -10481,6 +15426,106 @@ asm_test::fetch_and::u32::release:
         mov               x8, x0
         mvn               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::acqrel_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::seqcst_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::acquire_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::relaxed_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::release_all:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -10538,6 +15583,126 @@ asm_test::fetch_and::u64::release:
         mov               x1, x8
 0:
         bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #-0x2               // =-2
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -10604,6 +15769,116 @@ asm_test::fetch_and::bool::release:
         cmp               w0, #0x0
         cset              w0, ne
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_and::u128::acqrel_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::seqcst_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::acquire_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::relaxed_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::release_all:
+        mov               x9, #-0x1               // =-1
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_and::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        and               x10, x8, x9
+        and               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
         ret
 
 asm_test::fetch_and::u128::acqrel:
@@ -12146,6 +17421,56 @@ asm_test::fetch_not::u128::release:
         mov               x0, x8
         ret
 
+asm_test::fetch_sub::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_sub::u8::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -12201,6 +17526,31 @@ asm_test::fetch_sub::u8::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_sub::f32::acqrel_zero:
+        movi              v0.2s, #0x80, lsl #24
+        ldfaddal          s0, s0, [x0]
+        ret
+
+asm_test::fetch_sub::f32::seqcst_zero:
+        movi              v0.2s, #0x80, lsl #24
+        ldfaddal          s0, s0, [x0]
+        ret
+
+asm_test::fetch_sub::f32::acquire_zero:
+        movi              v0.2s, #0x80, lsl #24
+        ldfadda           s0, s0, [x0]
+        ret
+
+asm_test::fetch_sub::f32::relaxed_zero:
+        movi              v0.2s, #0x80, lsl #24
+        ldfadd            s0, s0, [x0]
+        ret
+
+asm_test::fetch_sub::f32::release_zero:
+        movi              v0.2s, #0x80, lsl #24
+        ldfaddl           s0, s0, [x0]
+        ret
+
 asm_test::fetch_sub::f32::acqrel:
         fneg              s0, s0
         ldfaddal          s0, s0, [x0]
@@ -12226,6 +17576,36 @@ asm_test::fetch_sub::f32::release:
         ldfaddl           s0, s0, [x0]
         ret
 
+asm_test::fetch_sub::f64::acqrel_zero:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        fmov              d0, x8
+        ldfaddal          d0, d0, [x0]
+        ret
+
+asm_test::fetch_sub::f64::seqcst_zero:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        fmov              d0, x8
+        ldfaddal          d0, d0, [x0]
+        ret
+
+asm_test::fetch_sub::f64::acquire_zero:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        fmov              d0, x8
+        ldfadda           d0, d0, [x0]
+        ret
+
+asm_test::fetch_sub::f64::relaxed_zero:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        fmov              d0, x8
+        ldfadd            d0, d0, [x0]
+        ret
+
+asm_test::fetch_sub::f64::release_zero:
+        mov               x8, #-0x8000000000000000 // =-9223372036854775808
+        fmov              d0, x8
+        ldfaddl           d0, d0, [x0]
+        ret
+
 asm_test::fetch_sub::f64::acqrel:
         fneg              d0, d0
         ldfaddal          d0, d0, [x0]
@@ -12249,6 +17629,56 @@ asm_test::fetch_sub::f64::relaxed:
 asm_test::fetch_sub::f64::release:
         fneg              d0, d0
         ldfaddl           d0, d0, [x0]
+        ret
+
+asm_test::fetch_sub::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::fetch_sub::u16::acqrel:
@@ -12301,6 +17731,56 @@ asm_test::fetch_sub::u16::release:
         mov               x8, x0
         neg               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -12361,6 +17841,56 @@ asm_test::fetch_sub::u32::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_sub::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_sub::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_sub::u64::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -12416,6 +17946,61 @@ asm_test::fetch_sub::u64::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_sub::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        subs              x10, x8, x9
+        sbc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_sub::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        subs              x10, x8, x9
+        sbc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_sub::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        subs              x10, x8, x9
+        sbc               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_sub::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        subs              x10, x8, x9
+        sbc               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_sub::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        subs              x10, x8, x9
+        sbc               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
 asm_test::fetch_sub::u128::acqrel:
 0:
         ldaxp             x8, x1, [x0]
@@ -12464,6 +18049,56 @@ asm_test::fetch_sub::u128::release:
         stlxp             w11, x9, x10, [x0]
         cbnz              w11, 0b
         mov               x0, x8
+        ret
+
+asm_test::fetch_xor::u8::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u8::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u8::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u8::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u8::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
         ret
 
 asm_test::fetch_xor::u8::acqrel:
@@ -12516,6 +18151,56 @@ asm_test::fetch_xor::u8::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u16::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u16::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u16::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u16::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u16::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -12576,6 +18261,56 @@ asm_test::fetch_xor::u16::release:
         ldp               x29, x30, [sp], #0x10
         ret
 
+asm_test::fetch_xor::u32::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u32::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u32::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u32::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u32::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
 asm_test::fetch_xor::u32::acqrel:
         stp               x29, x30, [sp, #-0x10]!
         mov               x29, sp
@@ -12626,6 +18361,56 @@ asm_test::fetch_xor::u32::release:
         mov               x8, x0
         mov               w0, w1
         mov               x1, x8
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u64::acqrel_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u64::seqcst_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u64::acquire_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u64::relaxed_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
+0:
+        bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u64::release_zero:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               x0, xzr
 0:
         bl                0f
         ldp               x29, x30, [sp], #0x10
@@ -12683,6 +18468,126 @@ asm_test::fetch_xor::u64::release:
         mov               x1, x8
 0:
         bl                0f
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::acqrel_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::seqcst_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::acqrel_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::acquire_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::relaxed_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::release_true:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, #0x1                // =1
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::seqcst_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::acquire_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::relaxed_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
+        ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::bool::release_false:
+        stp               x29, x30, [sp, #-0x10]!
+        mov               x29, sp
+        mov               x1, x0
+        mov               w0, wzr
+0:
+        bl                0f
+        cmp               w0, #0x0
+        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12749,6 +18654,61 @@ asm_test::fetch_xor::bool::release:
         cmp               w0, #0x0
         cset              w0, ne
         ldp               x29, x30, [sp], #0x10
+        ret
+
+asm_test::fetch_xor::u128::acqrel_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        eor               x10, x8, x9
+        eor               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_xor::u128::seqcst_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        eor               x10, x8, x9
+        eor               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_xor::u128::acquire_zero:
+        mov               x9, xzr
+0:
+        ldaxp             x8, x1, [x0]
+        eor               x10, x8, x9
+        eor               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_xor::u128::relaxed_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        eor               x10, x8, x9
+        eor               x11, x1, x9
+        stxp              w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
+        ret
+
+asm_test::fetch_xor::u128::release_zero:
+        mov               x9, xzr
+0:
+        ldxp              x8, x1, [x0]
+        eor               x10, x8, x9
+        eor               x11, x1, x9
+        stlxp             w12, x10, x11, [x0]
+        cbnz              w12, 0b
+        mov               x0, x8
         ret
 
 asm_test::fetch_xor::u128::acqrel:

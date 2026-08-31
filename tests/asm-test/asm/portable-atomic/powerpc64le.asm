@@ -449,6 +449,118 @@ asm_test::bit_toggle::u128::release:
         subfe             3, 4, 3
         blr
 
+asm_test::fetch_nand::u8::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lbarx             3, 0, 4
+        nand              6, 5, 3
+        stbcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u8::relaxed_all:
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::release_all:
+        lwsync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lbarx             3, 0, 4
+        nand              6, 5, 3
+        stbcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u8::relaxed_zero:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u8::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        nand              6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_nand::u8::acqrel:
         lwsync
 0:
@@ -498,6 +610,118 @@ asm_test::fetch_nand::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_nand::u16::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lharx             3, 0, 4
+        nand              6, 5, 3
+        sthcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u16::relaxed_all:
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::release_all:
+        lwsync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lharx             3, 0, 4
+        nand              6, 5, 3
+        sthcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u16::relaxed_zero:
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u16::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        nand              6, 5, 4
+        sthcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_nand::u16::acqrel:
@@ -551,6 +775,118 @@ asm_test::fetch_nand::u16::release:
         mr                3, 5
         blr
 
+asm_test::fetch_nand::u32::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lwarx             3, 0, 4
+        nand              6, 5, 3
+        stwcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u32::relaxed_all:
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::release_all:
+        lwsync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lwarx             3, 0, 4
+        nand              6, 5, 3
+        stwcx.            6, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_nand::u32::relaxed_zero:
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u32::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        nand              6, 5, 4
+        stwcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_nand::u32::acqrel:
         lwsync
 0:
@@ -602,6 +938,118 @@ asm_test::fetch_nand::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_nand::u64::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::seqcst_all:
+        sync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::acquire_all:
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::relaxed_all:
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::release_all:
+        lwsync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::acquire_zero:
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::relaxed_zero:
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_nand::u64::release_zero:
+        lwsync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        nand              6, 5, 4
+        stdcx.            6, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_nand::u64::acqrel:
         lwsync
 0:
@@ -651,6 +1099,128 @@ asm_test::fetch_nand::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_nand::bool::acqrel_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::seqcst_true:
+        sync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::acqrel_false:
+        lwsync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::acquire_true:
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::relaxed_true:
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::release_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::seqcst_false:
+        sync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::acquire_false:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::relaxed_false:
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::bool::release_false:
+        lwsync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
         blr
 
 asm_test::fetch_nand::bool::acqrel:
@@ -765,6 +1335,138 @@ asm_test::fetch_nand::bool::release:
         cntlzw            3, 4
         srwi              3, 3, 5
         xori              3, 3, 1
+        blr
+
+asm_test::fetch_nand::u128::acqrel_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::seqcst_all:
+        li                4, -1
+        sync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::acquire_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::relaxed_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::release_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_nand::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        nand              9, 4, 7
+        nand              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_nand::u128::acqrel:
@@ -4152,6 +4854,1498 @@ asm_test::compare_exchange::bool::release_relaxed:
         isel              3, 0, 3, 20
         blr
 
+asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::release_seqcst_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_acquire_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acquire_acquire_true_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_seqcst_true_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::release_acquire_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_relaxed_true_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_seqcst_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_seqcst_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_acquire_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 1
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_acquire_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acquire_acquire_false_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_acquire_true_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_relaxed_true_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_seqcst_false_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_acquire_true_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
+        li                5, 1
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::release_acquire_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_acquire_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_relaxed_false_true:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 1
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_relaxed_true_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 1
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_seqcst_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_acquire_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        sync
+        li                5, 0
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+        b                 3f
+2:
+        lwsync
+        crset             20
+3:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::acquire_acquire_false_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::acquire_relaxed_false_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        crset             20
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_acquire_false_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        lwsync
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
+        li                5, 0
+        crset             20
+0:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 2f
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+1:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+2:
+        crclr             20
+        b                 1b
+
+asm_test::compare_exchange::bool::release_acquire_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        lwsync
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
+asm_test::compare_exchange::bool::release_relaxed_false_false:
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bf-               2, 1f
+        lwsync
+        li                5, 0
+        crset             20
+0:
+        stbcx.            5, 0, 3
+        bt+               2, 2f
+        lbarx             4, 0, 3
+        cmplwi            4, 0
+        bt+               2, 0b
+1:
+        crclr             20
+2:
+        clrlwi            3, 4, 24
+        cntlzw            3, 3
+        srwi              3, 3, 5
+        xori              4, 3, 1
+        li                3, 1
+        isel              3, 0, 3, 20
+        blr
+
 asm_test::compare_exchange::u128::acqrel_seqcst:
         mr                10, 6
         mr                6, 8
@@ -6961,6 +9155,98 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         std               4, 0(3)
         blr
 
+asm_test::or::u8::acqrel_all:
+        lwsync
+        li                4, -1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::seqcst_all:
+        sync
+        li                4, -1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::acqrel_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::acquire_all:
+        li                4, -1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::relaxed_all:
+        li                4, -1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u8::release_all:
+        lwsync
+        li                4, -1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u8::seqcst_zero:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::acquire_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u8::relaxed_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::or::u8::acqrel:
         lwsync
 0:
@@ -7004,6 +9290,98 @@ asm_test::or::u8::release:
         lbarx             5, 0, 3
         or                5, 4, 5
         stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u16::acqrel_all:
+        lwsync
+        li                4, -1
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::seqcst_all:
+        sync
+        li                4, -1
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::acqrel_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::acquire_all:
+        li                4, -1
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::relaxed_all:
+        li                4, -1
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u16::release_all:
+        lwsync
+        li                4, -1
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u16::seqcst_zero:
+        sync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::acquire_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u16::relaxed_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7053,6 +9431,98 @@ asm_test::or::u16::release:
         bf-               2, 0b
         blr
 
+asm_test::or::u32::acqrel_all:
+        lwsync
+        li                4, -1
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::seqcst_all:
+        sync
+        li                4, -1
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::acqrel_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::acquire_all:
+        li                4, -1
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::relaxed_all:
+        li                4, -1
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u32::release_all:
+        lwsync
+        li                4, -1
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u32::seqcst_zero:
+        sync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::acquire_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u32::relaxed_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::or::u32::acqrel:
         lwsync
 0:
@@ -7096,6 +9566,98 @@ asm_test::or::u32::release:
         lwarx             5, 0, 3
         or                5, 4, 5
         stwcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u64::acqrel_all:
+        lwsync
+        li                4, -1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::seqcst_all:
+        sync
+        li                4, -1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::acquire_all:
+        li                4, -1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::relaxed_all:
+        li                4, -1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u64::release_all:
+        lwsync
+        li                4, -1
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::acquire_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7145,6 +9707,98 @@ asm_test::or::u64::release:
         bf-               2, 0b
         blr
 
+asm_test::or::bool::acqrel_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::seqcst_true:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::acqrel_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::acquire_true:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::relaxed_true:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::bool::release_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::bool::seqcst_false:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::acquire_false:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::or::bool::relaxed_false:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::or::bool::release_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::or::bool::acqrel:
         lwsync
 0:
@@ -7189,6 +9843,118 @@ asm_test::or::bool::release:
         or                5, 4, 5
         stbcx.            5, 0, 3
         bf-               2, 0b
+        blr
+
+asm_test::or::u128::acqrel_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::seqcst_all:
+        li                4, -1
+        sync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::acquire_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::relaxed_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::or::u128::release_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::or::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::or::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::or::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
         blr
 
 asm_test::or::u128::acqrel:
@@ -7242,6 +10008,52 @@ asm_test::or::u128::release:
         bf                2, 0b
         blr
 
+asm_test::add::u8::acqrel_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u8::seqcst_zero:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u8::acquire_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u8::relaxed_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::add::u8::acqrel:
         lwsync
 0:
@@ -7285,6 +10097,52 @@ asm_test::add::u8::release:
         lbarx             5, 0, 3
         add               5, 4, 5
         stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u16::acqrel_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u16::seqcst_zero:
+        sync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u16::acquire_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u16::relaxed_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7334,6 +10192,52 @@ asm_test::add::u16::release:
         bf-               2, 0b
         blr
 
+asm_test::add::u32::acqrel_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u32::seqcst_zero:
+        sync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u32::acquire_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u32::relaxed_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::add::u32::acqrel:
         lwsync
 0:
@@ -7377,6 +10281,52 @@ asm_test::add::u32::release:
         lwarx             5, 0, 3
         add               5, 4, 5
         stwcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u64::acquire_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::add::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::add::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7424,6 +10374,62 @@ asm_test::add::u64::release:
         add               5, 4, 5
         stdcx.            5, 0, 3
         bf-               2, 0b
+        blr
+
+asm_test::add::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::add::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::add::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::add::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::add::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
         blr
 
 asm_test::add::u128::acqrel:
@@ -7477,6 +10483,98 @@ asm_test::add::u128::release:
         bf                2, 0b
         blr
 
+asm_test::and::u8::acqrel_all:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::seqcst_all:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::acqrel_zero:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::acquire_all:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::relaxed_all:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u8::release_all:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u8::seqcst_zero:
+        sync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::acquire_zero:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u8::relaxed_zero:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u8::release_zero:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::and::u8::acqrel:
         lwsync
 0:
@@ -7520,6 +10618,98 @@ asm_test::and::u8::release:
         lbarx             5, 0, 3
         and               5, 4, 5
         stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u16::acqrel_all:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::seqcst_all:
+        sync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::acqrel_zero:
+        lwsync
+        li                4, 0
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::acquire_all:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::relaxed_all:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u16::release_all:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u16::seqcst_zero:
+        sync
+        li                4, 0
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::acquire_zero:
+        li                4, 0
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u16::relaxed_zero:
+        li                4, 0
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u16::release_zero:
+        lwsync
+        li                4, 0
+0:
+        lharx             5, 0, 3
+        sthcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7569,6 +10759,98 @@ asm_test::and::u16::release:
         bf-               2, 0b
         blr
 
+asm_test::and::u32::acqrel_all:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::seqcst_all:
+        sync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::acqrel_zero:
+        lwsync
+        li                4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::acquire_all:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::relaxed_all:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u32::release_all:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u32::seqcst_zero:
+        sync
+        li                4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::acquire_zero:
+        li                4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u32::relaxed_zero:
+        li                4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u32::release_zero:
+        lwsync
+        li                4, 0
+0:
+        lwarx             5, 0, 3
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::and::u32::acqrel:
         lwsync
 0:
@@ -7612,6 +10894,98 @@ asm_test::and::u32::release:
         lwarx             5, 0, 3
         and               5, 4, 5
         stwcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u64::acqrel_all:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::seqcst_all:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::acqrel_zero:
+        lwsync
+        li                4, 0
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::acquire_all:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::relaxed_all:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u64::release_all:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u64::seqcst_zero:
+        sync
+        li                4, 0
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::acquire_zero:
+        li                4, 0
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::u64::relaxed_zero:
+        li                4, 0
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::u64::release_zero:
+        lwsync
+        li                4, 0
+0:
+        ldarx             5, 0, 3
+        stdcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -7661,6 +11035,103 @@ asm_test::and::u64::release:
         bf-               2, 0b
         blr
 
+asm_test::and::bool::acqrel_true:
+        lwsync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::seqcst_true:
+        sync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::acqrel_false:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::acquire_true:
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::relaxed_true:
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::bool::release_true:
+        lwsync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               5, 4, 5
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::bool::seqcst_false:
+        sync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::acquire_false:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::and::bool::relaxed_false:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::and::bool::release_false:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::and::bool::acqrel:
         lwsync
 0:
@@ -7705,6 +11176,118 @@ asm_test::and::bool::release:
         and               5, 4, 5
         stbcx.            5, 0, 3
         bf-               2, 0b
+        blr
+
+asm_test::and::u128::acqrel_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::seqcst_all:
+        li                4, -1
+        sync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::acquire_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::relaxed_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::and::u128::release_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::and::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::and::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::and::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
         blr
 
 asm_test::and::u128::acqrel:
@@ -8559,6 +12142,52 @@ asm_test::not::u128::release:
         bf                2, 0b
         blr
 
+asm_test::sub::u8::acqrel_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u8::seqcst_zero:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u8::acquire_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u8::relaxed_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::sub::u8::acqrel:
         lwsync
 0:
@@ -8602,6 +12231,52 @@ asm_test::sub::u8::release:
         lbarx             5, 0, 3
         sub               5, 5, 4
         stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u16::acqrel_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u16::seqcst_zero:
+        sync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u16::acquire_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u16::relaxed_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -8651,6 +12326,52 @@ asm_test::sub::u16::release:
         bf-               2, 0b
         blr
 
+asm_test::sub::u32::acqrel_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u32::seqcst_zero:
+        sync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u32::acquire_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u32::relaxed_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::sub::u32::acqrel:
         lwsync
 0:
@@ -8694,6 +12415,52 @@ asm_test::sub::u32::release:
         lwarx             5, 0, 3
         sub               5, 5, 4
         stwcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u64::acquire_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::sub::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::sub::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -8741,6 +12508,62 @@ asm_test::sub::u64::release:
         sub               5, 5, 4
         stdcx.            5, 0, 3
         bf-               2, 0b
+        blr
+
+asm_test::sub::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::sub::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::sub::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::sub::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::sub::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
         blr
 
 asm_test::sub::u128::acqrel:
@@ -8794,6 +12617,52 @@ asm_test::sub::u128::release:
         bf                2, 0b
         blr
 
+asm_test::xor::u8::acqrel_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u8::seqcst_zero:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u8::acquire_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u8::relaxed_zero:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::xor::u8::acqrel:
         lwsync
 0:
@@ -8837,6 +12706,52 @@ asm_test::xor::u8::release:
         lbarx             5, 0, 3
         xor               5, 4, 5
         stbcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u16::acqrel_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u16::seqcst_zero:
+        sync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u16::acquire_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u16::relaxed_zero:
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               4, 4, 0
+        sthcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -8886,6 +12801,52 @@ asm_test::xor::u16::release:
         bf-               2, 0b
         blr
 
+asm_test::xor::u32::acqrel_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u32::seqcst_zero:
+        sync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u32::acquire_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u32::relaxed_zero:
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               4, 4, 0
+        stwcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::xor::u32::acqrel:
         lwsync
 0:
@@ -8929,6 +12890,52 @@ asm_test::xor::u32::release:
         lwarx             5, 0, 3
         xor               5, 4, 5
         stwcx.            5, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u64::acquire_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               4, 4, 0
+        stdcx.            4, 0, 3
         bf-               2, 0b
         blr
 
@@ -8978,6 +12985,98 @@ asm_test::xor::u64::release:
         bf-               2, 0b
         blr
 
+asm_test::xor::bool::acqrel_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::seqcst_true:
+        sync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::acqrel_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::acquire_true:
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::relaxed_true:
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::bool::release_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              4, 4, 1
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::bool::seqcst_false:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::acquire_false:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::xor::bool::relaxed_false:
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
+asm_test::xor::bool::release_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               4, 4, 0
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        blr
+
 asm_test::xor::bool::acqrel:
         lwsync
 0:
@@ -9022,6 +13121,62 @@ asm_test::xor::bool::release:
         xor               5, 4, 5
         stbcx.            5, 0, 3
         bf-               2, 0b
+        blr
+
+asm_test::xor::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::xor::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::xor::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        blr
+
+asm_test::xor::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        blr
+
+asm_test::xor::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
         blr
 
 asm_test::xor::u128::acqrel:
@@ -9566,6 +13721,128 @@ asm_test::swap::u64::release:
         stdcx.            4, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::swap::bool::acqrel_true:
+        lwsync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::seqcst_true:
+        sync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::acqrel_false:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::acquire_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::relaxed_true:
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::release_true:
+        lwsync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::seqcst_false:
+        sync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::acquire_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::relaxed_false:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::swap::bool::release_false:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
         blr
 
 asm_test::swap::bool::acqrel:
@@ -10250,6 +14527,108 @@ asm_test::bit_set::u128::release:
         subfe             3, 4, 3
         blr
 
+asm_test::fetch_or::u8::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u8::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u8::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u8::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lbarx             3, 0, 4
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u8::relaxed_all:
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u8::release_all:
+        lwsync
+        li                5, -1
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u8::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u8::acquire_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u8::relaxed_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_or::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_or::u8::acqrel:
         lwsync
 0:
@@ -10299,6 +14678,108 @@ asm_test::fetch_or::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_or::u16::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u16::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u16::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u16::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lharx             3, 0, 4
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u16::relaxed_all:
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u16::release_all:
+        lwsync
+        li                5, -1
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u16::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u16::acquire_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u16::relaxed_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_or::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               5, 4, 0
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_or::u16::acqrel:
@@ -10352,6 +14833,108 @@ asm_test::fetch_or::u16::release:
         mr                3, 5
         blr
 
+asm_test::fetch_or::u32::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u32::seqcst_all:
+        sync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u32::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u32::acquire_all:
+        mr                4, 3
+        li                5, -1
+0:
+        lwarx             3, 0, 4
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u32::relaxed_all:
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u32::release_all:
+        lwsync
+        li                5, -1
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u32::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u32::acquire_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u32::relaxed_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_or::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               5, 4, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_or::u32::acqrel:
         lwsync
 0:
@@ -10403,6 +14986,108 @@ asm_test::fetch_or::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_or::u64::acqrel_all:
+        lwsync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::seqcst_all:
+        sync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::acquire_all:
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::relaxed_all:
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::release_all:
+        lwsync
+        li                5, -1
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::acquire_zero:
+        mr                4, 3
+0:
+        ldarx             3, 0, 4
+        ori               5, 3, 0
+        stdcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_or::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_or::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_or::u64::acqrel:
         lwsync
 0:
@@ -10452,6 +15137,128 @@ asm_test::fetch_or::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_or::bool::acqrel_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::seqcst_true:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::acqrel_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::acquire_true:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::relaxed_true:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::release_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::seqcst_false:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::acquire_false:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::relaxed_false:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::bool::release_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
         blr
 
 asm_test::fetch_or::bool::acqrel:
@@ -10513,6 +15320,138 @@ asm_test::fetch_or::bool::release:
         cntlzw            3, 5
         srwi              3, 3, 5
         xori              3, 3, 1
+        blr
+
+asm_test::fetch_or::u128::acqrel_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::seqcst_all:
+        li                4, -1
+        sync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::acquire_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::relaxed_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::release_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_or::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        or                9, 4, 7
+        or                8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_or::u128::acqrel:
@@ -11118,6 +16057,57 @@ asm_test::fetch_abs::f64::release:
         mtfprd            1, 5
         blr
 
+asm_test::fetch_add::u8::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u8::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u8::acquire_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u8::relaxed_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_add::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_add::u8::acqrel:
         lwsync
 0:
@@ -11167,6 +16157,153 @@ asm_test::fetch_add::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_add::f32::acqrel_zero:
+        lwz               4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsaddsp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::seqcst_zero:
+        lwz               4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsaddsp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::acquire_zero:
+        lwz               4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsaddsp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::relaxed_zero:
+        lwz               5, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsaddsp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_add::f32::release_zero:
+        lwz               5, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xxsldwi           1, 1, 1, 1
+        xscvspdpn         1, 1
+        xsaddsp           1, 1, 0
+        xscvdpspn         1, 1
+        mffprwz           5, 1
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
         blr
 
 asm_test::fetch_add::f32::acqrel:
@@ -11316,6 +16453,128 @@ asm_test::fetch_add::f32::release:
         xscvspdpn         1, 0
         blr
 
+asm_test::fetch_add::f64::acqrel_zero:
+        ld                4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        xsadddp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::seqcst_zero:
+        ld                4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        sync
+        xsadddp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::acquire_zero:
+        ld                4, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        xsadddp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::relaxed_zero:
+        ld                5, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        crset             20
+        xsadddp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_add::f64::release_zero:
+        ld                5, 0(3)
+        xxlxor            0, 0, 0
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        mtfprd            1, 5
+        lwsync
+        crset             20
+        xsadddp           1, 1, 0
+        mffprd            5, 1
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
 asm_test::fetch_add::f64::acqrel:
         ld                4, 0(3)
         nop
@@ -11438,6 +16697,57 @@ asm_test::fetch_add::f64::release:
         mtfprd            1, 4
         blr
 
+asm_test::fetch_add::u16::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u16::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u16::acquire_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u16::relaxed_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_add::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               5, 4, 0
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_add::u16::acqrel:
         lwsync
 0:
@@ -11487,6 +16797,57 @@ asm_test::fetch_add::u16::release:
         sthcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_add::u32::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u32::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u32::acquire_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u32::relaxed_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_add::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               5, 4, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_add::u32::acqrel:
@@ -11540,6 +16901,57 @@ asm_test::fetch_add::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_add::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_add::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_add::u64::acquire_zero:
+        mr                4, 3
+0:
+        ldarx             3, 0, 4
+        ori               5, 3, 0
+        stdcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_add::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_add::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_add::u64::acqrel:
         lwsync
 0:
@@ -11589,6 +17001,72 @@ asm_test::fetch_add::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_add::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_add::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_add::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_add::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_add::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        addc              9, 4, 7
+        adde              8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_add::u128::acqrel:
@@ -11652,6 +17130,108 @@ asm_test::fetch_add::u128::release:
         mr                4, 6
         blr
 
+asm_test::fetch_and::u8::acqrel_all:
+        mr                4, 3
+        lwsync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u8::seqcst_all:
+        mr                4, 3
+        sync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u8::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u8::acquire_all:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u8::relaxed_all:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_and::u8::release_all:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u8::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u8::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lbarx             3, 0, 4
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u8::relaxed_zero:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u8::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_and::u8::acqrel:
         lwsync
 0:
@@ -11701,6 +17281,108 @@ asm_test::fetch_and::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_and::u16::acqrel_all:
+        mr                4, 3
+        lwsync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u16::seqcst_all:
+        mr                4, 3
+        sync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u16::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u16::acquire_all:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u16::relaxed_all:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_and::u16::release_all:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               5, 4, 0
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u16::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u16::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lharx             3, 0, 4
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u16::relaxed_zero:
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u16::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lharx             4, 0, 3
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_and::u16::acqrel:
@@ -11754,6 +17436,108 @@ asm_test::fetch_and::u16::release:
         mr                3, 5
         blr
 
+asm_test::fetch_and::u32::acqrel_all:
+        mr                4, 3
+        lwsync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u32::seqcst_all:
+        mr                4, 3
+        sync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u32::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u32::acquire_all:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u32::relaxed_all:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_and::u32::release_all:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               5, 4, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u32::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u32::acquire_zero:
+        mr                4, 3
+        li                5, 0
+0:
+        lwarx             3, 0, 4
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u32::relaxed_zero:
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u32::release_zero:
+        lwsync
+        li                5, 0
+0:
+        lwarx             4, 0, 3
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_and::u32::acqrel:
         lwsync
 0:
@@ -11805,6 +17589,108 @@ asm_test::fetch_and::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_and::u64::acqrel_all:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::seqcst_all:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::acqrel_zero:
+        lwsync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::acquire_all:
+        mr                4, 3
+0:
+        ldarx             3, 0, 4
+        ori               5, 3, 0
+        stdcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_and::u64::relaxed_all:
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::release_all:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::seqcst_zero:
+        sync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::acquire_zero:
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::relaxed_zero:
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_and::u64::release_zero:
+        lwsync
+        li                5, 0
+0:
+        ldarx             4, 0, 3
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_and::u64::acqrel:
         lwsync
 0:
@@ -11854,6 +17740,133 @@ asm_test::fetch_and::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_and::bool::acqrel_true:
+        lwsync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        and               6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::seqcst_true:
+        sync
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        and               6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::acqrel_false:
+        lwsync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::acquire_true:
+        li                5, 1
+0:
+        lbarx             4, 0, 3
+        and               6, 5, 4
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::relaxed_true:
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::release_true:
+        lwsync
+        li                4, 1
+0:
+        lbarx             5, 0, 3
+        and               6, 4, 5
+        stbcx.            6, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::seqcst_false:
+        sync
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::acquire_false:
+        li                5, 0
+0:
+        lbarx             4, 0, 3
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::relaxed_false:
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::bool::release_false:
+        lwsync
+        li                4, 0
+0:
+        lbarx             5, 0, 3
+        stbcx.            4, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 5
+        srwi              3, 3, 5
+        xori              3, 3, 1
         blr
 
 asm_test::fetch_and::bool::acqrel:
@@ -11915,6 +17928,138 @@ asm_test::fetch_and::bool::release:
         cntlzw            3, 5
         srwi              3, 3, 5
         xori              3, 3, 1
+        blr
+
+asm_test::fetch_and::u128::acqrel_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::seqcst_all:
+        li                4, -1
+        sync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::acquire_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::relaxed_all:
+        li                4, -1
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::release_all:
+        li                4, -1
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_and::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        and               9, 4, 7
+        and               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_and::u128::acqrel:
@@ -14484,6 +20629,57 @@ asm_test::fetch_not::u128::release:
         mr                4, 6
         blr
 
+asm_test::fetch_sub::u8::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u8::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u8::acquire_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u8::relaxed_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_sub::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_sub::u8::acqrel:
         lwsync
 0:
@@ -14533,6 +20729,123 @@ asm_test::fetch_sub::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_sub::f32::acqrel_zero:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        lwsync
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::seqcst_zero:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        sync
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::acquire_zero:
+        lwz               4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        lwarx             4, 0, 3
+        crclr             20
+        cmplw             4, 5
+        bf-               2, 1f
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::relaxed_zero:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        crset             20
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
+        blr
+
+asm_test::fetch_sub::f32::release_zero:
+        lwz               5, 0(3)
+        nop
+        nop
+        nop
+0:
+        lwarx             4, 0, 3
+        cmplw             4, 5
+        bf-               2, 1f
+        lwsync
+        crset             20
+        stwcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            0, 4
+        xxsldwi           0, 0, 0, 1
+        xscvspdpn         1, 0
         blr
 
 asm_test::fetch_sub::f32::acqrel:
@@ -14682,6 +20995,113 @@ asm_test::fetch_sub::f32::release:
         xscvspdpn         1, 0
         blr
 
+asm_test::fetch_sub::f64::acqrel_zero:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        lwsync
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::seqcst_zero:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        sync
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::acquire_zero:
+        ld                4, 0(3)
+        nop
+        nop
+        nop
+0:
+        mr                5, 4
+        ldarx             4, 0, 3
+        crclr             20
+        cmpld             4, 5
+        bf-               2, 1f
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        lwsync
+        crset             20
+1:
+        bf                20, 0b
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::relaxed_zero:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
+asm_test::fetch_sub::f64::release_zero:
+        ld                5, 0(3)
+        nop
+        nop
+        nop
+0:
+        ldarx             4, 0, 3
+        cmpld             4, 5
+        bf-               2, 1f
+        lwsync
+        crset             20
+        stdcx.            5, 0, 3
+        bf-               2, 1f
+        mr                5, 4
+        bf                20, 0b
+        b                 2f
+1:
+        mr                5, 4
+        b                 0b
+2:
+        mtfprd            1, 4
+        blr
+
 asm_test::fetch_sub::f64::acqrel:
         ld                4, 0(3)
         nop
@@ -14804,6 +21224,57 @@ asm_test::fetch_sub::f64::release:
         mtfprd            1, 4
         blr
 
+asm_test::fetch_sub::u16::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u16::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u16::acquire_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u16::relaxed_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_sub::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               5, 4, 0
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_sub::u16::acqrel:
         lwsync
 0:
@@ -14853,6 +21324,57 @@ asm_test::fetch_sub::u16::release:
         sthcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_sub::u32::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u32::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u32::acquire_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u32::relaxed_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_sub::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               5, 4, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_sub::u32::acqrel:
@@ -14906,6 +21428,57 @@ asm_test::fetch_sub::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_sub::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_sub::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_sub::u64::acquire_zero:
+        mr                4, 3
+0:
+        ldarx             3, 0, 4
+        ori               5, 3, 0
+        stdcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_sub::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_sub::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_sub::u64::acqrel:
         lwsync
 0:
@@ -14955,6 +21528,72 @@ asm_test::fetch_sub::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_sub::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_sub::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_sub::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_sub::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_sub::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        subc              9, 7, 4
+        subfe             8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_sub::u128::acqrel:
@@ -15018,6 +21657,57 @@ asm_test::fetch_sub::u128::release:
         mr                4, 6
         blr
 
+asm_test::fetch_xor::u8::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u8::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u8::acquire_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u8::relaxed_zero:
+        mr                4, 3
+0:
+        lbarx             3, 0, 4
+        ori               5, 3, 0
+        stbcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_xor::u8::release_zero:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_xor::u8::acqrel:
         lwsync
 0:
@@ -15067,6 +21757,57 @@ asm_test::fetch_xor::u8::release:
         stbcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_xor::u16::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u16::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u16::acquire_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u16::relaxed_zero:
+        mr                4, 3
+0:
+        lharx             3, 0, 4
+        ori               5, 3, 0
+        sthcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_xor::u16::release_zero:
+        lwsync
+0:
+        lharx             4, 0, 3
+        ori               5, 4, 0
+        sthcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
         blr
 
 asm_test::fetch_xor::u16::acqrel:
@@ -15120,6 +21861,57 @@ asm_test::fetch_xor::u16::release:
         mr                3, 5
         blr
 
+asm_test::fetch_xor::u32::acqrel_zero:
+        mr                4, 3
+        lwsync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u32::seqcst_zero:
+        mr                4, 3
+        sync
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u32::acquire_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u32::relaxed_zero:
+        mr                4, 3
+0:
+        lwarx             3, 0, 4
+        ori               5, 3, 0
+        stwcx.            5, 0, 4
+        bf-               2, 0b
+        blr
+
+asm_test::fetch_xor::u32::release_zero:
+        lwsync
+0:
+        lwarx             4, 0, 3
+        ori               5, 4, 0
+        stwcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_xor::u32::acqrel:
         lwsync
 0:
@@ -15171,6 +21963,57 @@ asm_test::fetch_xor::u32::release:
         mr                3, 5
         blr
 
+asm_test::fetch_xor::u64::acqrel_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_xor::u64::seqcst_zero:
+        sync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        lwsync
+        mr                3, 4
+        blr
+
+asm_test::fetch_xor::u64::acquire_zero:
+        mr                4, 3
+0:
+        ldarx             3, 0, 4
+        ori               5, 3, 0
+        stdcx.            5, 0, 4
+        bf-               2, 0b
+        lwsync
+        blr
+
+asm_test::fetch_xor::u64::relaxed_zero:
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
+asm_test::fetch_xor::u64::release_zero:
+        lwsync
+0:
+        ldarx             4, 0, 3
+        ori               5, 4, 0
+        stdcx.            5, 0, 3
+        bf-               2, 0b
+        mr                3, 4
+        blr
+
 asm_test::fetch_xor::u64::acqrel:
         lwsync
 0:
@@ -15220,6 +22063,128 @@ asm_test::fetch_xor::u64::release:
         stdcx.            6, 0, 3
         bf-               2, 0b
         mr                3, 5
+        blr
+
+asm_test::fetch_xor::bool::acqrel_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::seqcst_true:
+        sync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::acqrel_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::acquire_true:
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::relaxed_true:
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::release_true:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        xori              5, 4, 1
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::seqcst_false:
+        sync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::acquire_false:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        lwsync
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::relaxed_false:
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::bool::release_false:
+        lwsync
+0:
+        lbarx             4, 0, 3
+        ori               5, 4, 0
+        stbcx.            5, 0, 3
+        bf-               2, 0b
+        cntlzw            3, 4
+        srwi              3, 3, 5
+        xori              3, 3, 1
         blr
 
 asm_test::fetch_xor::bool::acqrel:
@@ -15281,6 +22246,72 @@ asm_test::fetch_xor::bool::release:
         cntlzw            3, 5
         srwi              3, 3, 5
         xori              3, 3, 1
+        blr
+
+asm_test::fetch_xor::u128::acqrel_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_xor::u128::seqcst_zero:
+        li                4, 0
+        sync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_xor::u128::acquire_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        isync
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_xor::u128::relaxed_zero:
+        li                4, 0
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
+        blr
+
+asm_test::fetch_xor::u128::release_zero:
+        li                4, 0
+        lwsync
+0:
+        lqarx             6, 0, 3
+        xor               9, 4, 7
+        xor               8, 4, 6
+        stqcx.            8, 0, 3
+        bf                2, 0b
+        mr                3, 7
+        mr                4, 6
         blr
 
 asm_test::fetch_xor::u128::acqrel:
