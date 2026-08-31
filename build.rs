@@ -205,6 +205,23 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     } else {
         match target_arch {
+            "loongarch64" => {
+                // asm! on LoongArch64 stabilized in Rust 1.72 (nightly-2023-05-30): https://github.com/rust-lang/rust/pull/111235
+                if !version.probe(72, 2023, 5, 29) {
+                    if version.nightly
+                        && version.probe(71, 2023, 4, 25)
+                        && rustflags.is_allowed_feature("asm_experimental_arch")
+                    {
+                        // https://github.com/rust-lang/rust/pull/101069 merged in Rust 1.71 (nightly-2023-04-26).
+                        // The part of this feature we use has not been changed since nightly-2023-04-26
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
+                        // (Note that https://github.com/rust-lang/rust/pull/111332 is needless because we don't need to clobber fcc*.)
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                }
+            }
             "arm64ec" | "s390x" => {
                 // asm! on Arm64EC and s390x stabilized in Rust 1.84 (nightly-2024-11-11): https://github.com/rust-lang/rust/pull/131781, https://github.com/rust-lang/rust/pull/131258
                 if !version.probe(84, 2024, 11, 10) {

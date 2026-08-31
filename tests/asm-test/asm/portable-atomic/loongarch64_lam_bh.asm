@@ -3531,11 +3531,7 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3547,11 +3543,7 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3563,11 +3555,7 @@ asm_test::compare_exchange::bool::acqrel_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3579,11 +3567,7 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3595,11 +3579,7 @@ asm_test::compare_exchange::bool::acquire_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3611,11 +3591,7 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3627,11 +3603,7 @@ asm_test::compare_exchange::bool::release_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3643,11 +3615,7 @@ asm_test::compare_exchange::bool::seqcst_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3659,11 +3627,7 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3675,11 +3639,7 @@ asm_test::compare_exchange::bool::acquire_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3691,11 +3651,7 @@ asm_test::compare_exchange::bool::acquire_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3707,11 +3663,7 @@ asm_test::compare_exchange::bool::relaxed_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3723,11 +3675,7 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd.b           $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3739,11 +3687,7 @@ asm_test::compare_exchange::bool::release_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -3755,48 +3699,28 @@ asm_test::compare_exchange::bool::release_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
@@ -3812,47 +3736,27 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
@@ -3890,29 +3794,17 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
@@ -3928,20 +3820,12 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_false:
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd.b           $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
@@ -3957,20 +3841,12 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a1, $a2, $a0
+        amadd_db.b        $a1, $zero, $a0
         xori              $a0, $a1, 1
         ret
 
@@ -4008,30 +3884,18 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
@@ -4057,12 +3921,8 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
@@ -4088,12 +3948,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
@@ -4119,84 +3975,48 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd.b           $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        move              $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -5991,11 +5811,7 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6007,11 +5823,7 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6023,11 +5835,7 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6039,11 +5847,7 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6055,11 +5859,7 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6071,11 +5871,7 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6087,11 +5883,7 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6103,11 +5895,7 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6119,11 +5907,7 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6135,11 +5919,7 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6151,11 +5931,7 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6167,11 +5943,7 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6183,11 +5955,7 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd.b           $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6199,11 +5967,7 @@ asm_test::compare_exchange_weak::bool::release_acquire:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6215,11 +5979,7 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
         move              $a1, $a3
         ret
 0:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a3, $zero, $a0
-        slli.d            $a0, $a2, 3
-        srl.w             $a3, $a3, $a0
+        amadd_db.b        $a3, $zero, $a0
         xor               $a0, $a1, $a3
         move              $a1, $a3
         ret
@@ -6535,113 +6295,93 @@ asm_test::or::u64::release:
         ret
 
 asm_test::or::bool::acqrel_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a1, $a1, 3
-        ori               $a2, $zero, 1
-        sll.w             $a1, $a2, $a1
-        amor_db.w         $a2, $a1, $a0
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
         ret
 
 asm_test::or::bool::seqcst_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a1, $a1, 3
-        ori               $a2, $zero, 1
-        sll.w             $a1, $a2, $a1
-        amor_db.w         $a2, $a1, $a0
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
         ret
 
 asm_test::or::bool::acqrel_false:
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a1, $zero, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::acquire_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a1, $a1, 3
-        ori               $a2, $zero, 1
-        sll.w             $a1, $a2, $a1
-        amor_db.w         $a2, $a1, $a0
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
         ret
 
 asm_test::or::bool::relaxed_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a1, $a1, 3
-        ori               $a2, $zero, 1
-        sll.w             $a1, $a2, $a1
-        amor.w            $a2, $a1, $a0
+        ori               $a1, $zero, 1
+        amswap.b          $a2, $a1, $a0
         ret
 
 asm_test::or::bool::release_true:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a1, $a1, 3
-        ori               $a2, $zero, 1
-        sll.w             $a1, $a2, $a1
-        amor_db.w         $a2, $a1, $a0
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
         ret
 
 asm_test::or::bool::seqcst_false:
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a1, $zero, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::acquire_false:
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a1, $zero, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::relaxed_false:
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a1, $zero, $a0
+        amadd.b           $a1, $zero, $a0
         ret
 
 asm_test::or::bool::release_false:
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a1, $zero, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::acqrel:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a2, $a1, $a0
+        beqz              $a1, 0f
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::seqcst:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a2, $a1, $a0
+        beqz              $a1, 0f
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::acquire:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a2, $a1, $a0
+        beqz              $a1, 0f
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::or::bool::relaxed:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
-        amor.w            $a2, $a1, $a0
+        beqz              $a1, 0f
+        ori               $a1, $zero, 1
+        amswap.b          $a2, $a1, $a0
+        ret
+0:
+        amadd.b           $a1, $zero, $a0
         ret
 
 asm_test::or::bool::release:
-        andi              $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        slli.d            $a2, $a2, 3
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a2, $a1, $a0
+        beqz              $a1, 0f
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::add::u8::acqrel_zero:
@@ -7130,25 +6870,11 @@ asm_test::and::u64::release:
         ret
 
 asm_test::and::bool::acqrel_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a1, $a3, $a1
-        orn               $a1, $a1, $a2
-        amand_db.w        $a2, $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::and::bool::seqcst_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a1, $a3, $a1
-        orn               $a1, $a1, $a2
-        amand_db.w        $a2, $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::and::bool::acqrel_false:
@@ -7156,36 +6882,15 @@ asm_test::and::bool::acqrel_false:
         ret
 
 asm_test::and::bool::acquire_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a1, $a3, $a1
-        orn               $a1, $a1, $a2
-        amand_db.w        $a2, $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::and::bool::relaxed_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a1, $a3, $a1
-        orn               $a1, $a1, $a2
-        amand.w           $a2, $a1, $a0
+        amadd.b           $a1, $zero, $a0
         ret
 
 asm_test::and::bool::release_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a1, $a3, $a1
-        orn               $a1, $a1, $a2
-        amand_db.w        $a2, $a1, $a0
+        amadd_db.b        $a1, $zero, $a0
         ret
 
 asm_test::and::bool::seqcst_false:
@@ -7205,53 +6910,43 @@ asm_test::and::bool::release_false:
         ret
 
 asm_test::and::bool::acqrel:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a2, $a1, $a0
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::and::bool::seqcst:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a2, $a1, $a0
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::and::bool::acquire:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a2, $a1, $a0
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::and::bool::relaxed:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand.w           $a2, $a1, $a0
+        beqz              $a1, 0f
+        amadd.b           $a1, $zero, $a0
+        ret
+0:
+        amswap.b          $a1, $zero, $a0
         ret
 
 asm_test::and::bool::release:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a2, $a1, $a0
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
         ret
 
 asm_test::neg::u8::acqrel:
@@ -9521,143 +9216,113 @@ asm_test::fetch_or::u64::release:
         ret
 
 asm_test::fetch_or::bool::acqrel_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a1
-        amor_db.w         $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        andi              $a0, $a2, 255
         ret
 
 asm_test::fetch_or::bool::seqcst_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a1
-        amor_db.w         $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        andi              $a0, $a2, 255
         ret
 
 asm_test::fetch_or::bool::acqrel_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_or::bool::acquire_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a1
-        amor_db.w         $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        andi              $a0, $a2, 255
         ret
 
 asm_test::fetch_or::bool::relaxed_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a1
-        amor.w            $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        ori               $a1, $zero, 1
+        amswap.b          $a2, $a1, $a0
+        andi              $a0, $a2, 255
         ret
 
 asm_test::fetch_or::bool::release_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a1
-        amor_db.w         $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        ori               $a1, $zero, 1
+        amswap_db.b       $a2, $a1, $a0
+        andi              $a0, $a2, 255
         ret
 
 asm_test::fetch_or::bool::seqcst_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_or::bool::acquire_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_or::bool::relaxed_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor.w            $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 1
+        amadd.b           $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_or::bool::release_false:
-        andi              $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        amor_db.w         $a2, $zero, $a0
-        slli.d            $a0, $a1, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_or::bool::acqrel:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        ori               $a2, $zero, 1
+        amswap_db.b       $a1, $a2, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_or::bool::seqcst:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        ori               $a2, $zero, 1
+        amswap_db.b       $a1, $a2, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_or::bool::acquire:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        ori               $a2, $zero, 1
+        amswap_db.b       $a1, $a2, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_or::bool::relaxed:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amor.w            $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        ori               $a2, $zero, 1
+        amswap.b          $a1, $a2, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd.b           $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_or::bool::release:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        sll.w             $a1, $a1, $a2
-        amor_db.w         $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        ori               $a2, $zero, 1
+        amswap_db.b       $a1, $a2, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::bit_clear::u8::acqrel:
@@ -11101,29 +10766,13 @@ asm_test::fetch_and::u64::release:
         ret
 
 asm_test::fetch_and::bool::acqrel_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a1
-        orn               $a2, $a3, $a2
-        amand_db.w        $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::bool::seqcst_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a1
-        orn               $a2, $a3, $a2
-        amand_db.w        $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::bool::acqrel_false:
@@ -11132,42 +10781,18 @@ asm_test::fetch_and::bool::acqrel_false:
         ret
 
 asm_test::fetch_and::bool::acquire_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a1
-        orn               $a2, $a3, $a2
-        amand_db.w        $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::bool::relaxed_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a1
-        orn               $a2, $a3, $a2
-        amand.w           $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        amadd.b           $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::bool::release_true:
-        slli.d            $a1, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a1
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a1
-        orn               $a2, $a3, $a2
-        amand_db.w        $a3, $a2, $a0
-        srl.w             $a0, $a3, $a1
-        andi              $a0, $a0, 1
+        amadd_db.b        $a1, $zero, $a0
+        move              $a0, $a1
         ret
 
 asm_test::fetch_and::bool::seqcst_false:
@@ -11191,63 +10816,53 @@ asm_test::fetch_and::bool::release_false:
         ret
 
 asm_test::fetch_and::bool::acqrel:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_and::bool::seqcst:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_and::bool::acquire:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_and::bool::relaxed:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand.w           $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        amadd.b           $a1, $zero, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amswap.b          $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_and::bool::release:
-        slli.d            $a2, $a0, 3
-        bstrins.d         $a0, $zero, 1, 0
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a2
-        sll.w             $a1, $a1, $a2
-        orn               $a1, $a1, $a3
-        amand_db.w        $a3, $a1, $a0
-        srl.w             $a0, $a3, $a2
-        andi              $a0, $a0, 1
+        beqz              $a1, 0f
+        amadd_db.b        $a1, $zero, $a0
+        andi              $a0, $a1, 1
+        ret
+0:
+        amswap_db.b       $a1, $zero, $a0
+        andi              $a0, $a1, 1
         ret
 
 asm_test::fetch_max::i8::acqrel:

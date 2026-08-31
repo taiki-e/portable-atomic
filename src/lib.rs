@@ -336,7 +336,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
-// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, s390x, PowerPC64
+// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, LoongArch64, PowerPC64, s390x
 // - global_asm! on AArch64, Arm (test-only)
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
@@ -371,7 +371,12 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         portable_atomic_unstable_asm_experimental_arch,
-        any(target_arch = "arm64ec", target_arch = "s390x", target_arch = "powerpc64"),
+        any(
+            target_arch = "arm64ec",
+            target_arch = "loongarch64",
+            target_arch = "powerpc64",
+            target_arch = "s390x",
+        ),
     ),
     feature(asm_experimental_arch)
 )]
@@ -1561,7 +1566,14 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
+        ))]
         {
             if val {
                 // (x & true) == x
@@ -1605,6 +1617,10 @@ impl AtomicBool {
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
             all(target_arch = "msp430", not(feature = "critical-section")),
         )))]
         #[cfg_attr(
@@ -1657,7 +1673,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
-        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
         {
             self.fetch_and(val, order);
         }
@@ -1675,7 +1691,7 @@ impl AtomicBool {
             self.as_atomic_u8().and_bool(val);
             return;
         });
-        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64")))]
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
         #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
         {
             self.as_atomic_u8().and(val as u8, order);
@@ -1769,6 +1785,10 @@ impl AtomicBool {
         #[cfg(any(
             target_arch = "x86",
             target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
             all(target_arch = "msp430", not(feature = "critical-section")),
         ))]
         {
@@ -1783,6 +1803,10 @@ impl AtomicBool {
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
             all(target_arch = "msp430", not(feature = "critical-section")),
         )))]
         {
@@ -1831,6 +1855,10 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn or(&self, val: bool, order: Ordering) {
+        #[cfg(target_arch = "loongarch64")]
+        {
+            self.fetch_or(val, order);
+        }
         #[cfg(all(
             target_arch = "s390x",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -1845,6 +1873,7 @@ impl AtomicBool {
             self.as_atomic_u8().or_bool(val);
             return;
         });
+        #[cfg(not(target_arch = "loongarch64"))]
         #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
         {
             self.as_atomic_u8().or(val as u8, order);
@@ -2160,6 +2189,30 @@ impl AtomicBool {
         #[allow(unreachable_code)]
         {
             let x = self.as_atomic_u8().fetch_and(1, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
+    }
+    #[cfg(all(
+        target_arch = "loongarch64",
+        any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+    ))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        // LLVM generates amor*.w after aligned pointer for fetch_add(0), instead of amadd*.b.
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
+        #[cfg(not(portable_atomic_no_asm))]
+        cfg_core_atomic!({
+            let x = self.as_atomic_u8().fetch_nop(order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_reg_unchecked(x) };
+        });
+        #[allow(unreachable_code)]
+        {
+            let x = self.as_atomic_u8().fetch_add(0, order);
             // SAFETY: we only store 0 or 1.
             // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
             unsafe { crate::utils::bool_from_u8_unchecked(x) }
