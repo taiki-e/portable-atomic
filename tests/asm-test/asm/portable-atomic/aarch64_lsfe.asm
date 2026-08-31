@@ -1011,8 +1011,6 @@ asm_test::fetch_nand::bool::acqrel_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1023,8 +1021,6 @@ asm_test::fetch_nand::bool::seqcst_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1035,8 +1031,6 @@ asm_test::fetch_nand::bool::acqrel_false:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1047,8 +1041,6 @@ asm_test::fetch_nand::bool::acquire_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1059,8 +1051,6 @@ asm_test::fetch_nand::bool::relaxed_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1071,8 +1061,6 @@ asm_test::fetch_nand::bool::release_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1083,8 +1071,6 @@ asm_test::fetch_nand::bool::seqcst_false:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1095,8 +1081,6 @@ asm_test::fetch_nand::bool::acquire_false:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1107,8 +1091,6 @@ asm_test::fetch_nand::bool::relaxed_false:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1119,8 +1101,6 @@ asm_test::fetch_nand::bool::release_false:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1133,16 +1113,14 @@ asm_test::fetch_nand::bool::acqrel:
         mov               x1, x8
 0:
         bl                0f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 1:
         mov               x1, x8
 2:
         bl                2f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1155,16 +1133,14 @@ asm_test::fetch_nand::bool::seqcst:
         mov               x1, x8
 0:
         bl                0f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 1:
         mov               x1, x8
 2:
         bl                2f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1177,16 +1153,14 @@ asm_test::fetch_nand::bool::acquire:
         mov               x1, x8
 0:
         bl                0f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 1:
         mov               x1, x8
 2:
         bl                2f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1199,16 +1173,14 @@ asm_test::fetch_nand::bool::relaxed:
         mov               x1, x8
 0:
         bl                0f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 1:
         mov               x1, x8
 2:
         bl                2f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -1221,16 +1193,14 @@ asm_test::fetch_nand::bool::release:
         mov               x1, x8
 0:
         bl                0f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 1:
         mov               x1, x8
 2:
         bl                2f
-        tst               w0, #0xff
-        cset              w0, ne
+        and               w0, w0, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -3671,9 +3641,8 @@ asm_test::compare_exchange::bool::acqrel_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3691,9 +3660,8 @@ asm_test::compare_exchange::bool::seqcst_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3711,9 +3679,8 @@ asm_test::compare_exchange::bool::acqrel_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3731,9 +3698,8 @@ asm_test::compare_exchange::bool::acqrel_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3751,9 +3717,8 @@ asm_test::compare_exchange::bool::acquire_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3771,9 +3736,8 @@ asm_test::compare_exchange::bool::relaxed_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3791,9 +3755,8 @@ asm_test::compare_exchange::bool::release_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3811,9 +3774,8 @@ asm_test::compare_exchange::bool::seqcst_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3831,9 +3793,8 @@ asm_test::compare_exchange::bool::seqcst_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3851,9 +3812,8 @@ asm_test::compare_exchange::bool::acquire_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3871,9 +3831,8 @@ asm_test::compare_exchange::bool::acquire_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3891,9 +3850,8 @@ asm_test::compare_exchange::bool::relaxed_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3911,9 +3869,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3931,9 +3888,8 @@ asm_test::compare_exchange::bool::release_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3951,9 +3907,8 @@ asm_test::compare_exchange::bool::release_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -3968,9 +3923,8 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -3984,9 +3938,8 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4000,9 +3953,8 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4016,9 +3968,8 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4032,8 +3983,8 @@ asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4047,9 +3998,8 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4063,9 +4013,8 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4079,9 +4028,8 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4095,9 +4043,8 @@ asm_test::compare_exchange::bool::release_seqcst_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4111,9 +4058,8 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4127,9 +4073,8 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4143,8 +4088,8 @@ asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4158,9 +4103,8 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4174,8 +4118,8 @@ asm_test::compare_exchange::bool::acqrel_acquire_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4189,9 +4133,8 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4205,8 +4148,8 @@ asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4220,9 +4163,8 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4236,8 +4178,8 @@ asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4251,9 +4193,8 @@ asm_test::compare_exchange::bool::acquire_acquire_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4267,9 +4208,8 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4283,8 +4223,8 @@ asm_test::compare_exchange::bool::acquire_seqcst_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4298,9 +4238,8 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4314,9 +4253,8 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4330,9 +4268,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4346,8 +4283,8 @@ asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4361,9 +4298,8 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4377,9 +4313,8 @@ asm_test::compare_exchange::bool::release_acquire_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4393,9 +4328,8 @@ asm_test::compare_exchange::bool::release_relaxed_true_true:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4409,8 +4343,8 @@ asm_test::compare_exchange::bool::release_seqcst_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4424,9 +4358,8 @@ asm_test::compare_exchange::bool::release_seqcst_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4440,8 +4373,8 @@ asm_test::compare_exchange::bool::seqcst_acquire_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4455,9 +4388,8 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4471,8 +4403,8 @@ asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4486,9 +4418,8 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4502,8 +4433,8 @@ asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4517,8 +4448,8 @@ asm_test::compare_exchange::bool::acqrel_acquire_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4532,8 +4463,8 @@ asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4547,8 +4478,8 @@ asm_test::compare_exchange::bool::acquire_acquire_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4562,9 +4493,8 @@ asm_test::compare_exchange::bool::acquire_acquire_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4578,8 +4508,8 @@ asm_test::compare_exchange::bool::acquire_relaxed_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4593,9 +4523,8 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4609,8 +4538,8 @@ asm_test::compare_exchange::bool::acquire_seqcst_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4624,8 +4553,8 @@ asm_test::compare_exchange::bool::relaxed_acquire_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4639,9 +4568,8 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4655,8 +4583,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4670,9 +4598,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4686,8 +4613,8 @@ asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4701,8 +4628,8 @@ asm_test::compare_exchange::bool::release_acquire_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4716,9 +4643,8 @@ asm_test::compare_exchange::bool::release_acquire_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4732,8 +4658,8 @@ asm_test::compare_exchange::bool::release_relaxed_false_true:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4747,9 +4673,8 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
 0:
         bl                0f
         cmp               w0, #0x1
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4763,8 +4688,8 @@ asm_test::compare_exchange::bool::release_seqcst_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4778,8 +4703,8 @@ asm_test::compare_exchange::bool::seqcst_acquire_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4793,8 +4718,8 @@ asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4808,8 +4733,8 @@ asm_test::compare_exchange::bool::acquire_acquire_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4823,8 +4748,8 @@ asm_test::compare_exchange::bool::acquire_relaxed_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4838,8 +4763,8 @@ asm_test::compare_exchange::bool::relaxed_acquire_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4853,8 +4778,8 @@ asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4868,8 +4793,8 @@ asm_test::compare_exchange::bool::release_acquire_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -4883,8 +4808,8 @@ asm_test::compare_exchange::bool::release_relaxed_false_false:
 0:
         bl                0f
         cmp               w0, #0x0
+        mov               w1, w0
         cset              w8, eq
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldp               x29, x30, [sp], #0x10
         ret
@@ -6836,9 +6761,8 @@ asm_test::compare_exchange_weak::bool::acqrel_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6856,9 +6780,8 @@ asm_test::compare_exchange_weak::bool::seqcst_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6876,9 +6799,8 @@ asm_test::compare_exchange_weak::bool::acqrel_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6896,9 +6818,8 @@ asm_test::compare_exchange_weak::bool::acqrel_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6916,9 +6837,8 @@ asm_test::compare_exchange_weak::bool::acquire_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6936,9 +6856,8 @@ asm_test::compare_exchange_weak::bool::relaxed_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6956,9 +6875,8 @@ asm_test::compare_exchange_weak::bool::release_seqcst:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6976,9 +6894,8 @@ asm_test::compare_exchange_weak::bool::seqcst_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -6996,9 +6913,8 @@ asm_test::compare_exchange_weak::bool::seqcst_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7016,9 +6932,8 @@ asm_test::compare_exchange_weak::bool::acquire_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7036,9 +6951,8 @@ asm_test::compare_exchange_weak::bool::acquire_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7056,9 +6970,8 @@ asm_test::compare_exchange_weak::bool::relaxed_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7076,9 +6989,8 @@ asm_test::compare_exchange_weak::bool::relaxed_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7096,9 +7008,8 @@ asm_test::compare_exchange_weak::bool::release_acquire:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -7116,9 +7027,8 @@ asm_test::compare_exchange_weak::bool::release_relaxed:
 0:
         bl                0f
         cmp               w0, w19
+        mov               w1, w0
         cset              w8, eq
-        cmp               w0, #0x0
-        cset              w1, ne
         eor               w0, w8, #0x1
         ldr               x19, [sp, #0x10]
         ldp               x29, x30, [sp], #0x20
@@ -11701,21 +11611,15 @@ asm_test::load::u64::relaxed:
         ret
 
 asm_test::load::bool::seqcst:
-        ldarb             w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldarb             w0, [x0]
         ret
 
 asm_test::load::bool::acquire:
-        ldarb             w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldarb             w0, [x0]
         ret
 
 asm_test::load::bool::relaxed:
-        ldrb              w8, [x0]
-        cmp               w8, #0x0
-        cset              w0, ne
+        ldrb              w0, [x0]
         ret
 
 asm_test::load::u128::seqcst:
@@ -12079,8 +11983,6 @@ asm_test::swap::bool::acqrel_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12091,8 +11993,6 @@ asm_test::swap::bool::seqcst_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12103,8 +12003,6 @@ asm_test::swap::bool::acqrel_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12115,8 +12013,6 @@ asm_test::swap::bool::acquire_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12127,8 +12023,6 @@ asm_test::swap::bool::relaxed_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12139,8 +12033,6 @@ asm_test::swap::bool::release_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12151,8 +12043,6 @@ asm_test::swap::bool::seqcst_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12163,8 +12053,6 @@ asm_test::swap::bool::acquire_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12175,8 +12063,6 @@ asm_test::swap::bool::relaxed_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12187,8 +12073,6 @@ asm_test::swap::bool::release_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12200,8 +12084,6 @@ asm_test::swap::bool::acqrel:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12213,8 +12095,6 @@ asm_test::swap::bool::seqcst:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12226,8 +12106,6 @@ asm_test::swap::bool::acquire:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12239,8 +12117,6 @@ asm_test::swap::bool::relaxed:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -12252,8 +12128,6 @@ asm_test::swap::bool::release:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13463,8 +13337,6 @@ asm_test::fetch_or::bool::acqrel_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13475,8 +13347,6 @@ asm_test::fetch_or::bool::seqcst_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13487,8 +13357,6 @@ asm_test::fetch_or::bool::acqrel_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13499,8 +13367,6 @@ asm_test::fetch_or::bool::acquire_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13511,8 +13377,6 @@ asm_test::fetch_or::bool::relaxed_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13523,8 +13387,6 @@ asm_test::fetch_or::bool::release_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13535,8 +13397,6 @@ asm_test::fetch_or::bool::seqcst_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13547,8 +13407,6 @@ asm_test::fetch_or::bool::acquire_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13559,8 +13417,6 @@ asm_test::fetch_or::bool::relaxed_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13571,8 +13427,6 @@ asm_test::fetch_or::bool::release_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13584,8 +13438,6 @@ asm_test::fetch_or::bool::acqrel:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13597,8 +13449,6 @@ asm_test::fetch_or::bool::seqcst:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13610,8 +13460,6 @@ asm_test::fetch_or::bool::acquire:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13623,8 +13471,6 @@ asm_test::fetch_or::bool::relaxed:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -13636,8 +13482,6 @@ asm_test::fetch_or::bool::release:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15593,8 +15437,6 @@ asm_test::fetch_and::bool::acqrel_true:
         mov               w0, #-0x2               // =-2
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15605,8 +15447,6 @@ asm_test::fetch_and::bool::seqcst_true:
         mov               w0, #-0x2               // =-2
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15617,8 +15457,6 @@ asm_test::fetch_and::bool::acqrel_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15629,8 +15467,6 @@ asm_test::fetch_and::bool::acquire_true:
         mov               w0, #-0x2               // =-2
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15641,8 +15477,6 @@ asm_test::fetch_and::bool::relaxed_true:
         mov               w0, #-0x2               // =-2
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15653,8 +15487,6 @@ asm_test::fetch_and::bool::release_true:
         mov               w0, #-0x2               // =-2
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15665,8 +15497,6 @@ asm_test::fetch_and::bool::seqcst_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15677,8 +15507,6 @@ asm_test::fetch_and::bool::acquire_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15689,8 +15517,6 @@ asm_test::fetch_and::bool::relaxed_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15701,8 +15527,6 @@ asm_test::fetch_and::bool::release_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15714,8 +15538,6 @@ asm_test::fetch_and::bool::acqrel:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15727,8 +15549,6 @@ asm_test::fetch_and::bool::seqcst:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15740,8 +15560,6 @@ asm_test::fetch_and::bool::acquire:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15753,8 +15571,6 @@ asm_test::fetch_and::bool::relaxed:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -15766,8 +15582,6 @@ asm_test::fetch_and::bool::release:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -17318,8 +17132,6 @@ asm_test::fetch_not::bool::acqrel:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -17330,8 +17142,6 @@ asm_test::fetch_not::bool::seqcst:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -17342,8 +17152,6 @@ asm_test::fetch_not::bool::acquire:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -17354,8 +17162,6 @@ asm_test::fetch_not::bool::relaxed:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -17366,8 +17172,6 @@ asm_test::fetch_not::bool::release:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18478,8 +18282,6 @@ asm_test::fetch_xor::bool::acqrel_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18490,8 +18292,6 @@ asm_test::fetch_xor::bool::seqcst_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18502,8 +18302,6 @@ asm_test::fetch_xor::bool::acqrel_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18514,8 +18312,6 @@ asm_test::fetch_xor::bool::acquire_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18526,8 +18322,6 @@ asm_test::fetch_xor::bool::relaxed_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18538,8 +18332,6 @@ asm_test::fetch_xor::bool::release_true:
         mov               w0, #0x1                // =1
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18550,8 +18342,6 @@ asm_test::fetch_xor::bool::seqcst_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18562,8 +18352,6 @@ asm_test::fetch_xor::bool::acquire_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18574,8 +18362,6 @@ asm_test::fetch_xor::bool::relaxed_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18586,8 +18372,6 @@ asm_test::fetch_xor::bool::release_false:
         mov               w0, wzr
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18599,8 +18383,6 @@ asm_test::fetch_xor::bool::acqrel:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18612,8 +18394,6 @@ asm_test::fetch_xor::bool::seqcst:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18625,8 +18405,6 @@ asm_test::fetch_xor::bool::acquire:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18638,8 +18416,6 @@ asm_test::fetch_xor::bool::relaxed:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
@@ -18651,8 +18427,6 @@ asm_test::fetch_xor::bool::release:
         mov               x1, x8
 0:
         bl                0f
-        cmp               w0, #0x0
-        cset              w0, ne
         ldp               x29, x30, [sp], #0x10
         ret
 
