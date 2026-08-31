@@ -56,6 +56,8 @@ fn test() {
         Revision::new("loongarch64", "loongarch64-unknown-linux-gnu"),
         Revision::new("loongarch64_lam_bh", "loongarch64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+lam-bh"]),
+        Revision::new("loongarch64_lamcas", "loongarch64-unknown-linux-gnu")
+            .rustc_args(["-C", "target-feature=+lamcas"]),
         Revision::new("loongarch64_v1_1", "loongarch64-unknown-linux-gnu")
             .rustc_args(["-C", "target-feature=+lam-bh,+lamcas,+scq"]),
         // MSP430
@@ -92,6 +94,8 @@ fn test() {
         Revision::new("s390x", "s390x-unknown-linux-gnu"),
         Revision::new("s390x_z196", "s390x-unknown-linux-gnu")
             .rustc_args(["-C", "target-cpu=z196"]),
+        Revision::new("s390x_zec12", "s390x-unknown-linux-gnu")
+            .rustc_args(["-C", "target-cpu=zEC12"]),
         Revision::new("s390x_z15_no_vector", "s390x-unknown-linux-gnu")
             .rustc_args(["-C", "target-cpu=z15", "-C", "target-feature=-vector"]),
         Revision::new("s390x_z15", "s390x-unknown-linux-gnu")
