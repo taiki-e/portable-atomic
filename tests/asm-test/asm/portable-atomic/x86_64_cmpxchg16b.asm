@@ -945,8 +945,6 @@ asm_test::fetch_nand::bool::acqrel_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::seqcst_true:
@@ -957,15 +955,11 @@ asm_test::fetch_nand::bool::seqcst_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::acqrel_false:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::acquire_true:
@@ -976,8 +970,6 @@ asm_test::fetch_nand::bool::acquire_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::relaxed_true:
@@ -988,8 +980,6 @@ asm_test::fetch_nand::bool::relaxed_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::release_true:
@@ -1000,36 +990,26 @@ asm_test::fetch_nand::bool::release_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::seqcst_false:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::acquire_false:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::relaxed_false:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::release_false:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::acqrel:
@@ -1042,14 +1022,10 @@ asm_test::fetch_nand::bool::acqrel:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 1:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::seqcst:
@@ -1062,14 +1038,10 @@ asm_test::fetch_nand::bool::seqcst:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 1:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::acquire:
@@ -1082,14 +1054,10 @@ asm_test::fetch_nand::bool::acquire:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 1:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::relaxed:
@@ -1102,14 +1070,10 @@ asm_test::fetch_nand::bool::relaxed:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 1:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::bool::release:
@@ -1122,14 +1086,10 @@ asm_test::fetch_nand::bool::release:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 1:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_nand::u128::acqrel_all:
@@ -2865,736 +2825,586 @@ asm_test::compare_exchange::u64::release_relaxed:
 asm_test::compare_exchange::bool::acqrel_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
         mov               cl, 0x1
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_true:
         mov               cl, 0x1
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_false:
         xor               ecx, ecx
         mov               al, 0x1
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
         xor               ecx, ecx
         xor               eax, eax
         lock cmpxchg      byte ptr [rdi], cl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange::u128::acqrel_seqcst:
@@ -4665,136 +4475,106 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
         mov               eax, esi
         lock cmpxchg      byte ptr [rdi], dl
-        setne             cl
-        test              al, al
-        setne             dl
-        mov               eax, ecx
+        mov               edx, eax
+        setne             al
         ret
 
 asm_test::compare_exchange_weak::u128::acqrel_seqcst:
@@ -7503,20 +7283,14 @@ asm_test::load::u64::relaxed:
 
 asm_test::load::bool::seqcst:
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::load::bool::acquire:
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::load::bool::relaxed:
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::load::u128::seqcst:
@@ -7712,101 +7486,76 @@ asm_test::swap::u64::release:
 asm_test::swap::bool::acqrel_true:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::seqcst_true:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::acqrel_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::acquire_true:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::relaxed_true:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::release_true:
         mov               al, 0x1
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::seqcst_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::acquire_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::relaxed_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::release_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::swap::bool::acqrel:
-        xchg              byte ptr [rdi], sil
-        test              sil, sil
-        setne             al
+        mov               eax, esi
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::swap::bool::seqcst:
-        xchg              byte ptr [rdi], sil
-        test              sil, sil
-        setne             al
+        mov               eax, esi
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::swap::bool::acquire:
-        xchg              byte ptr [rdi], sil
-        test              sil, sil
-        setne             al
+        mov               eax, esi
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::swap::bool::relaxed:
-        xchg              byte ptr [rdi], sil
-        test              sil, sil
-        setne             al
+        mov               eax, esi
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::swap::bool::release:
-        xchg              byte ptr [rdi], sil
-        test              sil, sil
-        setne             al
+        mov               eax, esi
+        xchg              byte ptr [rdi], al
         ret
 
 asm_test::swap::u128::acqrel:
@@ -8716,8 +8465,6 @@ asm_test::fetch_or::bool::acqrel_true:
         or                cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::seqcst_true:
@@ -8728,15 +8475,11 @@ asm_test::fetch_or::bool::seqcst_true:
         or                cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::acqrel_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::acquire_true:
@@ -8747,8 +8490,6 @@ asm_test::fetch_or::bool::acquire_true:
         or                cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::relaxed_true:
@@ -8759,8 +8500,6 @@ asm_test::fetch_or::bool::relaxed_true:
         or                cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::release_true:
@@ -8771,36 +8510,26 @@ asm_test::fetch_or::bool::release_true:
         or                cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::seqcst_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::acquire_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::relaxed_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::release_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::acqrel:
@@ -8811,8 +8540,6 @@ asm_test::fetch_or::bool::acqrel:
         or                cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::seqcst:
@@ -8823,8 +8550,6 @@ asm_test::fetch_or::bool::seqcst:
         or                cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::acquire:
@@ -8835,8 +8560,6 @@ asm_test::fetch_or::bool::acquire:
         or                cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::relaxed:
@@ -8847,8 +8570,6 @@ asm_test::fetch_or::bool::relaxed:
         or                cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::bool::release:
@@ -8859,8 +8580,6 @@ asm_test::fetch_or::bool::release:
         or                cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_or::u128::acqrel_all:
@@ -10586,8 +10305,6 @@ asm_test::fetch_and::bool::acqrel_true:
         and               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::seqcst_true:
@@ -10598,15 +10315,11 @@ asm_test::fetch_and::bool::seqcst_true:
         and               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::acqrel_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::acquire_true:
@@ -10617,8 +10330,6 @@ asm_test::fetch_and::bool::acquire_true:
         and               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::relaxed_true:
@@ -10629,8 +10340,6 @@ asm_test::fetch_and::bool::relaxed_true:
         and               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::release_true:
@@ -10641,36 +10350,26 @@ asm_test::fetch_and::bool::release_true:
         and               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::seqcst_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::acquire_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::relaxed_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::release_false:
         xor               eax, eax
         xchg              byte ptr [rdi], al
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::acqrel:
@@ -10681,8 +10380,6 @@ asm_test::fetch_and::bool::acqrel:
         and               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::seqcst:
@@ -10693,8 +10390,6 @@ asm_test::fetch_and::bool::seqcst:
         and               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::acquire:
@@ -10705,8 +10400,6 @@ asm_test::fetch_and::bool::acquire:
         and               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::relaxed:
@@ -10717,8 +10410,6 @@ asm_test::fetch_and::bool::relaxed:
         and               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::bool::release:
@@ -10729,8 +10420,6 @@ asm_test::fetch_and::bool::release:
         and               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_and::u128::acqrel_all:
@@ -12541,8 +12230,6 @@ asm_test::fetch_not::bool::acqrel:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_not::bool::seqcst:
@@ -12553,8 +12240,6 @@ asm_test::fetch_not::bool::seqcst:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_not::bool::acquire:
@@ -12565,8 +12250,6 @@ asm_test::fetch_not::bool::acquire:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_not::bool::relaxed:
@@ -12577,8 +12260,6 @@ asm_test::fetch_not::bool::relaxed:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_not::bool::release:
@@ -12589,8 +12270,6 @@ asm_test::fetch_not::bool::release:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_not::u128::acqrel:
@@ -13561,8 +13240,6 @@ asm_test::fetch_xor::bool::acqrel_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::seqcst_true:
@@ -13573,15 +13250,11 @@ asm_test::fetch_xor::bool::seqcst_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::acqrel_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::acquire_true:
@@ -13592,8 +13265,6 @@ asm_test::fetch_xor::bool::acquire_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::relaxed_true:
@@ -13604,8 +13275,6 @@ asm_test::fetch_xor::bool::relaxed_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::release_true:
@@ -13616,36 +13285,26 @@ asm_test::fetch_xor::bool::release_true:
         xor               cl, 0x1
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::seqcst_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::acquire_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::relaxed_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::release_false:
         lock or           dword ptr [rsp - 0x40], 0x0
         movzx             eax, byte ptr [rdi]
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::acqrel:
@@ -13656,8 +13315,6 @@ asm_test::fetch_xor::bool::acqrel:
         xor               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::seqcst:
@@ -13668,8 +13325,6 @@ asm_test::fetch_xor::bool::seqcst:
         xor               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::acquire:
@@ -13680,8 +13335,6 @@ asm_test::fetch_xor::bool::acquire:
         xor               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::relaxed:
@@ -13692,8 +13345,6 @@ asm_test::fetch_xor::bool::relaxed:
         xor               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::bool::release:
@@ -13704,8 +13355,6 @@ asm_test::fetch_xor::bool::release:
         xor               cl, sil
         lock cmpxchg      byte ptr [rdi], cl
         jne               0b
-        test              al, al
-        setne             al
         ret
 
 asm_test::fetch_xor::u128::acqrel_zero:

@@ -931,10 +931,11 @@ impl AtomicBool {
         /// ```
         #[inline]
         pub const fn into_inner(self) -> bool {
-            // SAFETY: AtomicBool and u8 have the same size and in-memory representations,
-            // so they can be safely transmuted.
+            // SAFETY: AtomicBool and bool have the same size and in-memory representations,
+            // and we only store 0 or 1, so they can be safely transmuted.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
             // (const UnsafeCell::into_inner is unstable)
-            unsafe { core::mem::transmute::<AtomicBool, u8>(self) != 0 }
+            unsafe { core::mem::transmute::<AtomicBool, bool>(self) }
         }
     }
 
@@ -962,7 +963,10 @@ impl AtomicBool {
         track_caller
     )]
     pub fn load(&self, order: Ordering) -> bool {
-        self.as_atomic_u8().load(order) != 0
+        let x = self.as_atomic_u8().load(order);
+        // SAFETY: we only store 0 or 1.
+        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+        unsafe { crate::utils::bool_from_u8_unchecked(x) }
     }
 
     /// Stores a value into the bool.
@@ -1033,7 +1037,10 @@ impl AtomicBool {
             target_arch = "loongarch64",
         )))]
         {
-            self.as_atomic_u8().swap(val as u8, order) != 0
+            let x = self.as_atomic_u8().swap(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
         }
     }
 
@@ -1116,8 +1123,12 @@ impl AtomicBool {
         )))]
         {
             match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
-                Ok(x) => Ok(x != 0),
-                Err(x) => Err(x != 0),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
             }
         }
     }
@@ -1193,8 +1204,12 @@ impl AtomicBool {
                 .as_atomic_u8()
                 .compare_exchange_weak(current as u8, new as u8, success, failure)
             {
-                Ok(x) => Ok(x != 0),
-                Err(x) => Err(x != 0),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
             }
         }
     }
@@ -1231,7 +1246,10 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_and(val as u8, order) != 0
+        let x = self.as_atomic_u8().fetch_and(val as u8, order);
+        // SAFETY: we only store 0 or 1.
+        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+        unsafe { crate::utils::bool_from_u8_unchecked(x) }
     }
 
     /// Logical "and" with a boolean value.
@@ -1355,7 +1373,10 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_or(val as u8, order) != 0
+        let x = self.as_atomic_u8().fetch_or(val as u8, order);
+        // SAFETY: we only store 0 or 1.
+        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+        unsafe { crate::utils::bool_from_u8_unchecked(x) }
     }
 
     /// Logical "or" with a boolean value.
@@ -1434,7 +1455,10 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
+        let x = self.as_atomic_u8().fetch_xor(val as u8, order);
+        // SAFETY: we only store 0 or 1.
+        // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+        unsafe { crate::utils::bool_from_u8_unchecked(x) }
     }
 
     /// Logical "xor" with a boolean value.
