@@ -1018,6 +1018,12 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            if !val {
+                return self.fetch_and(false, order);
+            }
+        }
         #[cfg(any(
             target_arch = "riscv32",
             target_arch = "riscv64",
@@ -1276,7 +1282,16 @@ impl AtomicBool {
                 self.swap(false, order)
             }
         }
-        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_and_bool(val)
+        }
+        #[cfg(not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )))]
         {
             let x = self.as_atomic_u8().fetch_and(val as u8, order);
             // SAFETY: we only store 0 or 1.
@@ -1300,7 +1315,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_and` on some platforms.
     ///
     /// - x86/x86_64: `lock and` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
-    /// - MSP430: `and` instead of disabling interrupts
+    /// - MSP430: `and` instead of `and; mov` / `rra; mov`
     ///
     /// # Examples
     ///
@@ -1362,7 +1377,7 @@ impl AtomicBool {
         if val {
             // !(x & true) == !x
             // We must invert the bool.
-            self.fetch_xor(true, order)
+            self.fetch_not(order)
         } else {
             // !(x & false) == true
             // We must set the bool to true.
@@ -1402,7 +1417,11 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        ))]
         {
             if val {
                 // (x | true) == true
@@ -1412,7 +1431,11 @@ impl AtomicBool {
                 self.fetch_nop(order)
             }
         }
-        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        #[cfg(not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )))]
         {
             let x = self.as_atomic_u8().fetch_or(val as u8, order);
             // SAFETY: we only store 0 or 1.
@@ -1436,7 +1459,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
     /// - x86/x86_64: `lock or` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
-    /// - MSP430: `bis` instead of disabling interrupts
+    /// - MSP430: `bis` instead of `and; mov` / disabling interrupts depending on the value
     ///
     /// # Examples
     ///
@@ -1493,6 +1516,11 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_xor_bool(val)
+        }
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
         #[allow(clippy::redundant_else)]
         {
@@ -1509,6 +1537,7 @@ impl AtomicBool {
                 return self.fetch_nop(order);
             }
         }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
         #[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), allow(unreachable_code))]
         {
             let x = self.as_atomic_u8().fetch_xor(val as u8, order);
@@ -1533,7 +1562,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
     /// - x86/x86_64: `lock xor` instead of `lock xor; setz` / `lock xadd` / `cmpxchg` loop depending on the value
-    /// - MSP430: `xor` instead of disabling interrupts
+    /// - MSP430: `xor` instead of `xor; mov`
     ///
     /// # Examples
     ///
@@ -1586,7 +1615,15 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_not(&self, order: Ordering) -> bool {
-        self.fetch_xor(true, order)
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_not_bool()
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        {
+            self.fetch_xor(true, order)
+        }
     }
 
     /// Logical "not" with a boolean value.
@@ -1604,7 +1641,7 @@ impl AtomicBool {
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
     /// - x86/x86_64: `lock xor` instead of `lock xor; setz`
-    /// - MSP430: `xor` instead of disabling interrupts
+    /// - MSP430: `xor` instead of `xor; mov; bic`
     ///
     /// # Examples
     ///
@@ -1622,7 +1659,15 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn not(&self, order: Ordering) {
-        self.xor(true, order);
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().not_bool();
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        {
+            self.xor(true, order);
+        }
     }
 
     /// Fetches the value, and applies a function to it that returns an optional
@@ -1717,6 +1762,12 @@ impl AtomicBool {
             // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
             unsafe { crate::utils::bool_from_u8_unchecked(x) }
         }
+    }
+    #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        self.fetch_and(true, order)
     }
     } // cfg_has_atomic_cas_or_amo32!
 

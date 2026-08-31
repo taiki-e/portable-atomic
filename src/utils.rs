@@ -636,6 +636,18 @@ pub(crate) unsafe fn bool_from_u8_unchecked(x: u8) -> bool {
         core::mem::transmute(x)
     }
 }
+#[allow(dead_code)]
+#[inline(always)]
+pub(crate) unsafe fn bool_from_reg_unchecked(x: RegSize) -> bool {
+    #[allow(clippy::transmute_int_to_bool, clippy::cast_possible_truncation)]
+    #[allow(unknown_lints, unnecessary_transmutes)] // false positive (fixed in Rust 1.89)
+    // SAFETY: the caller must guarantee that x is 0 or 1.
+    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+    unsafe {
+        crate::utils::assert_unchecked(x == 0 || x == 1); // may help remove extra cmp/test/and
+        core::mem::transmute(x as u8)
+    }
+}
 
 // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3338
 #[inline]
