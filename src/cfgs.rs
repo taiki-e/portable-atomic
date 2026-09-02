@@ -137,6 +137,7 @@ mod atomic_32_macros {
                 target_arch = "msp430",
                 feature = "critical-section",
                 portable_atomic_unsafe_assume_single_core,
+                portable_atomic_xtensa_cas,
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -160,6 +161,7 @@ mod atomic_32_macros {
                 target_arch = "msp430",
                 feature = "critical-section",
                 portable_atomic_unsafe_assume_single_core,
+                portable_atomic_xtensa_cas,
             ),
         ),
         target_has_atomic = "64",
@@ -196,6 +198,7 @@ mod atomic_64_macros {
                 target_arch = "msp430",
                 feature = "critical-section",
                 portable_atomic_unsafe_assume_single_core,
+                portable_atomic_xtensa_cas,
             ),
         ),
         not(portable_atomic_no_atomic_64),
@@ -219,6 +222,7 @@ mod atomic_64_macros {
                 target_arch = "msp430",
                 feature = "critical-section",
                 portable_atomic_unsafe_assume_single_core,
+                portable_atomic_xtensa_cas,
             ),
         ),
         target_has_atomic = "64",
@@ -309,6 +313,7 @@ mod atomic_64_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     ))
 )]
 #[cfg_attr(
@@ -319,6 +324,7 @@ mod atomic_64_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     ))
 )]
 #[macro_use]
@@ -398,6 +404,7 @@ mod atomic_128_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     )))
 )]
 #[cfg_attr(
@@ -408,6 +415,7 @@ mod atomic_128_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     )))
 )]
 #[macro_use]
@@ -432,6 +440,7 @@ mod atomic_128_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     ))
 )]
 #[cfg_attr(
@@ -442,6 +451,7 @@ mod atomic_128_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     ))
 )]
 #[macro_use]
@@ -476,6 +486,7 @@ mod atomic_cas_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     )))
 )]
 #[cfg_attr(
@@ -486,6 +497,7 @@ mod atomic_cas_macros {
         target_arch = "msp430",
         feature = "critical-section",
         portable_atomic_unsafe_assume_single_core,
+        portable_atomic_xtensa_cas,
     )))
 )]
 #[macro_use]
@@ -589,6 +601,7 @@ macro_rules! cfg_core_atomic {
                     portable_atomic_unsafe_assume_single_core,
                 ),
                 portable_atomic_no_atomic_cas,
+                not(portable_atomic_xtensa_cas),
             )))
         )]
         #[cfg_attr(
@@ -601,6 +614,7 @@ macro_rules! cfg_core_atomic {
                     portable_atomic_unsafe_assume_single_core,
                 ),
                 not(target_has_atomic = "ptr"),
+                not(portable_atomic_xtensa_cas),
             )))
         )]
         items!($($tt)*);
