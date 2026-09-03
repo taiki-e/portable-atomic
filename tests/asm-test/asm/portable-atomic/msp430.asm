@@ -965,11 +965,12 @@ asm_test::fetch_umax::u8::acqrel:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -981,11 +982,12 @@ asm_test::fetch_umax::u8::seqcst:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -997,11 +999,12 @@ asm_test::fetch_umax::u8::acquire:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1013,11 +1016,12 @@ asm_test::fetch_umax::u8::relaxed:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1029,11 +1033,12 @@ asm_test::fetch_umax::u8::release:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1046,11 +1051,12 @@ asm_test::fetch_umax::u16::acqrel:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1062,11 +1068,12 @@ asm_test::fetch_umax::u16::seqcst:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1078,11 +1085,12 @@ asm_test::fetch_umax::u16::acquire:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1094,11 +1102,12 @@ asm_test::fetch_umax::u16::relaxed:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1110,11 +1119,12 @@ asm_test::fetch_umax::u16::release:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1125,11 +1135,12 @@ asm_test::fetch_umin::u8::acqrel:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1141,11 +1152,12 @@ asm_test::fetch_umin::u8::seqcst:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1157,11 +1169,12 @@ asm_test::fetch_umin::u8::acquire:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1173,11 +1186,12 @@ asm_test::fetch_umin::u8::relaxed:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1189,11 +1203,12 @@ asm_test::fetch_umin::u8::release:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jnc               0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1206,11 +1221,12 @@ asm_test::fetch_umin::u16::acqrel:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1222,11 +1238,12 @@ asm_test::fetch_umin::u16::seqcst:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1238,11 +1255,12 @@ asm_test::fetch_umin::u16::acquire:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1254,11 +1272,12 @@ asm_test::fetch_umin::u16::relaxed:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -1270,11 +1289,12 @@ asm_test::fetch_umin::u16::release:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jnc               0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7692,11 +7712,12 @@ asm_test::fetch_max::i8::acqrel:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7708,11 +7729,12 @@ asm_test::fetch_max::i8::seqcst:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7724,11 +7746,12 @@ asm_test::fetch_max::i8::acquire:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7740,11 +7763,12 @@ asm_test::fetch_max::i8::relaxed:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7756,11 +7780,12 @@ asm_test::fetch_max::i8::release:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r13,	r14	;
+        cmp.b             r14,	r13	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7773,11 +7798,12 @@ asm_test::fetch_max::i16::acqrel:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7789,11 +7815,12 @@ asm_test::fetch_max::i16::seqcst:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7805,11 +7832,12 @@ asm_test::fetch_max::i16::acquire:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7821,11 +7849,12 @@ asm_test::fetch_max::i16::relaxed:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7837,11 +7866,12 @@ asm_test::fetch_max::i16::release:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r13,	r12	;
+        cmp               r12,	r13	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7852,11 +7882,12 @@ asm_test::fetch_min::i8::acqrel:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7868,11 +7899,12 @@ asm_test::fetch_min::i8::seqcst:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7884,11 +7916,12 @@ asm_test::fetch_min::i8::acquire:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7900,11 +7933,12 @@ asm_test::fetch_min::i8::relaxed:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7916,11 +7950,12 @@ asm_test::fetch_min::i8::release:
         dint
         nop
         mov.b             0(r12),	r14	;
-        cmp.b             r14,	r13	;
+        cmp.b             r13,	r14	;
+        mov.b             r14,	r11	;
         jl                0f
-        mov.b             r14,	r13	;
+        mov.b             r13,	r11	;
 0:
-        mov.b             r13,	0(r12)	;
+        mov.b             r11,	0(r12)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7933,11 +7968,12 @@ asm_test::fetch_min::i16::acqrel:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7949,11 +7985,12 @@ asm_test::fetch_min::i16::seqcst:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7965,11 +8002,12 @@ asm_test::fetch_min::i16::acquire:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7981,11 +8019,12 @@ asm_test::fetch_min::i16::relaxed:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop
@@ -7997,11 +8036,12 @@ asm_test::fetch_min::i16::release:
         dint
         nop
         mov               0(r14),	r12	;
-        cmp               r12,	r13	;
+        cmp               r13,	r12	;
+        mov               r12,	r11	;
         jl                0f
-        mov               r12,	r13	;
+        mov               r13,	r11	;
 0:
-        mov               r13,	0(r14)	;
+        mov               r11,	0(r14)	;
         nop
         mov               r15,	r2	;
         nop

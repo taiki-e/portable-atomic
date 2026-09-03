@@ -1158,474 +1158,504 @@ asm_test::fetch_nand::bool::release:
         pop               {r7, pc}
 
 asm_test::fetch_umax::u8::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u8::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u8::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u8::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u8::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u16::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u16::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u16::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u16::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u16::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         bhi               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u32::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bhi               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u32::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bhi               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u32::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bhi               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u32::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bhi               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umax::u32::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bhi               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u8::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u8::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u8::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u8::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u8::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxtb              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrb              r0, [r0]
-        uxtb              r1, r1
-        cmp               r1, r0
+        ldrb              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strb              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strb              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u16::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u16::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u16::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u16::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u16::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
-        mov               r2, r0
-        mrs               r3, primask
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
+        uxth              r3, r1
+        mrs               r2, primask
         cpsid             i
-        ldrh              r0, [r0]
-        uxth              r1, r1
-        cmp               r1, r0
+        ldrh              r1, [r0]
+        cmp               r1, r3
+        mov               r4, r1
         blo               0f
-        mov               r1, r0
+        mov               r4, r3
 0:
-        strh              r1, [r2]
-        msr               primask, r3
-        pop               {r7, pc}
+        strh              r4, [r0]
+        msr               primask, r2
+        mov               r0, r1
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u32::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blo               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u32::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blo               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u32::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blo               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u32::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blo               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_umin::u32::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blo               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::compare_exchange::u8::acqrel_seqcst:
         push              {r4, r6, r7, lr}
@@ -11224,89 +11254,94 @@ asm_test::fetch_and::bool::release:
         pop               {r7, pc}
 
 asm_test::fetch_max::i8::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i8::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i8::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i8::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i8::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::f32::acqrel:
         push              {r4, r5, r6, r7, lr}
@@ -11454,249 +11489,264 @@ asm_test::fetch_max::f32::release:
         pop               {r4, r5, r6, r7, pc}
 
 asm_test::fetch_max::i16::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i16::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i16::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i16::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i16::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         bgt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i32::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bgt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i32::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bgt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i32::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bgt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i32::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bgt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_max::i32::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         bgt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i8::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i8::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i8::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i8::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i8::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsb             r2, [r0, r2]
         sxtb              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strb              r1, [r0]
+        strb              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::f32::acqrel:
         push              {r4, r5, r6, r7, lr}
@@ -11844,164 +11894,174 @@ asm_test::fetch_min::f32::release:
         pop               {r4, r5, r6, r7, pc}
 
 asm_test::fetch_min::i16::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i16::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i16::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i16::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i16::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mrs               r3, primask
         cpsid             i
         movs              r2, #0x0
         ldrsh             r2, [r0, r2]
         sxth              r1, r1
-        cmp               r1, r2
+        cmp               r2, r1
+        mov               r4, r2
         blt               0f
-        mov               r1, r2
+        mov               r4, r1
 0:
-        strh              r1, [r0]
+        strh              r4, [r0]
         msr               primask, r3
         mov               r0, r2
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i32::acqrel:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i32::seqcst:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i32::acquire:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i32::relaxed:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_min::i32::release:
-        push              {r7, lr}
-        add               r7, sp, #0x0
+        push              {r4, r6, r7, lr}
+        add               r7, sp, #0x8
         mov               r2, r0
         mrs               r3, primask
         cpsid             i
         ldr               r0, [r0]
-        cmp               r1, r0
+        cmp               r0, r1
+        mov               r4, r0
         blt               0f
-        mov               r1, r0
+        mov               r4, r1
 0:
-        str               r1, [r2]
+        str               r4, [r2]
         msr               primask, r3
-        pop               {r7, pc}
+        pop               {r4, r6, r7, pc}
 
 asm_test::fetch_neg::u8::acqrel:
         push              {r7, lr}

@@ -750,11 +750,11 @@ asm_test::fetch_umax::u8::acqrel:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movhi             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movhi             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -774,11 +774,11 @@ asm_test::fetch_umax::u8::seqcst:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movhi             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movhi             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -798,11 +798,11 @@ asm_test::fetch_umax::u8::acquire:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movhi             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movhi             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -822,11 +822,11 @@ asm_test::fetch_umax::u8::relaxed:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movhi             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movhi             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -846,11 +846,11 @@ asm_test::fetch_umax::u8::release:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movhi             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movhi             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -872,11 +872,11 @@ asm_test::fetch_umax::u16::acqrel:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movhi             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movhi             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -898,11 +898,11 @@ asm_test::fetch_umax::u16::seqcst:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movhi             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movhi             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -924,11 +924,11 @@ asm_test::fetch_umax::u16::acquire:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movhi             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movhi             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -950,11 +950,11 @@ asm_test::fetch_umax::u16::relaxed:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movhi             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movhi             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -976,11 +976,11 @@ asm_test::fetch_umax::u16::release:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movhi             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movhi             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -1035,11 +1035,11 @@ asm_test::fetch_umin::u8::acqrel:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movlo             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movlo             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -1059,11 +1059,11 @@ asm_test::fetch_umin::u8::seqcst:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movlo             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movlo             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -1083,11 +1083,11 @@ asm_test::fetch_umin::u8::acquire:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movlo             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movlo             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -1107,11 +1107,11 @@ asm_test::fetch_umin::u8::relaxed:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movlo             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movlo             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -1131,11 +1131,11 @@ asm_test::fetch_umin::u8::release:
         mov               r4, r0
 0:
         and               r6, r3, #255
+        mov               r2, r5
+        cmp               r6, r5
         mov               r0, r4
-        cmp               r5, r6
+        movlo             r2, r6
         mov               r1, r3
-        mov               r2, r6
-        movlo             r2, r5
 1:
         bl                1f
         mov               r3, r0
@@ -1157,11 +1157,11 @@ asm_test::fetch_umin::u16::acqrel:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movlo             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movlo             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -1183,11 +1183,11 @@ asm_test::fetch_umin::u16::seqcst:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movlo             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movlo             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -1209,11 +1209,11 @@ asm_test::fetch_umin::u16::acquire:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movlo             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movlo             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -1235,11 +1235,11 @@ asm_test::fetch_umin::u16::relaxed:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movlo             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movlo             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -1261,11 +1261,11 @@ asm_test::fetch_umin::u16::release:
         and               r6, r1, r5
 0:
         and               r7, r3, r5
+        mov               r2, r6
+        cmp               r7, r6
         mov               r0, r4
-        cmp               r6, r7
+        movlo             r2, r7
         mov               r1, r3
-        mov               r2, r7
-        movlo             r2, r6
 1:
         bl                1f
         mov               r3, r0
@@ -9961,10 +9961,10 @@ asm_test::fetch_max::i8::acqrel:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrgt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrgt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -9986,10 +9986,10 @@ asm_test::fetch_max::i8::seqcst:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrgt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrgt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10011,10 +10011,10 @@ asm_test::fetch_max::i8::acquire:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrgt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrgt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10036,10 +10036,10 @@ asm_test::fetch_max::i8::relaxed:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrgt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrgt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10061,10 +10061,10 @@ asm_test::fetch_max::i8::release:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrgt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrgt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10208,10 +10208,10 @@ asm_test::fetch_max::i16::acqrel:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrgt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrgt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10235,10 +10235,10 @@ asm_test::fetch_max::i16::seqcst:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrgt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrgt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10262,10 +10262,10 @@ asm_test::fetch_max::i16::acquire:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrgt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrgt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10289,10 +10289,10 @@ asm_test::fetch_max::i16::relaxed:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrgt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrgt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10316,10 +10316,10 @@ asm_test::fetch_max::i16::release:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrgt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrgt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10376,10 +10376,10 @@ asm_test::fetch_min::i8::acqrel:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrlt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrlt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10401,10 +10401,10 @@ asm_test::fetch_min::i8::seqcst:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrlt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrlt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10426,10 +10426,10 @@ asm_test::fetch_min::i8::acquire:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrlt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrlt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10451,10 +10451,10 @@ asm_test::fetch_min::i8::relaxed:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrlt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrlt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10476,10 +10476,10 @@ asm_test::fetch_min::i8::release:
         lsl               r6, r1, #24
 0:
         lsl               r0, r5, #24
-        asr               r1, r6, #24
-        cmp               r1, r0, asr #24
-        asr               r2, r0, #24
-        asrlt             r2, r6, #24
+        asr               r2, r6, #24
+        asr               r1, r0, #24
+        cmp               r1, r6, asr #24
+        asrlt             r2, r0, #24
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10623,10 +10623,10 @@ asm_test::fetch_min::i16::acqrel:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrlt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrlt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10650,10 +10650,10 @@ asm_test::fetch_min::i16::seqcst:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrlt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrlt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10677,10 +10677,10 @@ asm_test::fetch_min::i16::acquire:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrlt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrlt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10704,10 +10704,10 @@ asm_test::fetch_min::i16::relaxed:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrlt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrlt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:
@@ -10731,10 +10731,10 @@ asm_test::fetch_min::i16::release:
         lsl               r6, r1, #16
 0:
         lsl               r0, r5, #16
-        asr               r1, r6, #16
-        cmp               r1, r0, asr #16
-        asr               r2, r0, #16
-        asrlt             r2, r6, #16
+        asr               r2, r6, #16
+        asr               r1, r0, #16
+        cmp               r1, r6, asr #16
+        asrlt             r2, r0, #16
         mov               r0, r4
         mov               r1, r5
 1:

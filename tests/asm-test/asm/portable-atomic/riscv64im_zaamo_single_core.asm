@@ -1229,10 +1229,11 @@ asm_test::fetch_umax::u8::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1241,10 +1242,11 @@ asm_test::fetch_umax::u8::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1253,10 +1255,11 @@ asm_test::fetch_umax::u8::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1265,10 +1268,11 @@ asm_test::fetch_umax::u8::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1277,10 +1281,11 @@ asm_test::fetch_umax::u8::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1289,10 +1294,11 @@ asm_test::fetch_umax::u16::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1301,10 +1307,11 @@ asm_test::fetch_umax::u16::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1313,10 +1320,11 @@ asm_test::fetch_umax::u16::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1325,10 +1333,11 @@ asm_test::fetch_umax::u16::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1337,10 +1346,11 @@ asm_test::fetch_umax::u16::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1389,10 +1399,11 @@ asm_test::fetch_umin::u8::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1401,10 +1412,11 @@ asm_test::fetch_umin::u8::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1413,10 +1425,11 @@ asm_test::fetch_umin::u8::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1425,10 +1438,11 @@ asm_test::fetch_umin::u8::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1437,10 +1451,11 @@ asm_test::fetch_umin::u8::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lbu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1449,10 +1464,11 @@ asm_test::fetch_umin::u16::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1461,10 +1477,11 @@ asm_test::fetch_umin::u16::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1473,10 +1490,11 @@ asm_test::fetch_umin::u16::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1485,10 +1503,11 @@ asm_test::fetch_umin::u16::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -1497,10 +1516,11 @@ asm_test::fetch_umin::u16::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lhu               a0, 0x0(a0)
-        bltu              a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        bltu              a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11395,10 +11415,11 @@ asm_test::fetch_max::i8::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11407,10 +11428,11 @@ asm_test::fetch_max::i8::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11419,10 +11441,11 @@ asm_test::fetch_max::i8::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11431,10 +11454,11 @@ asm_test::fetch_max::i8::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11443,10 +11467,11 @@ asm_test::fetch_max::i8::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11800,10 +11825,11 @@ asm_test::fetch_max::i16::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11812,10 +11838,11 @@ asm_test::fetch_max::i16::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11824,10 +11851,11 @@ asm_test::fetch_max::i16::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11836,10 +11864,11 @@ asm_test::fetch_max::i16::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11848,10 +11877,11 @@ asm_test::fetch_max::i16::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a0, a1, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a1, a0, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11900,10 +11930,11 @@ asm_test::fetch_min::i8::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11912,10 +11943,11 @@ asm_test::fetch_min::i8::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11924,10 +11956,11 @@ asm_test::fetch_min::i8::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11936,10 +11969,11 @@ asm_test::fetch_min::i8::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -11948,10 +11982,11 @@ asm_test::fetch_min::i8::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lb                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sb                a1, 0x0(a2)
+        sb                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -12305,10 +12340,11 @@ asm_test::fetch_min::i16::acqrel:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -12317,10 +12353,11 @@ asm_test::fetch_min::i16::seqcst:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -12329,10 +12366,11 @@ asm_test::fetch_min::i16::acquire:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -12341,10 +12379,11 @@ asm_test::fetch_min::i16::relaxed:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret
@@ -12353,10 +12392,11 @@ asm_test::fetch_min::i16::release:
         mv                a2, a0
         csrrci            a3, mstatus, 0x8
         lh                a0, 0x0(a0)
-        blt               a1, a0, 0f
-        mv                a1, a0
+        mv                a4, a0
+        blt               a0, a1, 0f
+        mv                a4, a1
 0:
-        sh                a1, 0x0(a2)
+        sh                a4, 0x0(a2)
         andi              a3, a3, 0x8
         csrs              mstatus, a3
         ret

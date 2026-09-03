@@ -1541,9 +1541,9 @@ asm_test::fetch_umax::u8::acqrel:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1564,9 +1564,9 @@ asm_test::fetch_umax::u8::seqcst:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         sync
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1587,8 +1587,8 @@ asm_test::fetch_umax::u8::acquire:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
-        iselgt            6, 4, 6
+        cmplw             6, 4
+        iselgt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1608,9 +1608,9 @@ asm_test::fetch_umax::u8::relaxed:
         lbarx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         crset             20
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -1631,10 +1631,10 @@ asm_test::fetch_umax::u8::release:
         lbarx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
         crset             20
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -1656,9 +1656,9 @@ asm_test::fetch_umax::u16::acqrel:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1679,9 +1679,9 @@ asm_test::fetch_umax::u16::seqcst:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         sync
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1702,8 +1702,8 @@ asm_test::fetch_umax::u16::acquire:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
-        iselgt            6, 4, 6
+        cmplw             6, 4
+        iselgt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1723,9 +1723,9 @@ asm_test::fetch_umax::u16::relaxed:
         lharx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         crset             20
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -1746,10 +1746,10 @@ asm_test::fetch_umax::u16::release:
         lharx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
         crset             20
-        iselgt            6, 4, 6
+        iselgt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -1974,9 +1974,9 @@ asm_test::fetch_umin::u8::acqrel:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -1997,9 +1997,9 @@ asm_test::fetch_umin::u8::seqcst:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         sync
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -2020,8 +2020,8 @@ asm_test::fetch_umin::u8::acquire:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
-        isellt            6, 4, 6
+        cmplw             6, 4
+        isellt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -2041,9 +2041,9 @@ asm_test::fetch_umin::u8::relaxed:
         lbarx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         crset             20
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -2064,10 +2064,10 @@ asm_test::fetch_umin::u8::release:
         lbarx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
         crset             20
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         stbcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -2089,9 +2089,9 @@ asm_test::fetch_umin::u16::acqrel:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -2112,9 +2112,9 @@ asm_test::fetch_umin::u16::seqcst:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         sync
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -2135,8 +2135,8 @@ asm_test::fetch_umin::u16::acquire:
         crclr             20
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
-        isellt            6, 4, 6
+        cmplw             6, 4
+        isellt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         lwsync
@@ -2156,9 +2156,9 @@ asm_test::fetch_umin::u16::relaxed:
         lharx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         crset             20
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -2179,10 +2179,10 @@ asm_test::fetch_umin::u16::release:
         lharx             5, 0, 3
         cmplw             5, 6
         bf-               2, 1f
-        cmplw             4, 6
+        cmplw             6, 4
         lwsync
         crset             20
-        isellt            6, 4, 6
+        isellt            6, 6, 4
         sthcx.            6, 0, 3
         bf-               2, 1f
         bf                20, 0b
@@ -18136,8 +18136,8 @@ asm_test::fetch_max::i8::acqrel:
         bf-               2, 1f
         extsb             5, 5
         lwsync
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18162,8 +18162,8 @@ asm_test::fetch_max::i8::seqcst:
         bf-               2, 1f
         extsb             5, 5
         sync
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18187,8 +18187,8 @@ asm_test::fetch_max::i8::acquire:
         cmplw             6, 7
         bf-               2, 1f
         extsb             5, 5
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18212,8 +18212,8 @@ asm_test::fetch_max::i8::relaxed:
         bf-               2, 1f
         extsb             5, 5
         crset             20
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         mr                5, 6
@@ -18240,8 +18240,8 @@ asm_test::fetch_max::i8::release:
         extsb             5, 5
         lwsync
         crset             20
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         mr                5, 6
@@ -18547,8 +18547,8 @@ asm_test::fetch_max::i16::acqrel:
         bf-               2, 1f
         extsh             5, 5
         lwsync
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -18573,8 +18573,8 @@ asm_test::fetch_max::i16::seqcst:
         bf-               2, 1f
         extsh             5, 5
         sync
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -18598,8 +18598,8 @@ asm_test::fetch_max::i16::acquire:
         cmplw             6, 7
         bf-               2, 1f
         extsh             5, 5
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -18623,8 +18623,8 @@ asm_test::fetch_max::i16::relaxed:
         bf-               2, 1f
         extsh             5, 5
         crset             20
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         mr                5, 6
@@ -18651,8 +18651,8 @@ asm_test::fetch_max::i16::release:
         extsh             5, 5
         lwsync
         crset             20
-        cmpw              4, 5
-        iselgt            5, 4, 5
+        cmpw              5, 4
+        iselgt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         mr                5, 6
@@ -18887,8 +18887,8 @@ asm_test::fetch_min::i8::acqrel:
         bf-               2, 1f
         extsb             5, 5
         lwsync
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18913,8 +18913,8 @@ asm_test::fetch_min::i8::seqcst:
         bf-               2, 1f
         extsb             5, 5
         sync
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18938,8 +18938,8 @@ asm_test::fetch_min::i8::acquire:
         cmplw             6, 7
         bf-               2, 1f
         extsb             5, 5
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         bf-               2, 1f
@@ -18963,8 +18963,8 @@ asm_test::fetch_min::i8::relaxed:
         bf-               2, 1f
         extsb             5, 5
         crset             20
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         mr                5, 6
@@ -18991,8 +18991,8 @@ asm_test::fetch_min::i8::release:
         extsb             5, 5
         lwsync
         crset             20
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 24
         stbcx.            5, 0, 3
         mr                5, 6
@@ -19298,8 +19298,8 @@ asm_test::fetch_min::i16::acqrel:
         bf-               2, 1f
         extsh             5, 5
         lwsync
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -19324,8 +19324,8 @@ asm_test::fetch_min::i16::seqcst:
         bf-               2, 1f
         extsh             5, 5
         sync
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -19349,8 +19349,8 @@ asm_test::fetch_min::i16::acquire:
         cmplw             6, 7
         bf-               2, 1f
         extsh             5, 5
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         bf-               2, 1f
@@ -19374,8 +19374,8 @@ asm_test::fetch_min::i16::relaxed:
         bf-               2, 1f
         extsh             5, 5
         crset             20
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         mr                5, 6
@@ -19402,8 +19402,8 @@ asm_test::fetch_min::i16::release:
         extsh             5, 5
         lwsync
         crset             20
-        cmpw              4, 5
-        isellt            5, 4, 5
+        cmpw              5, 4
+        isellt            5, 5, 4
         clrlwi            5, 5, 16
         sthcx.            5, 0, 3
         mr                5, 6

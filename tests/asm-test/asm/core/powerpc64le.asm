@@ -533,8 +533,8 @@ asm_test::fetch_umax::u128::acqrel:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         lwsync
         crandc            20, 1, 2
         mr                8, 6
@@ -543,8 +543,8 @@ asm_test::fetch_umax::u128::acqrel:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -583,8 +583,8 @@ asm_test::fetch_umax::u128::seqcst:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         sync
         crandc            20, 1, 2
         mr                8, 6
@@ -593,8 +593,8 @@ asm_test::fetch_umax::u128::seqcst:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -633,8 +633,8 @@ asm_test::fetch_umax::u128::acquire:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         crandc            20, 1, 2
         mr                8, 6
         crand             21, 2, 5
@@ -642,8 +642,8 @@ asm_test::fetch_umax::u128::acquire:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -682,8 +682,8 @@ asm_test::fetch_umax::u128::relaxed:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         crandc            20, 1, 2
         mr                8, 6
         crand             21, 2, 5
@@ -691,8 +691,8 @@ asm_test::fetch_umax::u128::relaxed:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -730,8 +730,8 @@ asm_test::fetch_umax::u128::release:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         lwsync
         crandc            20, 1, 2
         mr                8, 6
@@ -740,8 +740,8 @@ asm_test::fetch_umax::u128::release:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -1023,8 +1023,8 @@ asm_test::fetch_umin::u128::acqrel:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         lwsync
         crandc            20, 0, 2
         mr                8, 6
@@ -1033,8 +1033,8 @@ asm_test::fetch_umin::u128::acqrel:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -1073,8 +1073,8 @@ asm_test::fetch_umin::u128::seqcst:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         sync
         crandc            20, 0, 2
         mr                8, 6
@@ -1083,8 +1083,8 @@ asm_test::fetch_umin::u128::seqcst:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -1123,8 +1123,8 @@ asm_test::fetch_umin::u128::acquire:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         crandc            20, 0, 2
         mr                8, 6
         crand             21, 2, 4
@@ -1132,8 +1132,8 @@ asm_test::fetch_umin::u128::acquire:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -1172,8 +1172,8 @@ asm_test::fetch_umin::u128::relaxed:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         crandc            20, 0, 2
         mr                8, 6
         crand             21, 2, 4
@@ -1181,8 +1181,8 @@ asm_test::fetch_umin::u128::relaxed:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -1220,8 +1220,8 @@ asm_test::fetch_umin::u128::release:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpld             1, 4, 7
+        cmpld             6, 5
+        cmpld             1, 7, 4
         lwsync
         crandc            20, 0, 2
         mr                8, 6
@@ -1230,8 +1230,8 @@ asm_test::fetch_umin::u128::release:
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6104,19 +6104,19 @@ asm_test::fetch_max::i128::acqrel:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         lwsync
         crandc            20, 5, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 5
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6155,19 +6155,19 @@ asm_test::fetch_max::i128::seqcst:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         sync
         crandc            20, 5, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 5
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6206,18 +6206,18 @@ asm_test::fetch_max::i128::acquire:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         crandc            20, 5, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         crand             21, 2, 5
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6256,18 +6256,18 @@ asm_test::fetch_max::i128::relaxed:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         crandc            20, 5, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         crand             21, 2, 5
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6305,19 +6305,19 @@ asm_test::fetch_max::i128::release:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         lwsync
         crandc            20, 5, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 5
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6619,19 +6619,19 @@ asm_test::fetch_min::i128::acqrel:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         lwsync
         crandc            20, 4, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 4
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6670,19 +6670,19 @@ asm_test::fetch_min::i128::seqcst:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         sync
         crandc            20, 4, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 4
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6721,18 +6721,18 @@ asm_test::fetch_min::i128::acquire:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         crandc            20, 4, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         crand             21, 2, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6771,18 +6771,18 @@ asm_test::fetch_min::i128::relaxed:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         crandc            20, 4, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         crand             21, 2, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:
@@ -6820,19 +6820,19 @@ asm_test::fetch_min::i128::release:
         nop
         nop
 0:
-        cmpld             5, 6
-        cmpd              1, 5, 6
+        cmpld             6, 5
+        cmpd              1, 6, 5
         lwsync
         crandc            20, 4, 2
-        cmpld             1, 4, 7
+        cmpld             1, 7, 4
         mr                8, 6
         mr                9, 7
         ori               10, 8, 0
         or                10, 10, 8
         crand             21, 2, 4
         cror              20, 21, 20
-        isel              6, 4, 7, 20
-        isel              7, 5, 8, 20
+        isel              6, 7, 4, 20
+        isel              7, 8, 5, 20
         ori               11, 7, 0
         or                7, 11, 7
 1:

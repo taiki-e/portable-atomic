@@ -1966,20 +1966,20 @@ asm_test::fetch_umax::u128::acqrel:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2002,20 +2002,20 @@ asm_test::fetch_umax::u128::seqcst:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2038,20 +2038,20 @@ asm_test::fetch_umax::u128::acquire:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2074,20 +2074,20 @@ asm_test::fetch_umax::u128::relaxed:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2110,20 +2110,20 @@ asm_test::fetch_umax::u128::release:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2391,20 +2391,20 @@ asm_test::fetch_umin::u128::acqrel:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2427,20 +2427,20 @@ asm_test::fetch_umin::u128::seqcst:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2463,20 +2463,20 @@ asm_test::fetch_umin::u128::acquire:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2499,20 +2499,20 @@ asm_test::fetch_umin::u128::relaxed:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -2535,20 +2535,20 @@ asm_test::fetch_umin::u128::release:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        sltu              a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        sltu              a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -15742,20 +15742,20 @@ asm_test::fetch_max::i128::acqrel:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -15778,20 +15778,20 @@ asm_test::fetch_max::i128::seqcst:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -15814,20 +15814,20 @@ asm_test::fetch_max::i128::acquire:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -15850,20 +15850,20 @@ asm_test::fetch_max::i128::relaxed:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -15886,20 +15886,20 @@ asm_test::fetch_max::i128::release:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a7, a6
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a6, a7
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, t0, a1
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, a1, t0
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -16332,20 +16332,20 @@ asm_test::fetch_min::i128::acqrel:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -16368,20 +16368,20 @@ asm_test::fetch_min::i128::seqcst:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -16404,20 +16404,20 @@ asm_test::fetch_min::i128::acquire:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -16440,20 +16440,20 @@ asm_test::fetch_min::i128::relaxed:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0
@@ -16476,20 +16476,20 @@ asm_test::fetch_min::i128::release:
 1:
         mv                a7, a5
         mv                t0, a4
-        beq               a6, a5, 2f
-        slt               a4, a6, a7
-        mv                a2, a1
-        mv                a3, a6
+        beq               a5, a6, 2f
+        slt               a4, a7, a6
+        mv                a2, t0
+        mv                a3, a7
         bnez              a4, 0b
         j                 3f
 2:
-        sltu              a4, a1, t0
-        mv                a2, a1
-        mv                a3, a6
-        bnez              a4, 0b
-3:
+        sltu              a4, t0, a1
         mv                a2, t0
         mv                a3, a7
+        bnez              a4, 0b
+3:
+        mv                a2, a1
+        mv                a3, a6
         j                 0b
 4:
         mv                a0, t0

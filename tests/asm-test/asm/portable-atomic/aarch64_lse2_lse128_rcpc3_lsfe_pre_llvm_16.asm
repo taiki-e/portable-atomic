@@ -1450,8 +1450,8 @@ asm_test::fetch_umax::u8::acqrel:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casalb            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1463,8 +1463,8 @@ asm_test::fetch_umax::u8::seqcst:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casalb            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1476,8 +1476,8 @@ asm_test::fetch_umax::u8::acquire:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casab             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1489,8 +1489,8 @@ asm_test::fetch_umax::u8::relaxed:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casb              w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1502,8 +1502,8 @@ asm_test::fetch_umax::u8::release:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         caslb             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1515,8 +1515,8 @@ asm_test::fetch_umax::u16::acqrel:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casalh            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1528,8 +1528,8 @@ asm_test::fetch_umax::u16::seqcst:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casalh            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1541,8 +1541,8 @@ asm_test::fetch_umax::u16::acquire:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         casah             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1554,8 +1554,8 @@ asm_test::fetch_umax::u16::relaxed:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         cash              w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1567,8 +1567,8 @@ asm_test::fetch_umax::u16::release:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, hi
+        cmp               w10, w9
+        csel              w11, w10, w9, hi
         caslh             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1705,8 +1705,8 @@ asm_test::fetch_umin::u8::acqrel:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casalb            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1718,8 +1718,8 @@ asm_test::fetch_umin::u8::seqcst:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casalb            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1731,8 +1731,8 @@ asm_test::fetch_umin::u8::acquire:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casab             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1744,8 +1744,8 @@ asm_test::fetch_umin::u8::relaxed:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casb              w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1757,8 +1757,8 @@ asm_test::fetch_umin::u8::release:
         and               w9, w1, #0xff
 0:
         and               w10, w0, #0xff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         caslb             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1770,8 +1770,8 @@ asm_test::fetch_umin::u16::acqrel:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casalh            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1783,8 +1783,8 @@ asm_test::fetch_umin::u16::seqcst:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casalh            w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1796,8 +1796,8 @@ asm_test::fetch_umin::u16::acquire:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         casah             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1809,8 +1809,8 @@ asm_test::fetch_umin::u16::relaxed:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         cash              w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -1822,8 +1822,8 @@ asm_test::fetch_umin::u16::release:
         and               w9, w1, #0xffff
 0:
         and               w10, w0, #0xffff
-        cmp               w9, w10
-        csel              w11, w9, w10, lo
+        cmp               w10, w9
+        csel              w11, w10, w9, lo
         caslh             w0, w11, [x8]
         cmp               w0, w10
         b.ne              0b
@@ -9598,8 +9598,8 @@ asm_test::fetch_max::i8::acqrel:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casalb            w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9613,8 +9613,8 @@ asm_test::fetch_max::i8::seqcst:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casalb            w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9628,8 +9628,8 @@ asm_test::fetch_max::i8::acquire:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casab             w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9643,8 +9643,8 @@ asm_test::fetch_max::i8::relaxed:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casb              w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9658,8 +9658,8 @@ asm_test::fetch_max::i8::release:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         caslb             w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9733,8 +9733,8 @@ asm_test::fetch_max::i16::acqrel:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casalh            w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -9748,8 +9748,8 @@ asm_test::fetch_max::i16::seqcst:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casalh            w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -9763,8 +9763,8 @@ asm_test::fetch_max::i16::acquire:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         casah             w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -9778,8 +9778,8 @@ asm_test::fetch_max::i16::relaxed:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         cash              w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -9793,8 +9793,8 @@ asm_test::fetch_max::i16::release:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, gt
+        cmp               w11, w9
+        csel              w11, w11, w9, gt
         caslh             w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -9933,8 +9933,8 @@ asm_test::fetch_min::i8::acqrel:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casalb            w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9948,8 +9948,8 @@ asm_test::fetch_min::i8::seqcst:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casalb            w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9963,8 +9963,8 @@ asm_test::fetch_min::i8::acquire:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casab             w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9978,8 +9978,8 @@ asm_test::fetch_min::i8::relaxed:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casb              w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -9993,8 +9993,8 @@ asm_test::fetch_min::i8::release:
         mov               w10, w8
 0:
         sxtb              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         caslb             w10, w11, [x0]
         cmp               w10, w8, uxtb
         mov               w8, w10
@@ -10068,8 +10068,8 @@ asm_test::fetch_min::i16::acqrel:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casalh            w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -10083,8 +10083,8 @@ asm_test::fetch_min::i16::seqcst:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casalh            w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -10098,8 +10098,8 @@ asm_test::fetch_min::i16::acquire:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         casah             w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -10113,8 +10113,8 @@ asm_test::fetch_min::i16::relaxed:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         cash              w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10
@@ -10128,8 +10128,8 @@ asm_test::fetch_min::i16::release:
         mov               w10, w8
 0:
         sxth              w11, w8
-        cmp               w9, w11
-        csel              w11, w9, w11, lt
+        cmp               w11, w9
+        csel              w11, w11, w9, lt
         caslh             w10, w11, [x0]
         cmp               w10, w8, uxth
         mov               w8, w10

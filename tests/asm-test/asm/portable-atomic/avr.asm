@@ -995,11 +995,12 @@ asm_test::fetch_umax::u8::acqrel:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1008,11 +1009,12 @@ asm_test::fetch_umax::u8::seqcst:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1021,11 +1023,12 @@ asm_test::fetch_umax::u8::acquire:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1034,11 +1037,12 @@ asm_test::fetch_umax::u8::relaxed:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1047,11 +1051,12 @@ asm_test::fetch_umax::u8::release:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1062,14 +1067,15 @@ asm_test::fetch_umax::u16::acqrel:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1080,14 +1086,15 @@ asm_test::fetch_umax::u16::seqcst:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1098,14 +1105,15 @@ asm_test::fetch_umax::u16::acquire:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1116,14 +1124,15 @@ asm_test::fetch_umax::u16::relaxed:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1134,14 +1143,15 @@ asm_test::fetch_umax::u16::release:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1150,11 +1160,12 @@ asm_test::fetch_umin::u8::acqrel:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1163,11 +1174,12 @@ asm_test::fetch_umin::u8::seqcst:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1176,11 +1188,12 @@ asm_test::fetch_umin::u8::acquire:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1189,11 +1202,12 @@ asm_test::fetch_umin::u8::relaxed:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1202,11 +1216,12 @@ asm_test::fetch_umin::u8::release:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brcs              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -1217,14 +1232,15 @@ asm_test::fetch_umin::u16::acqrel:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1235,14 +1251,15 @@ asm_test::fetch_umin::u16::seqcst:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1253,14 +1270,15 @@ asm_test::fetch_umin::u16::acquire:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1271,14 +1289,15 @@ asm_test::fetch_umin::u16::relaxed:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -1289,14 +1308,15 @@ asm_test::fetch_umin::u16::release:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brcs              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -8972,11 +8992,12 @@ asm_test::fetch_max::i8::acqrel:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -8985,11 +9006,12 @@ asm_test::fetch_max::i8::seqcst:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -8998,11 +9020,12 @@ asm_test::fetch_max::i8::acquire:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9011,11 +9034,12 @@ asm_test::fetch_max::i8::relaxed:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9024,11 +9048,12 @@ asm_test::fetch_max::i8::release:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r24, r22
+        cp                r22, r24
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9039,14 +9064,15 @@ asm_test::fetch_max::i16::acqrel:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9057,14 +9083,15 @@ asm_test::fetch_max::i16::seqcst:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9075,14 +9102,15 @@ asm_test::fetch_max::i16::acquire:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9093,14 +9121,15 @@ asm_test::fetch_max::i16::relaxed:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9111,14 +9140,15 @@ asm_test::fetch_max::i16::release:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r24, r22
-        cpc               r25, r23
+        cp                r22, r24
+        cpc               r23, r25
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9127,11 +9157,12 @@ asm_test::fetch_min::i8::acqrel:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9140,11 +9171,12 @@ asm_test::fetch_min::i8::seqcst:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9153,11 +9185,12 @@ asm_test::fetch_min::i8::acquire:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9166,11 +9199,12 @@ asm_test::fetch_min::i8::relaxed:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9179,11 +9213,12 @@ asm_test::fetch_min::i8::release:
         in                r25, 0x3f	; 63
         cli
         ld                r24, X
-        cp                r22, r24
+        cp                r24, r22
+        mov               r18, r24
 0:
         brlt              0f
-        mov               r22, r24
-        st                X, r22
+        mov               r18, r22
+        st                X, r18
         out               0x3f, r25	; 63
         ret
 
@@ -9194,14 +9229,15 @@ asm_test::fetch_min::i16::acqrel:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9212,14 +9248,15 @@ asm_test::fetch_min::i16::seqcst:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9230,14 +9267,15 @@ asm_test::fetch_min::i16::acquire:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9248,14 +9286,15 @@ asm_test::fetch_min::i16::relaxed:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
@@ -9266,14 +9305,15 @@ asm_test::fetch_min::i16::release:
         movw              r30, r18
         ld                r24, Z
         ldd               r25, Z+1	; 0x01
-        cp                r22, r24
-        cpc               r23, r25
+        cp                r24, r22
+        cpc               r25, r23
+        movw              r26, r24
 0:
         brlt              0f
-        movw              r22, r24
+        movw              r26, r22
         movw              r30, r18
-        std               Z+1, r23	; 0x01
-        st                Z, r22
+        std               Z+1, r27	; 0x01
+        st                Z, r26
         out               0x3f, r20	; 63
         ret
 
