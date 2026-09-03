@@ -165,7 +165,7 @@ cfg_core_atomic!({
             // LLVM 14 and older don't support generating `lock bt{s,r,c}`.
             // LLVM 15 only supports generating `lock bt{s,r,c}` for immediate bit offsets.
             // LLVM 16+ can generate `lock bt{s,r,c}` for both immediate and register bit offsets.
-            // https://godbolt.org/z/TGhr5z4ds
+            // https://godbolt.org/z/d1dM6WG4d
             // So, use fetch_* based implementations on LLVM 16+, otherwise use asm based implementations.
             #[cfg(not(portable_atomic_pre_llvm_16))]
             impl_default_bit_opts!($atomic_type, $int_type);
@@ -194,8 +194,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTS modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
                 #[inline]
@@ -219,8 +218,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTR modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
                 #[inline]
@@ -244,8 +242,7 @@ cfg_core_atomic!({
                             // Do not use `preserves_flags` because BTC modifies the CF flag.
                             options(nostack),
                         );
-                        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra and
-                        r & 1 != 0
+                        crate::utils::bool_from_u8_unchecked(r)
                     }
                 }
             }
@@ -278,4 +275,52 @@ cfg_core_atomic!({
     atomic_bit_opts!(AtomicUsize, usize, "", "qword");
     #[cfg(target_pointer_width = "64")]
     atomic_bit_opts!([T] AtomicPtr, usize, "", "qword");
+
+    // For AtomicBool
+    // LLVM 15 and older don't support generating `lock {and,xor}`.
+    // LLVM 16+ can generate `lock {and,xor}` for immediate value, but fragile.
+    // https://godbolt.org/z/WvG6zva9b
+    impl AtomicU8 {
+        #[inline]
+        pub(crate) fn fetch_nop(&self) -> u8 {
+            let dst = self.as_ptr();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            //
+            // https://www.felixcloutier.com/x86/xadd
+            unsafe {
+                let mut out: u8 = 0;
+                // atomic RMW is always SeqCst.
+                __asm!(
+                    concat!("lock xadd byte ptr [{dst", ptr_modifier!(), "}], {out}"),
+                    dst = in(reg) dst,
+                    out = inout(reg_byte) out,
+                    // Do not use `preserves_flags` because XADD modifies the flags.
+                    options(nostack),
+                );
+                out
+            }
+        }
+        #[inline]
+        pub(crate) fn fetch_xor_bool_true(&self) -> bool {
+            let dst = self.as_ptr();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            //
+            // https://www.felixcloutier.com/x86/xor
+            unsafe {
+                let r: u8;
+                // atomic RMW is always SeqCst.
+                __asm!(
+                    concat!("lock xor byte ptr [{dst", ptr_modifier!(), "}], 1"),
+                    "setz {r}",
+                    dst = in(reg) dst,
+                    r = out(reg_byte) r,
+                    // Do not use `preserves_flags` because XOR modifies the flags.
+                    options(nostack),
+                );
+                crate::utils::bool_from_u8_unchecked(r)
+            }
+        }
+    }
 });

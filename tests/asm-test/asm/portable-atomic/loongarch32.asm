@@ -986,8 +986,7 @@ asm_test::fetch_nand::bool::acqrel_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::seqcst_true:
@@ -1002,8 +1001,7 @@ asm_test::fetch_nand::bool::seqcst_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::acqrel_false:
@@ -1018,8 +1016,7 @@ asm_test::fetch_nand::bool::acqrel_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::acquire_true:
@@ -1034,8 +1031,7 @@ asm_test::fetch_nand::bool::acquire_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::relaxed_true:
@@ -1050,8 +1046,7 @@ asm_test::fetch_nand::bool::relaxed_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::release_true:
@@ -1066,8 +1061,7 @@ asm_test::fetch_nand::bool::release_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::seqcst_false:
@@ -1082,8 +1076,7 @@ asm_test::fetch_nand::bool::seqcst_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::acquire_false:
@@ -1098,8 +1091,7 @@ asm_test::fetch_nand::bool::acquire_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::relaxed_false:
@@ -1114,8 +1106,7 @@ asm_test::fetch_nand::bool::relaxed_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::release_false:
@@ -1130,8 +1121,7 @@ asm_test::fetch_nand::bool::release_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::acqrel:
@@ -1147,8 +1137,7 @@ asm_test::fetch_nand::bool::acqrel:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 1:
         addi.w            $a1, $zero, -4
@@ -1162,8 +1151,7 @@ asm_test::fetch_nand::bool::acqrel:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 2b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::seqcst:
@@ -1179,8 +1167,7 @@ asm_test::fetch_nand::bool::seqcst:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 1:
         addi.w            $a1, $zero, -4
@@ -1194,8 +1181,7 @@ asm_test::fetch_nand::bool::seqcst:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 2b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::acquire:
@@ -1211,8 +1197,7 @@ asm_test::fetch_nand::bool::acquire:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 1:
         addi.w            $a1, $zero, -4
@@ -1226,8 +1211,7 @@ asm_test::fetch_nand::bool::acquire:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 2b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::relaxed:
@@ -1243,8 +1227,7 @@ asm_test::fetch_nand::bool::relaxed:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 1:
         addi.w            $a1, $zero, -4
@@ -1258,8 +1241,7 @@ asm_test::fetch_nand::bool::relaxed:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 2b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_nand::bool::release:
@@ -1275,8 +1257,7 @@ asm_test::fetch_nand::bool::release:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 1:
         addi.w            $a1, $zero, -4
@@ -1290,8 +1271,7 @@ asm_test::fetch_nand::bool::release:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 2b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_umax::u8::acqrel:
@@ -3150,789 +3130,522 @@ asm_test::compare_exchange::u32::release_relaxed:
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
@@ -3941,113 +3654,179 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
@@ -4056,33 +3835,49 @@ asm_test::compare_exchange::bool::seqcst_seqcst_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_false:
@@ -4091,33 +3886,49 @@ asm_test::compare_exchange::bool::acqrel_acquire_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
@@ -4126,81 +3937,124 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_false:
@@ -4209,65 +4063,101 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
@@ -4276,65 +4166,101 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
+0:
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_true_false:
@@ -4343,33 +4269,49 @@ asm_test::compare_exchange::bool::release_seqcst_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_false:
@@ -4378,33 +4320,49 @@ asm_test::compare_exchange::bool::seqcst_acquire_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
@@ -4413,81 +4371,118 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_true_false:
@@ -4496,33 +4491,49 @@ asm_test::compare_exchange::bool::acquire_acquire_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_false:
@@ -4531,49 +4542,72 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_false:
@@ -4582,33 +4616,49 @@ asm_test::compare_exchange::bool::relaxed_acquire_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
@@ -4617,49 +4667,72 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire_true_false:
@@ -4668,33 +4741,49 @@ asm_test::compare_exchange::bool::release_acquire_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $zero, 1f
+        andn              $a5, $a4, $a2
+        or                $a5, $a5, $a3
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_true_false:
@@ -4703,160 +4792,231 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
         slli.w            $a0, $a0, 3
         ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a1, $a0, 255
-        sltui             $a0, $a1, 1
-        sltu              $a1, $zero, $a1
+        ll.w              $a4, $a1, 0
+        and               $a5, $a4, $a2
+        bne               $a5, $a3, 1f
+        andn              $a5, $a4, $a2
+        move              $a5, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a4, $a0
+        and               $a0, $a4, $a2
+        xor               $a0, $a3, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              20
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
-0:
-        ll.w              $a2, $a1, 0
-        move              $a3, $a2
-        sc.w              $a3, $a1, 0
-        beq               $a3, $zero, 0b
-        andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
-        srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
+        ori               $a2, $zero, 255
+        sll.w             $a2, $a2, $a0
+0:
+        ll.w              $a3, $a1, 0
+        and               $a4, $a3, $a2
+        bne               $a4, $zero, 1f
+        andn              $a4, $a3, $a2
+        move              $a4, $a4
+        sc.w              $a4, $a1, 0
+        beq               $a4, $zero, 0b
+        b                 2f
+1:
+        dbar              1792
+2:
+        srl.w             $a1, $a3, $a0
+        and               $a0, $a3, $a2
         sltu              $a0, $zero, $a0
-        move              $a1, $a0
         ret
 
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
@@ -6165,708 +6325,393 @@ asm_test::compare_exchange_weak::u32::release_relaxed:
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::release_acquire:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              20
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
-        beq               $a1, $a2, 1f
-        beq               $a2, $zero, 3f
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        addi.w            $a3, $zero, -4
+        and               $a3, $a0, $a3
         slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 1
-        sll.w             $a3, $a3, $a0
+        ori               $a4, $zero, 255
+        sll.w             $a4, $a4, $a0
+        sll.w             $a5, $a1, $a0
+        sll.w             $a1, $a2, $a0
 0:
-        ll.w              $a4, $a2, 0
-        or                $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 0b
-        b                 5f
+        ll.w              $a2, $a3, 0
+        and               $a6, $a2, $a4
+        bne               $a6, $a5, 1f
+        andn              $a6, $a2, $a4
+        or                $a6, $a6, $a1
+        sc.w              $a6, $a3, 0
+        beq               $a6, $zero, 0b
+        b                 2f
 1:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
+        dbar              1792
 2:
-        ll.w              $a3, $a2, 0
-        move              $a4, $a3
-        sc.w              $a4, $a2, 0
-        beq               $a4, $zero, 2b
-        andi              $a0, $a0, 3
-        slli.w            $a0, $a0, 3
-        srl.w             $a0, $a3, $a0
-        b                 6f
-3:
-        addi.w            $a2, $zero, -4
-        and               $a2, $a0, $a2
-        slli.w            $a0, $a0, 3
-        ori               $a3, $zero, 255
-        sll.w             $a3, $a3, $a0
-        nor               $a3, $a3, $zero
-4:
-        ll.w              $a4, $a2, 0
-        and               $a5, $a4, $a3
-        sc.w              $a5, $a2, 0
-        beq               $a5, $zero, 4b
-5:
-        srl.w             $a0, $a4, $a0
-6:
-        andi              $a0, $a0, 255
-        sltu              $a2, $zero, $a0
-        xor               $a0, $a1, $a2
-        move              $a1, $a2
+        srl.w             $a1, $a2, $a0
+        and               $a0, $a2, $a4
+        xor               $a0, $a5, $a0
+        sltu              $a0, $zero, $a0
         ret
 
 asm_test::or::u8::acqrel_all:
@@ -10265,19 +10110,19 @@ asm_test::load::u32::relaxed:
 
 asm_test::load::bool::seqcst:
         ld.b              $a0, $a0, 0
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 255
         dbar              16
         ret
 
 asm_test::load::bool::acquire:
         ld.b              $a0, $a0, 0
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 255
         dbar              20
         ret
 
 asm_test::load::bool::relaxed:
         ld.b              $a0, $a0, 0
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 255
         ret
 
 asm_test::swap::u8::acqrel:
@@ -10564,32 +10409,40 @@ asm_test::swap::bool::acqrel_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a1, 0
+        addi.w            $a5, $a3, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a2
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::seqcst_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a1, 0
+        addi.w            $a5, $a3, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a2
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::acqrel_false:
@@ -10605,56 +10458,67 @@ asm_test::swap::bool::acqrel_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::acquire_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a1, 0
+        addi.w            $a5, $a3, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a2
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::relaxed_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a1, 0
+        addi.w            $a5, $a3, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a2
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::release_true:
         addi.w            $a1, $zero, -4
         and               $a1, $a0, $a1
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
+        ori               $a2, $zero, 255
         sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 1
+        sll.w             $a3, $a3, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a1, 0
+        addi.w            $a5, $a3, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a2
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a1, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::seqcst_false:
@@ -10670,8 +10534,7 @@ asm_test::swap::bool::seqcst_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::acquire_false:
@@ -10687,8 +10550,7 @@ asm_test::swap::bool::acquire_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::relaxed_false:
@@ -10704,8 +10566,7 @@ asm_test::swap::bool::relaxed_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::release_false:
@@ -10721,173 +10582,102 @@ asm_test::swap::bool::release_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::acqrel:
-        beq               $a1, $zero, 1f
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
+        addi.w            $a2, $zero, -4
+        and               $a2, $a0, $a2
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 255
+        sll.w             $a3, $a3, $a0
+        sll.w             $a1, $a1, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
-        ret
-1:
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
-        slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
-2:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 2b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a2, 0
+        addi.w            $a5, $a1, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a3
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a2, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::seqcst:
-        beq               $a1, $zero, 1f
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
+        addi.w            $a2, $zero, -4
+        and               $a2, $a0, $a2
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 255
+        sll.w             $a3, $a3, $a0
+        sll.w             $a1, $a1, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
-        ret
-1:
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
-        slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
-2:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 2b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a2, 0
+        addi.w            $a5, $a1, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a3
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a2, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::acquire:
-        beq               $a1, $zero, 1f
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
+        addi.w            $a2, $zero, -4
+        and               $a2, $a0, $a2
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 255
+        sll.w             $a3, $a3, $a0
+        sll.w             $a1, $a1, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
-        ret
-1:
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
-        slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
-2:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 2b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a2, 0
+        addi.w            $a5, $a1, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a3
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a2, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::relaxed:
-        beq               $a1, $zero, 1f
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
+        addi.w            $a2, $zero, -4
+        and               $a2, $a0, $a2
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 255
+        sll.w             $a3, $a3, $a0
+        sll.w             $a1, $a1, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
-        ret
-1:
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
-        slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
-2:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 2b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a2, 0
+        addi.w            $a5, $a1, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a3
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a2, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::swap::bool::release:
-        beq               $a1, $zero, 1f
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
+        addi.w            $a2, $zero, -4
+        and               $a2, $a0, $a2
         slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 1
-        sll.w             $a2, $a2, $a0
+        ori               $a3, $zero, 255
+        sll.w             $a3, $a3, $a0
+        sll.w             $a1, $a1, $a0
 0:
-        ll.w              $a3, $a1, 0
-        or                $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 0b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
-        ret
-1:
-        addi.w            $a1, $zero, -4
-        and               $a1, $a0, $a1
-        slli.w            $a0, $a0, 3
-        ori               $a2, $zero, 255
-        sll.w             $a2, $a2, $a0
-        nor               $a2, $a2, $zero
-2:
-        ll.w              $a3, $a1, 0
-        and               $a4, $a3, $a2
-        sc.w              $a4, $a1, 0
-        beq               $a4, $zero, 2b
-        srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        ll.w              $a4, $a2, 0
+        addi.w            $a5, $a1, 0
+        xor               $a5, $a4, $a5
+        and               $a5, $a5, $a3
+        xor               $a5, $a4, $a5
+        sc.w              $a5, $a2, 0
+        beq               $a5, $zero, 0b
+        srl.w             $a0, $a4, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::store::u8::seqcst:
@@ -11765,8 +11555,7 @@ asm_test::fetch_or::bool::acqrel_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::seqcst_true:
@@ -11781,8 +11570,7 @@ asm_test::fetch_or::bool::seqcst_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::acqrel_false:
@@ -11796,8 +11584,7 @@ asm_test::fetch_or::bool::acqrel_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::acquire_true:
@@ -11812,8 +11599,7 @@ asm_test::fetch_or::bool::acquire_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::relaxed_true:
@@ -11828,8 +11614,7 @@ asm_test::fetch_or::bool::relaxed_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::release_true:
@@ -11844,8 +11629,7 @@ asm_test::fetch_or::bool::release_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::seqcst_false:
@@ -11859,8 +11643,7 @@ asm_test::fetch_or::bool::seqcst_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::acquire_false:
@@ -11874,8 +11657,7 @@ asm_test::fetch_or::bool::acquire_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::relaxed_false:
@@ -11889,8 +11671,7 @@ asm_test::fetch_or::bool::relaxed_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::release_false:
@@ -11904,8 +11685,7 @@ asm_test::fetch_or::bool::release_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::acqrel:
@@ -11919,8 +11699,7 @@ asm_test::fetch_or::bool::acqrel:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::seqcst:
@@ -11934,8 +11713,7 @@ asm_test::fetch_or::bool::seqcst:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::acquire:
@@ -11949,8 +11727,7 @@ asm_test::fetch_or::bool::acquire:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::relaxed:
@@ -11964,8 +11741,7 @@ asm_test::fetch_or::bool::relaxed:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_or::bool::release:
@@ -11979,8 +11755,7 @@ asm_test::fetch_or::bool::release:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::bit_clear::u8::acqrel:
@@ -13573,8 +13348,7 @@ asm_test::fetch_and::bool::acqrel_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::seqcst_true:
@@ -13592,8 +13366,7 @@ asm_test::fetch_and::bool::seqcst_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::acqrel_false:
@@ -13609,8 +13382,7 @@ asm_test::fetch_and::bool::acqrel_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::acquire_true:
@@ -13628,8 +13400,7 @@ asm_test::fetch_and::bool::acquire_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::relaxed_true:
@@ -13647,8 +13418,7 @@ asm_test::fetch_and::bool::relaxed_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::release_true:
@@ -13666,8 +13436,7 @@ asm_test::fetch_and::bool::release_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::seqcst_false:
@@ -13683,8 +13452,7 @@ asm_test::fetch_and::bool::seqcst_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::acquire_false:
@@ -13700,8 +13468,7 @@ asm_test::fetch_and::bool::acquire_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::relaxed_false:
@@ -13717,8 +13484,7 @@ asm_test::fetch_and::bool::relaxed_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::release_false:
@@ -13734,8 +13500,7 @@ asm_test::fetch_and::bool::release_false:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::acqrel:
@@ -13752,8 +13517,7 @@ asm_test::fetch_and::bool::acqrel:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::seqcst:
@@ -13770,8 +13534,7 @@ asm_test::fetch_and::bool::seqcst:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::acquire:
@@ -13788,8 +13551,7 @@ asm_test::fetch_and::bool::acquire:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::relaxed:
@@ -13806,8 +13568,7 @@ asm_test::fetch_and::bool::relaxed:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_and::bool::release:
@@ -13824,8 +13585,7 @@ asm_test::fetch_and::bool::release:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_max::i8::acqrel:
@@ -15405,8 +15165,7 @@ asm_test::fetch_not::bool::acqrel:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_not::bool::seqcst:
@@ -15421,8 +15180,7 @@ asm_test::fetch_not::bool::seqcst:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_not::bool::acquire:
@@ -15437,8 +15195,7 @@ asm_test::fetch_not::bool::acquire:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_not::bool::relaxed:
@@ -15453,8 +15210,7 @@ asm_test::fetch_not::bool::relaxed:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_not::bool::release:
@@ -15469,8 +15225,7 @@ asm_test::fetch_not::bool::release:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_sub::u8::acqrel_zero:
@@ -16465,8 +16220,7 @@ asm_test::fetch_xor::bool::acqrel_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::seqcst_true:
@@ -16481,8 +16235,7 @@ asm_test::fetch_xor::bool::seqcst_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::acqrel_false:
@@ -16496,8 +16249,7 @@ asm_test::fetch_xor::bool::acqrel_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::acquire_true:
@@ -16512,8 +16264,7 @@ asm_test::fetch_xor::bool::acquire_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::relaxed_true:
@@ -16528,8 +16279,7 @@ asm_test::fetch_xor::bool::relaxed_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::release_true:
@@ -16544,8 +16294,7 @@ asm_test::fetch_xor::bool::release_true:
         sc.w              $a4, $a1, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::seqcst_false:
@@ -16559,8 +16308,7 @@ asm_test::fetch_xor::bool::seqcst_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::acquire_false:
@@ -16574,8 +16322,7 @@ asm_test::fetch_xor::bool::acquire_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::relaxed_false:
@@ -16589,8 +16336,7 @@ asm_test::fetch_xor::bool::relaxed_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::release_false:
@@ -16604,8 +16350,7 @@ asm_test::fetch_xor::bool::release_false:
         andi              $a0, $a0, 3
         slli.w            $a0, $a0, 3
         srl.w             $a0, $a2, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::acqrel:
@@ -16619,8 +16364,7 @@ asm_test::fetch_xor::bool::acqrel:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::seqcst:
@@ -16634,8 +16378,7 @@ asm_test::fetch_xor::bool::seqcst:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::acquire:
@@ -16649,8 +16392,7 @@ asm_test::fetch_xor::bool::acquire:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::relaxed:
@@ -16664,8 +16406,7 @@ asm_test::fetch_xor::bool::relaxed:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret
 
 asm_test::fetch_xor::bool::release:
@@ -16679,6 +16420,5 @@ asm_test::fetch_xor::bool::release:
         sc.w              $a4, $a2, 0
         beq               $a4, $zero, 0b
         srl.w             $a0, $a3, $a0
-        andi              $a0, $a0, 255
-        sltu              $a0, $zero, $a0
+        andi              $a0, $a0, 1
         ret

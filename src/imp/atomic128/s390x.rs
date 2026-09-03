@@ -38,7 +38,10 @@ use core::sync::atomic::Ordering;
 
 #[cfg(portable_atomic_no_strict_provenance)]
 use crate::utils::ptr::PtrExt as _;
-use crate::utils::{Pair, U128};
+use crate::{
+    imp::s390x::extract_cc0_from_cc01,
+    utils::{Pair, U128},
+};
 
 // bcr 14,0 requires fast-BCR-serialization facility added in arch9 (z196).
 #[cfg(any(
@@ -100,13 +103,6 @@ macro_rules! select_op {
     ($cond:tt, $a0:tt, $a1:tt, $a2:tt) => {
         concat!("lgr ", $a0, ", ", $a2, "\n", "locgr", $cond, " ", $a0, ", ", $a1)
     };
-}
-
-// Extracts and checks condition code 0 from condition code 0-1.
-// https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0/llvm/lib/Target/SystemZ/SystemZISelDAGToDAG.cpp#L1968
-#[inline]
-fn extract_cc0_from_cc01(r: i64) -> bool {
-    (r >> 28) & 1 == 0
 }
 
 #[inline]

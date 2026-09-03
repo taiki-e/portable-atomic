@@ -57,18 +57,18 @@ fn main() {
 
     if version.minor >= 80 {
         println!(
-            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","fast-serialization","load-store-on-cond","distinct-ops"))"#
+            r#"cargo:rustc-check-cfg=cfg(target_feature,values("lsfe","fast-serialization","load-store-on-cond","distinct-ops","interlocked-access1","interlocked-access2"))"#
         );
 
         // Custom cfgs set by build script. Not public API.
         // grep -F 'cargo:rustc-cfg=' build.rs | grep -Ev '^ *//' | sed -E 's/^.*cargo:rustc-cfg=//; s/(=\\)?".*$//' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_16_or_later,portable_atomic_llvm_17_or_later,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_outline_atomics,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_target_abi,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_purecap,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
+            "cargo:rustc-check-cfg=cfg(portable_atomic_atomic_intrinsics,portable_atomic_disable_fiq,portable_atomic_force_amo,portable_atomic_ll_sc_rmw,portable_atomic_llvm_16_or_later,portable_atomic_llvm_17_or_later,portable_atomic_no_asm,portable_atomic_no_asm_maybe_uninit,portable_atomic_no_asm_syscall,portable_atomic_no_atomic_64,portable_atomic_no_atomic_cas,portable_atomic_no_atomic_load_store,portable_atomic_no_atomic_min_max,portable_atomic_no_cfg_target_has_atomic,portable_atomic_no_cmpxchg16b_intrinsic,portable_atomic_no_cmpxchg16b_target_feature,portable_atomic_no_const_mut_refs,portable_atomic_no_const_raw_ptr_deref,portable_atomic_no_const_transmute,portable_atomic_no_core_unwind_safe,portable_atomic_no_diagnostic_namespace,portable_atomic_no_outline_atomics,portable_atomic_no_reg_addr,portable_atomic_no_strict_provenance,portable_atomic_no_strict_provenance_atomic_ptr,portable_atomic_no_stronger_failure_ordering,portable_atomic_no_target_abi,portable_atomic_no_track_caller,portable_atomic_no_unsafe_op_in_unsafe_fn,portable_atomic_old_miri,portable_atomic_pre_llvm_16,portable_atomic_pre_llvm_18,portable_atomic_pre_llvm_20,portable_atomic_purecap,portable_atomic_s_mode,portable_atomic_sanitize_thread,portable_atomic_target_cpu,portable_atomic_target_feature,portable_atomic_unsafe_assume_privileged,portable_atomic_unsafe_assume_single_core,portable_atomic_unstable_asm,portable_atomic_unstable_asm_experimental_arch,portable_atomic_unstable_cfg_target_has_atomic,portable_atomic_unstable_isa_attribute)"
         );
         // TODO: handle multi-line emit_target_feature_fallback
         // grep -F 'emit_target_feature_fallback("' build.rs | grep -Ev '^ *//' | sed -E 's/^.*emit_target_feature_fallback\(//; s/",.*$/"/' | LC_ALL=C sort -u | tr '\n' ',' | sed -E 's/,$/\n/'
         println!(
-            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
+            r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_feature,values("cmpxchg16b","distinct-ops","fast-serialization","interlocked-access1","interlocked-access2","lam-bh","lamcas","load-store-on-cond","lse","lse128","lse2","lsfe","mclass","miscellaneous-extensions-3","quadword-atomics","rcpc3","rmw","v6","v7","zaamo","zabha","zacas"))"#
         );
         println!(
             r#"cargo:rustc-check-cfg=cfg(portable_atomic_target_cpu,values("esp32","esp32s3"))"#
@@ -205,6 +205,23 @@ fn main() {
         println!("cargo:rustc-cfg=portable_atomic_no_asm");
     } else {
         match target_arch {
+            "loongarch64" => {
+                // asm! on LoongArch64 stabilized in Rust 1.72 (nightly-2023-05-30): https://github.com/rust-lang/rust/pull/111235
+                if !version.probe(72, 2023, 5, 29) {
+                    if version.nightly
+                        && version.probe(71, 2023, 4, 25)
+                        && rustflags.is_allowed_feature("asm_experimental_arch")
+                    {
+                        // https://github.com/rust-lang/rust/pull/101069 merged in Rust 1.71 (nightly-2023-04-26).
+                        // The part of this feature we use has not been changed since nightly-2023-04-26
+                        // until it was stabilized, so it can safely be enabled in nightly for that period.
+                        // (Note that https://github.com/rust-lang/rust/pull/111332 is needless because we don't need to clobber fcc*.)
+                        println!("cargo:rustc-cfg=portable_atomic_unstable_asm_experimental_arch");
+                    } else {
+                        println!("cargo:rustc-cfg=portable_atomic_no_asm");
+                    }
+                }
+            }
             "arm64ec" | "s390x" => {
                 // asm! on Arm64EC and s390x stabilized in Rust 1.84 (nightly-2024-11-11): https://github.com/rust-lang/rust/pull/131781, https://github.com/rust-lang/rust/pull/131258
                 if !version.probe(84, 2024, 11, 10) {
@@ -699,6 +716,10 @@ fn main() {
             }
         }
         "s390x" => {
+            // https://github.com/rust-lang/rust/pull/119431 merged in Rust 1.77 (nightly-2024-01-05).
+            if !version.probe(77, 2024, 1, 4) {
+                println!("cargo:rustc-cfg=portable_atomic_no_reg_addr");
+            }
             let mut arch_version = 8; // LLVM's baseline (z10): https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZProcessors.td#L16-L17
             // Note that `-C target-cpu=native` is currently ignored.
             if let Some(cpu) = rustflags.target_cpu {
@@ -711,8 +732,9 @@ fn main() {
                     }
                 } else {
                     match cpu {
-                        "z196" | "zEC12" | "z13" | "z14" => arch_version = 9, // 9-12
-                        "z15" | "z16" | "z17" => arch_version = 13,           // 13-
+                        "z196" => arch_version = 9,
+                        "zEC12" | "z13" | "z14" => arch_version = 10, // 10-12
+                        "z15" | "z16" | "z17" => arch_version = 13,   // 13-
                         _ => {}
                     }
                 }
@@ -722,6 +744,17 @@ fn main() {
             let mut fast_serialization = arch9_features;
             let mut load_store_on_cond = arch9_features;
             let mut distinct_ops = arch9_features;
+            let mut interlocked_access1 = arch9_features;
+            // arch10 (zEC12) features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L157
+            // interlocked-access2 is not available as a LLVM feature but added in the Tenth
+            // Edition of the PoP: https://publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf
+            // Linux also treats this as an arch10 feature (https://github.com/torvalds/linux/blob/v7.2/arch/s390/tools/gen_facilities.c#L46),
+            // but it is treated as an arch9 feature in z/OS doc and QEMU:
+            // https://www.ibm.com/docs/en/zos/3.2.0?topic=sdu-nil-provide-lock-via-immediate-ni-instruction
+            // https://github.com/qemu/qemu/blob/v11.1.0/target/s390x/gen-features.c#L527
+            // Therefore, this may actually be a feature that was found to be supported in z196
+            // after the release, but for now, we conservatively treat it as an arch10 feature.
+            let mut interlocked_access2 = arch_version >= 10;
             // arch13 (z15) features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
             let mut misc_ext_3 = arch_version >= 13;
             for &(enabled, name) in &rustflags.target_feature {
@@ -730,6 +763,8 @@ fn main() {
                     b"fast-serialization" => fast_serialization = enabled,
                     b"load-store-on-cond" => load_store_on_cond = enabled,
                     b"distinct-ops" => distinct_ops = enabled,
+                    b"interlocked-access1" => interlocked_access1 = enabled,
+                    b"interlocked-access2" => interlocked_access2 = enabled,
                     b"miscellaneous-extensions-3" => misc_ext_3 = enabled,
                     _ => {}
                 }
@@ -749,6 +784,40 @@ fn main() {
             emit_target_feature_fallback("load-store-on-cond", load_store_on_cond);
             // {al,sl,n,o,x}{,g}rk
             emit_target_feature_fallback("distinct-ops", distinct_ops);
+            // la{n,o,x}
+            emit_target_feature_fallback("interlocked-access1", interlocked_access1);
+            // atomic {n,o,x}i{,y}
+            emit_target_feature_fallback("interlocked-access2", interlocked_access2);
+        }
+        "loongarch64" => {
+            // target_feature "lam-bh"/"lamcas" is available as unstable on rustc side
+            // since nightly-2025-03-16 (https://github.com/rust-lang/rust/pull/138056),
+            // and stabilized in Rust 1.97 (https://github.com/rust-lang/rust/pull/154510).
+            if version.llvm >= 20
+                && (!version.probe(87, 2025, 3, 15)
+                    || needs_target_feature_fallback(&version, Some(97)))
+            {
+                let mut lam_bh = false;
+                let mut lamcas = false;
+                // Note that `-C target-cpu=native` is currently ignored.
+                if let Some(cpu) = rustflags.target_cpu {
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0/llvm/lib/Target/LoongArch/LoongArch.td#L166
+                    if generated::LOONGARCH64_LAM_BH_LAMCAS_CPU.contains(&cpu) {
+                        lam_bh = true;
+                        lamcas = true;
+                    }
+                }
+                for &(enabled, name) in &rustflags.target_feature {
+                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L904
+                    match name {
+                        b"lam-bh" => lam_bh = enabled,
+                        b"lamcas" => lamcas = enabled,
+                        _ => {}
+                    }
+                }
+                emit_target_feature_fallback("lam-bh", lam_bh);
+                emit_target_feature_fallback("lamcas", lamcas);
+            }
         }
         "avr" => {
             // target_feature "rmw" is unstable and available on rustc side since nightly-2026-02-08: https://github.com/rust-lang/rust/pull/146900

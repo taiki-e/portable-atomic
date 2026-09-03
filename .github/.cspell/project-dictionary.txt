@@ -5,7 +5,9 @@ aeabi
 aghi
 alcgr
 algr
+amadd
 amocas
+andi
 aqrl
 argfile
 armasm
@@ -100,6 +102,7 @@ ldfadd
 ldfmaxnm
 ldfminnm
 ldiapp
+ldrb
 ldrexd
 ldsetp
 ldxp
@@ -186,6 +189,7 @@ selgr
 seqlock
 setb
 setne
+setz
 sifive
 signedness
 SIGTRAP

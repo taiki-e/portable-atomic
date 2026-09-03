@@ -168,7 +168,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
         #[cfg(windows)]
         #[cfg(target_pointer_width = "64")]
         cmpxchg16b!("r11");
-        crate::utils::assert_unchecked(r == 0 || r == 1); // needed to remove extra test
+        crate::utils::assert_unchecked(r == 0 || r == 1); // This is needed to remove extra test.
         (U128 { pair: Pair { lo: prev_lo, hi: prev_hi } }.whole, r == 0)
     }
 }

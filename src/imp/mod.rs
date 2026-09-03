@@ -28,28 +28,43 @@ mod avr;
 ))]
 pub(crate) mod arm_linux;
 
+// LoongArch64-specific optimizations
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(
+    target_arch = "loongarch64",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(portable_atomic_no_asm),
+))]
+mod loongarch64;
+
 // MSP430
 #[cfg(target_arch = "msp430")]
 pub(crate) mod msp430;
 
-// RISC-V without A-extension
-#[cfg(any(test, not(feature = "critical-section")))]
+// RISC-V
+#[cfg(all(
+    any(target_arch = "riscv32", target_arch = "riscv64"),
+    not(any(miri, portable_atomic_sanitize_thread)),
+    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+))]
 #[cfg_attr(
     portable_atomic_no_cfg_target_has_atomic,
-    cfg(any(
-        all(test, not(any(miri, portable_atomic_sanitize_thread))),
-        portable_atomic_no_atomic_cas,
-    ))
+    cfg(not(all(portable_atomic_no_atomic_cas, feature = "critical-section")))
 )]
 #[cfg_attr(
     not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(any(
-        all(test, not(any(miri, portable_atomic_sanitize_thread))),
-        not(target_has_atomic = "ptr"),
-    ))
+    cfg(not(all(not(target_has_atomic = "ptr"), feature = "critical-section")))
 )]
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64"))]
 mod riscv;
+
+// s390x-specific optimizations
+// Miri and Sanitizer do not support inline assembly.
+#[cfg(all(
+    target_arch = "s390x",
+    not(any(miri, portable_atomic_sanitize_thread)),
+    not(portable_atomic_no_asm),
+))]
+mod s390x;
 
 // x86-specific optimizations
 // Miri and Sanitizer do not support inline assembly.

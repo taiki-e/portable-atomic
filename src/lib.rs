@@ -336,7 +336,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 // These features are already stabilized or have already been removed from compilers,
 // and can safely be enabled for old nightly as long as version detection works.
 // - cfg(target_has_atomic)
-// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, s390x, PowerPC64
+// - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, LoongArch64, PowerPC64, s390x
 // - global_asm! on AArch64, Arm (test-only)
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
 // - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
@@ -371,7 +371,12 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 #![cfg_attr(
     all(
         portable_atomic_unstable_asm_experimental_arch,
-        any(target_arch = "arm64ec", target_arch = "s390x", target_arch = "powerpc64"),
+        any(
+            target_arch = "arm64ec",
+            target_arch = "loongarch64",
+            target_arch = "powerpc64",
+            target_arch = "s390x",
+        ),
     ),
     feature(asm_experimental_arch)
 )]
@@ -781,6 +786,282 @@ impl std::panic::RefUnwindSafe for AtomicBool {}
 
 impl_debug_and_serde!(AtomicBool);
 
+cfg_sel!({
+    // Architectures without 8-bit swap instruction, but with fetch_{and,or} instructions.
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+                not(all(
+                    portable_atomic_no_atomic_cas,
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh")),
+            ),
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+                not(all(
+                    not(target_has_atomic = "ptr"),
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            all(
+                target_arch = "loongarch64",
+                not(any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh")),
+            ),
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_swap {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_swap {
+            ($($tt:tt)*) => {};
+        }
+    }
+    #[cfg(else)]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_swap {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_swap {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+    }
+});
+cfg_sel!({
+    // Architectures with 8-bit CAS instruction without setting flags.
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                not(portable_atomic_no_atomic_cas), // see top-level comment in src/imp/riscv.rs.
+                not(portable_atomic_pre_llvm_20),
+            ),
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas"),
+            ),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "aarch64", target_arch = "arm64ec"),
+                any(target_feature = "lse", portable_atomic_target_feature = "lse"),
+            ),
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                any(target_feature = "zacas", portable_atomic_target_feature = "zacas"),
+                any(target_feature = "zabha", portable_atomic_target_feature = "zabha"),
+                target_has_atomic = "ptr", // see top-level comment in src/imp/riscv.rs.
+                not(portable_atomic_pre_llvm_20),
+            ),
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lamcas", portable_atomic_target_feature = "lamcas"),
+            ),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
+    }
+    // Architectures without 8-bit CAS instruction, but with fetch_{and,or} instructions.
+    #[cfg_attr(
+        portable_atomic_no_cfg_target_has_atomic,
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(all(
+                    portable_atomic_no_atomic_cas,
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )
+    ))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            all(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                not(all(
+                    not(target_has_atomic = "ptr"),
+                    any(
+                        feature = "critical-section",
+                        not(any(
+                            target_feature = "zaamo",
+                            portable_atomic_target_feature = "zaamo",
+                            portable_atomic_force_amo,
+                        )),
+                    ),
+                )),
+            ),
+            target_arch = "loongarch64",
+            all(
+                target_arch = "s390x",
+                not(any(miri, portable_atomic_sanitize_thread)),
+                not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                any(
+                    target_feature = "interlocked-access1",
+                    portable_atomic_target_feature = "interlocked-access1",
+                ),
+            ),
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )
+    ))]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
+    }
+    #[cfg(else)]
+    {
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {};
+        }
+        #[allow(unused_macros)]
+        macro_rules! cfg_no_emulate_bool_weak_cas {
+            ($($tt:tt)*) => {
+                $($tt)*
+            };
+        }
+    }
+});
+
 impl AtomicBool {
     /// Creates a new `AtomicBool`.
     ///
@@ -931,10 +1212,11 @@ impl AtomicBool {
         /// ```
         #[inline]
         pub const fn into_inner(self) -> bool {
-            // SAFETY: AtomicBool and u8 have the same size and in-memory representations,
-            // so they can be safely transmuted.
+            // SAFETY: AtomicBool and bool have the same size and in-memory representations,
+            // and we only store 0 or 1, so they can be safely transmuted.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
             // (const UnsafeCell::into_inner is unstable)
-            unsafe { core::mem::transmute::<AtomicBool, u8>(self) != 0 }
+            unsafe { core::mem::transmute::<AtomicBool, bool>(self) }
         }
     }
 
@@ -962,7 +1244,53 @@ impl AtomicBool {
         track_caller
     )]
     pub fn load(&self, order: Ordering) -> bool {
-        self.as_atomic_u8().load(order) != 0
+        // LoongArch has ld.bu but LLVM generates `ld.b; andi`, but we don't use asm-based load
+        // because when load with offset is used, asm generated by LLVM is more efficient, even
+        // if there are extra andi.
+        #[cfg(all(
+            any(
+                any(target_arch = "riscv32", target_arch = "riscv64"),
+                all(
+                    target_arch = "arm",
+                    not(any(target_feature = "mclass", portable_atomic_target_feature = "mclass")),
+                    portable_atomic_unsafe_assume_single_core,
+                ),
+            ),
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+        ))]
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(any(not(portable_atomic_no_atomic_cas), feature = "critical-section")))
+        )]
+        #[cfg_attr(
+            not(portable_atomic_no_cfg_target_has_atomic),
+            cfg(not(any(target_has_atomic = "ptr", feature = "critical-section")))
+        )]
+        {
+            let x = self.as_atomic_u8().load_bool(order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_reg_unchecked(x) };
+        }
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let x = self.as_atomic_u8().load_bool(order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_reg_unchecked(x) }
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        #[cfg_attr(
+            any(target_arch = "arm", target_arch = "riscv32", target_arch = "riscv64"),
+            allow(unreachable_code)
+        )]
+        {
+            let x = self.as_atomic_u8().load(order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Stores a value into the bool.
@@ -1014,26 +1342,23 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn swap(&self, val: bool, order: Ordering) -> bool {
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        ))]
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
         {
+            if !val {
+                return self.fetch_and(false, order);
+            }
+        }
+        cfg_emulate_bool_swap! {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
             // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
             // https://godbolt.org/z/ofbGGdx44
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        )))]
-        {
-            self.as_atomic_u8().swap(val as u8, order) != 0
+        cfg_no_emulate_bool_swap! {
+            let x = self.as_atomic_u8().swap(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
         }
     }
 
@@ -1086,38 +1411,59 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        ))]
-        {
-            // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
-            // https://godbolt.org/z/ofbGGdx44
+        cfg_emulate_bool_cas! {
             crate::utils::assert_compare_exchange_ordering(success, failure);
             let order = crate::utils::upgrade_success_ordering(success, failure);
-            let old = if current == new {
-                // This is a no-op, but we still need to perform the operation
-                // for memory ordering reasons.
-                self.fetch_or(false, order)
-            } else {
-                // This sets the value to the new one and returns the old one.
-                self.swap(new, order)
-            };
+            cfg_emulate_bool_swap! {
+                let old = if current {
+                    // CAS(x, true, true) == (x & true) == x
+                    // CAS(x, true, false) == (x & false) == false
+                    self.fetch_and(new, order)
+                } else {
+                    // CAS(x, false, false) == (x | false) == x
+                    // CAS(x, false, true) == (x | true) == true
+                    self.fetch_or(new, order)
+                };
+            }
+            cfg_no_emulate_bool_swap! {
+                // See https://github.com/rust-lang/rust/pull/114034 for details.
+                // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+                // https://godbolt.org/z/ofbGGdx44
+                let old = if current == new {
+                    // This is a no-op, but we still need to perform the operation
+                    // for memory ordering reasons.
+                    self.fetch_or(false, order)
+                } else {
+                    // This sets the value to the new one and returns the old one.
+                    self.swap(new, order)
+                };
+            }
             if old == current { Ok(old) } else { Err(old) }
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        )))]
-        {
-            match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
-                Ok(x) => Ok(x != 0),
-                Err(x) => Err(x != 0),
+        cfg_no_emulate_bool_cas! {
+            cfg_emulate_bool_weak_cas! {
+                let old = match self
+                    .as_atomic_u8()
+                    .compare_exchange(current as u8, new as u8, success, failure)
+                {
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Ok(x) | Err(x) => unsafe { crate::utils::bool_from_u8_unchecked(x) },
+                };
+                if old == current { Ok(old) } else { Err(old) }
+            }
+            cfg_no_emulate_bool_weak_cas! {
+                match self
+                    .as_atomic_u8()
+                    .compare_exchange(current as u8, new as u8, success, failure)
+                {
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                    // SAFETY: we only store 0 or 1.
+                    // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                    Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                }
             }
         }
     }
@@ -1170,31 +1516,20 @@ impl AtomicBool {
         success: Ordering,
         failure: Ordering,
     ) -> Result<bool, bool> {
-        #[cfg(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        ))]
-        {
-            // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
-            // https://godbolt.org/z/ofbGGdx44
+        cfg_emulate_bool_weak_cas! {
             self.compare_exchange(current, new, success, failure)
         }
-        #[cfg(not(any(
-            target_arch = "riscv32",
-            target_arch = "riscv64",
-            target_arch = "loongarch32",
-            target_arch = "loongarch64",
-        )))]
-        {
+        cfg_no_emulate_bool_weak_cas! {
             match self
                 .as_atomic_u8()
                 .compare_exchange_weak(current as u8, new as u8, success, failure)
             {
-                Ok(x) => Ok(x != 0),
-                Err(x) => Err(x != 0),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Ok(x) => Ok(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
+                // SAFETY: we only store 0 or 1.
+                // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+                Err(x) => Err(unsafe { crate::utils::bool_from_u8_unchecked(x) }),
             }
         }
     }
@@ -1231,7 +1566,73 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_and(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_and(val as u8, order) != 0
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
+        ))]
+        {
+            if val {
+                // (x & true) == x
+                self.fetch_nop(order)
+            } else {
+                // (x & false) == false
+                self.swap(false, order)
+            }
+        }
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_and_bool(val)
+        }
+        #[cfg(all(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            not(any(miri, portable_atomic_sanitize_thread)),
+            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+            not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")),
+            any(
+                target_feature = "a",
+                target_feature = "zaamo",
+                portable_atomic_target_feature = "zaamo",
+                portable_atomic_force_amo,
+            ),
+        ))]
+        #[cfg_attr(
+            portable_atomic_no_cfg_target_has_atomic,
+            cfg(not(all(portable_atomic_no_atomic_cas, feature = "critical-section")))
+        )]
+        #[cfg_attr(
+            not(portable_atomic_no_cfg_target_has_atomic),
+            cfg(not(all(not(target_has_atomic = "ptr"), feature = "critical-section"))
+        ))]
+        {
+            let x = self.as_atomic_u8().fetch_and_bool(val, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_u8_unchecked(x) };
+        }
+        #[cfg(not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )))]
+        #[cfg_attr(
+            any(target_arch = "riscv32", target_arch = "riscv64"),
+            allow(unreachable_code)
+        )]
+        {
+            let x = self.as_atomic_u8().fetch_and(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "and" with a boolean value.
@@ -1248,12 +1649,9 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_and` on some platforms.
     ///
-    /// - x86/x86_64: `lock and` instead of `cmpxchg` loop
-    /// - MSP430: `and` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
+    /// - x86/x86_64: `lock and` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
+    /// - MSP430: `and` instead of `and; mov` / `rra; mov`
+    /// - s390x: `ni` for zEC12+ instead of `lan` / `cs` loop depending on the target feature
     ///
     /// # Examples
     ///
@@ -1275,7 +1673,29 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn and(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().and(val as u8, order);
+        #[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64"))]
+        {
+            self.fetch_and(val, order);
+        }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().and_bool(val);
+            return;
+        });
+        #[cfg(not(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "loongarch64")))]
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
+        {
+            self.as_atomic_u8().and(val as u8, order);
+        }
     }
 
     /// Logical "nand" with a boolean value.
@@ -1315,11 +1735,18 @@ impl AtomicBool {
         if val {
             // !(x & true) == !x
             // We must invert the bool.
-            self.fetch_xor(true, order)
+            self.fetch_not(order)
         } else {
             // !(x & false) == true
             // We must set the bool to true.
-            self.swap(true, order)
+            if cfg!(any(
+                target_arch = "loongarch32",
+                all(target_arch = "xtensa", target_feature = "s32c1i"),
+            )) {
+                self.fetch_or(true, order) // LLVM generates better asm on these architectures.
+            } else {
+                self.swap(true, order)
+            }
         }
     }
 
@@ -1355,7 +1782,39 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_or(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_or(val as u8, order) != 0
+        #[cfg(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        ))]
+        {
+            if val {
+                // (x | true) == true
+                self.swap(true, order)
+            } else {
+                // (x | false) == x
+                self.fetch_nop(order)
+            }
+        }
+        #[cfg(not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(
+                target_arch = "loongarch64",
+                any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+            ),
+            all(target_arch = "msp430", not(feature = "critical-section")),
+        )))]
+        {
+            let x = self.as_atomic_u8().fetch_or(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "or" with a boolean value.
@@ -1372,12 +1831,9 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_or` on some platforms.
     ///
-    /// - x86/x86_64: `lock or` instead of `cmpxchg` loop
-    /// - MSP430: `bis` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
+    /// - x86/x86_64: `lock or` instead of `lock xadd` / `xchg` / `cmpxchg` loop depending on the value
+    /// - s390x: `oi` for zEC12+ instead of `lao` / `cs` loop depending on the target feature
+    /// - MSP430: `bis` instead of `and; mov` / disabling interrupts depending on the value
     ///
     /// # Examples
     ///
@@ -1399,7 +1855,29 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn or(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().or(val as u8, order);
+        #[cfg(target_arch = "loongarch64")]
+        {
+            self.fetch_or(val, order);
+        }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().or_bool(val);
+            return;
+        });
+        #[cfg(not(target_arch = "loongarch64"))]
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
+        {
+            self.as_atomic_u8().or(val as u8, order);
+        }
     }
 
     /// Logical "xor" with a boolean value.
@@ -1434,7 +1912,51 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_xor(&self, val: bool, order: Ordering) -> bool {
-        self.as_atomic_u8().fetch_xor(val as u8, order) != 0
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_xor_bool(val)
+        }
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            return self.as_atomic_u8().fetch_xor_bool(val);
+        });
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        #[allow(clippy::redundant_else)]
+        {
+            if val {
+                #[cfg(all(
+                    not(any(miri, portable_atomic_sanitize_thread)),
+                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
+                ))]
+                cfg_core_atomic!({
+                    return self.as_atomic_u8().fetch_xor_bool_true();
+                });
+            } else {
+                // (x ^ false) == x
+                return self.fetch_nop(order);
+            }
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        #[cfg_attr(
+            any(target_arch = "s390x", target_arch = "x86", target_arch = "x86_64"),
+            allow(unreachable_code)
+        )]
+        {
+            let x = self.as_atomic_u8().fetch_xor(val as u8, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
     }
 
     /// Logical "xor" with a boolean value.
@@ -1451,12 +1973,9 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_xor` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
-    /// - MSP430: `xor` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
+    /// - x86/x86_64: `lock xor` instead of `lock xor; setz` / `lock xadd` / `cmpxchg` loop depending on the value
+    /// - s390x: `xi` for zEC12+ instead of `lax` / `cs` loop depending on the target feature
+    /// - MSP430: `xor` instead of `xor; mov`
     ///
     /// # Examples
     ///
@@ -1478,7 +1997,24 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn xor(&self, val: bool, order: Ordering) {
-        self.as_atomic_u8().xor(val as u8, order);
+        #[cfg(all(
+            target_arch = "s390x",
+            not(any(miri, portable_atomic_sanitize_thread)),
+            not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+            any(
+                target_feature = "interlocked-access2",
+                portable_atomic_target_feature = "interlocked-access2",
+            ),
+        ))]
+        cfg_core_atomic!({
+            let _ = order;
+            self.as_atomic_u8().xor_bool(val);
+            return;
+        });
+        #[cfg_attr(target_arch = "s390x", allow(unreachable_code))]
+        {
+            self.as_atomic_u8().xor(val as u8, order);
+        }
     }
 
     /// Logical "not" with a boolean value.
@@ -1509,7 +2045,15 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_not(&self, order: Ordering) -> bool {
-        self.fetch_xor(true, order)
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().fetch_not_bool()
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        {
+            self.fetch_xor(true, order)
+        }
     }
 
     /// Logical "not" with a boolean value.
@@ -1526,12 +2070,9 @@ impl AtomicBool {
     ///
     /// This function may generate more efficient code than `fetch_not` on some platforms.
     ///
-    /// - x86/x86_64: `lock xor` instead of `cmpxchg` loop
-    /// - MSP430: `xor` instead of disabling interrupts
-    ///
-    /// Note: On x86/x86_64, the use of either function should not usually
-    /// affect the generated code, because LLVM can properly optimize the case
-    /// where the result is unused.
+    /// - x86/x86_64: `lock xor` instead of `lock xor; setz`
+    /// - s390x: `xi` for zEC12+ instead of `xi; ipm` / `cs` loop depending on the target feature
+    /// - MSP430: `xor` instead of `xor; mov; bic`
     ///
     /// # Examples
     ///
@@ -1549,7 +2090,15 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn not(&self, order: Ordering) {
-        self.xor(true, order);
+        #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+        {
+            let _ = order;
+            self.as_atomic_u8().not_bool();
+        }
+        #[cfg(not(all(target_arch = "msp430", not(feature = "critical-section"))))]
+        {
+            self.xor(true, order);
+        }
     }
 
     /// Fetches the value, and applies a function to it that returns an optional
@@ -1618,6 +2167,62 @@ impl AtomicBool {
             }
         }
         Err(prev)
+    }
+
+    // no-op RMW
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        // Avoid using non-asm fetch_{add,or}(0) (like https://github.com/rust-lang/rust/pull/119462 uses)
+        // due to LLVM bug: https://github.com/llvm/llvm-project/issues/101551
+        // See also src/imp/x86.rs.
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
+        #[cfg(any(not(portable_atomic_no_asm), portable_atomic_unstable_asm))]
+        cfg_core_atomic!({
+            let _ = order;
+            let x = self.as_atomic_u8().fetch_nop();
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_u8_unchecked(x) };
+        });
+        #[allow(unreachable_code)]
+        {
+            let x = self.as_atomic_u8().fetch_and(1, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
+    }
+    #[cfg(all(
+        target_arch = "loongarch64",
+        any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"),
+    ))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        // LLVM generates amor*.w after aligned pointer for fetch_add(0), instead of amadd*.b.
+        #[cfg(not(any(miri, portable_atomic_sanitize_thread)))]
+        #[cfg(not(portable_atomic_no_asm))]
+        cfg_core_atomic!({
+            let x = self.as_atomic_u8().fetch_nop(order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            return unsafe { crate::utils::bool_from_reg_unchecked(x) };
+        });
+        #[allow(unreachable_code)]
+        {
+            let x = self.as_atomic_u8().fetch_add(0, order);
+            // SAFETY: we only store 0 or 1.
+            // https://doc.rust-lang.org/nightly/reference/types/boolean.html#r-type.bool.validity
+            unsafe { crate::utils::bool_from_u8_unchecked(x) }
+        }
+    }
+    #[cfg(all(target_arch = "msp430", not(feature = "critical-section")))]
+    #[inline]
+    #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+    fn fetch_nop(&self, order: Ordering) -> bool {
+        self.fetch_and(true, order)
     }
     } // cfg_has_atomic_cas_or_amo32!
 

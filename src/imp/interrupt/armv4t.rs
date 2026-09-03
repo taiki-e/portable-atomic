@@ -103,7 +103,12 @@ pub(super) mod atomic {
 
             impl $(<$($generics)*>)? $atomic_type $(<$($generics)*>)? {
                 #[inline]
-                pub(crate) fn load(&self, _order: Ordering) -> $value_type {
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller,
+                )]
+                pub(crate) fn load(&self, order: Ordering) -> $value_type {
+                    crate::utils::assert_load_ordering(order);
                     let src = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
@@ -113,7 +118,7 @@ pub(super) mod atomic {
                         // And compiler fence is fine because the user explicitly declares that
                         // the system is single-core by using an unsafe cfg.
                         __asm!(
-                            concat!("ldr", $suffix, " {out}, [{src}]"), // atomic { out = *src }
+                            concat!("ldr", $suffix, " {out}, [{src}]"), // atomic { out = zero_extend(*src) }
                             src = in(reg) src,
                             out = lateout(reg) out,
                             options(nostack, preserves_flags),
@@ -123,7 +128,12 @@ pub(super) mod atomic {
                 }
 
                 #[inline]
-                pub(crate) fn store(&self, val: $value_type, _order: Ordering) {
+                #[cfg_attr(
+                    all(debug_assertions, not(portable_atomic_no_track_caller)),
+                    track_caller,
+                )]
+                pub(crate) fn store(&self, val: $value_type, order: Ordering) {
+                    crate::utils::assert_store_ordering(order);
                     let dst = self.v.get();
                     // SAFETY: any data races are prevented by atomic intrinsics and the raw
                     // pointer passed in is valid because we got it from a reference.
@@ -152,4 +162,29 @@ pub(super) mod atomic {
     atomic!(AtomicIsize, isize, "");
     atomic!(AtomicUsize, usize, "");
     atomic!([T] AtomicPtr, *mut T, "");
+
+    // For AtomicBool
+    impl AtomicU8 {
+        #[inline]
+        #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+        pub(crate) fn load_bool(&self, order: Ordering) -> crate::utils::RegSize {
+            crate::utils::assert_load_ordering(order);
+            let src = self.v.get();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                let out;
+                // inline asm without nomem/readonly implies compiler fence.
+                // And compiler fence is fine because the user explicitly declares that
+                // the system is single-core by using an unsafe cfg.
+                __asm!(
+                    "ldrb {out}, [{src}]", // atomic { out = zero_extend(*src) }
+                    src = in(reg) src,
+                    out = lateout(reg) out,
+                    options(nostack, preserves_flags),
+                );
+                out
+            }
+        }
+    }
 }

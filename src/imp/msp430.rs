@@ -96,7 +96,7 @@ items!({
                         let out;
                         #[cfg(not(portable_atomic_no_asm))]
                         __asm!(
-                            concat!("mov.", $size, " @{src}, {out}"), // atomic { out = *src }
+                            concat!("mov.", $size, " @{src}, {out}"), // atomic { out = zero_extend(*src) }
                             src = in(reg) src,
                             out = lateout(reg) out,
                             options(nostack, preserves_flags),
@@ -280,4 +280,155 @@ items!({
     atomic!(AtomicIsize, isize, "w");
     atomic!(AtomicUsize, usize, "w");
     atomic!(load_store, [T] AtomicPtr, *mut T, "w");
+
+    // For AtomicBool
+    impl AtomicU8 {
+        #[inline]
+        #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+        pub(crate) fn load_bool(&self, order: Ordering) -> crate::utils::RegSize {
+            crate::utils::assert_load_ordering(order);
+            let src = self.v.get();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                let out;
+                #[cfg(not(portable_atomic_no_asm))]
+                __asm!(
+                    "mov.b @{src}, {out}", // atomic { out = zero_extend(*src) }
+                    src = in(reg) src,
+                    out = lateout(reg) out,
+                    options(nostack, preserves_flags),
+                );
+                #[cfg(portable_atomic_no_asm)]
+                llvm_asm!(
+                    "mov.b $1, $0"
+                    : "=r"(out) : "*m"(src) : "memory" : "volatile"
+                );
+                out
+            }
+        }
+        #[inline]
+        pub(crate) fn fetch_and_bool(&self, val: bool) -> bool {
+            let dst = self.v.get();
+            let sr: u8;
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                if val {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    __asm!(
+                        "and.b #1, 0({dst})",  // atomic { *dst &= 1 }
+                        "mov r2, {sr}",          // sr = SR
+                        dst = in(reg) dst,
+                        sr = lateout(reg) sr,
+                        // Do not use `preserves_flags` because AND modifies the V, N, Z, and C bits of the status register.
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "and.b #1, $1
+                         mov r2, $0"
+                        : "=r"(sr) : "*m"(dst) : "memory", "sr" : "volatile"
+                    );
+                    // C bit is set if result is not zero.
+                } else {
+                    #[cfg(not(portable_atomic_no_asm))]
+                    __asm!(
+                        "rra.b 0({dst})",  // atomic { *dst >>= 1 }
+                        "mov r2, {sr}",    // sr = SR
+                        dst = in(reg) dst,
+                        sr = lateout(reg) sr,
+                        // Do not use `preserves_flags` because RRA modifies the V, N, Z, and C bits of the status register.
+                        options(nostack),
+                    );
+                    #[cfg(portable_atomic_no_asm)]
+                    llvm_asm!(
+                        "rra.b $1
+                         mov r2, $0"
+                        : "=r"(sr) : "*m"(dst) : "memory", "sr" : "volatile"
+                    );
+                    // C bit is the previous LSB.
+                }
+                crate::utils::bool_from_u8_unchecked(sr & 1)
+            }
+        }
+
+        #[inline]
+        pub(crate) fn fetch_xor_bool(&self, val: bool) -> bool {
+            let dst = self.v.get();
+            let val = val as u8;
+            let sr: u8;
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                #[cfg(not(portable_atomic_no_asm))]
+                __asm!(
+                    "xor.b {val}, 0({dst})", // atomic { *dst ^= val; SR.C = *dst != 0 }
+                    "mov r2, {sr}",          // sr = SR
+                    dst = in(reg) dst,
+                    val = in(reg) val,
+                    sr = lateout(reg) sr,
+                    // Do not use `preserves_flags` because XOR modifies the V, N, Z, and C bits of the status register.
+                    options(nostack),
+                );
+                #[cfg(portable_atomic_no_asm)]
+                llvm_asm!(
+                    "xor.b $2, $1
+                     mov r2, $0"
+                    : "=r"(sr) : "*m"(dst), "ir"(val) : "memory", "sr" : "volatile"
+                );
+                // C bit is set if result is not zero.
+                crate::utils::bool_from_u8_unchecked(sr & 1 ^ val)
+            }
+        }
+
+        #[inline]
+        pub(crate) fn fetch_not_bool(&self) -> bool {
+            let dst = self.v.get();
+            let r;
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                #[cfg(not(portable_atomic_no_asm))]
+                __asm!(
+                    "xor.b #1, 0({dst})", // atomic { *dst ^= 1; SR.C = *dst != 0 }
+                    "mov #1, {r}",        // r = 1
+                    "bic r2, {r}",        // r &= !SR
+                    dst = in(reg) dst,
+                    r = lateout(reg) r,
+                    // Do not use `preserves_flags` because XOR modifies the V, N, Z, and C bits of the status register.
+                    options(nostack),
+                );
+                #[cfg(portable_atomic_no_asm)]
+                llvm_asm!(
+                    "xor.b #1, $1
+                     mov #1, $0
+                     bic r2, $0"
+                    : "=r"(r) : "*m"(dst) : "memory", "sr" : "volatile"
+                );
+                crate::utils::bool_from_reg_unchecked(r)
+            }
+        }
+
+        #[inline]
+        pub(crate) fn not_bool(&self) {
+            let dst = self.v.get();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                #[cfg(not(portable_atomic_no_asm))]
+                __asm!(
+                    "xor.b #1, 0({dst})", // atomic { *dst ^= 1 }
+                    dst = in(reg) dst,
+                    // Do not use `preserves_flags` because XOR modifies the V, N, Z, and C bits of the status register.
+                    options(nostack),
+                );
+                #[cfg(portable_atomic_no_asm)]
+                llvm_asm!(
+                    "xor.b #1, $0"
+                    :: "*m"(dst) : "memory", "sr" : "volatile"
+                );
+            }
+        }
+    }
 });

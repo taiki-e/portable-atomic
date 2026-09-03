@@ -123,6 +123,10 @@ default_targets=(
   # s390x
   # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "s390x" then .key else empty end'
   s390x-unknown-linux-gnu
+
+  # loongarch64
+  # rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value.arch == "loongarch64" then .key else empty end'
+  loongarch64-unknown-linux-gnu
 )
 # NB: sync with:
 # - docs.rs metadata in Cargo.toml
@@ -773,8 +777,19 @@ build() {
       CARGO_TARGET_DIR="${target_dir}/z196" \
         RUSTFLAGS="${target_rustflags} -C target-cpu=z196" \
         x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/zec12" \
+        RUSTFLAGS="${target_rustflags} -C target-cpu=zEC12" \
+        x_cargo "${args[@]}" "$@"
       CARGO_TARGET_DIR="${target_dir}/z15" \
         RUSTFLAGS="${target_rustflags} -C target-cpu=z15" \
+        x_cargo "${args[@]}" "$@"
+      ;;
+    loongarch64*)
+      CARGO_TARGET_DIR="${target_dir}/lam-bh" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lam-bh" \
+        x_cargo "${args[@]}" "$@"
+      CARGO_TARGET_DIR="${target_dir}/v1.1" \
+        RUSTFLAGS="${target_rustflags} -C target-feature=+lam-bh,+lamcas,+scq" \
         x_cargo "${args[@]}" "$@"
       ;;
     avr*)
