@@ -982,6 +982,65 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
 
+  check-qnx:
+    name: check (${{ matrix.target }})
+    needs: tidy
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rust: nightly, target: aarch64-unknown-qnx }
+          - { rust: nightly, target: aarch64-unknown-nto-qnx710 }
+          - { rust: nightly, target: aarch64-unknown-nto-qnx710_iosock }
+          # QNX OS 8.0 used this target name before rust-lang/rust#158449.
+          - { rust: nightly-2026-06-30, target: aarch64-unknown-nto-qnx800 }
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@${{ matrix.rust }}+rust-src
+          fallback: none
+      # Linking requires a licensed QNX SDP, but checking the detector and both
+      # syspage layouts only requires rust-src.
+      - run: cargo check -Z build-std=core --target "${TARGET}" --lib
+        env:
+          TARGET: ${{ matrix.target }}
+      - run: |
+          export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+          cargo check -Z build-std --target "${TARGET}" -p qnx-test
+        env:
+          TARGET: ${{ matrix.target }}
+
+  # QNX SDP downloads and images require authentication and an appropriate CI
+  # license, so run this only on a pre-provisioned, trusted build server. In
+  # addition to QNX_CI_ENABLED, configure QNX_SDP_800 to point at the installed
+  # SDP directory containing qnxsdp-env.sh.
+  test-vm-qnx:
+    name: test (aarch64-unknown-qnx)
+    if: vars.QNX_CI_ENABLED == '1' && github.event_name != 'pull_request'
+    needs: [tidy, check-qnx]
+    runs-on: [self-hosted, linux, x64, qnx-sdp-8]
+    timeout-minutes: 30
+    steps:
+      - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
+        with:
+          tool: rust@nightly+rust-src
+          fallback: none
+      - run: |
+          [[ -n "${QNX_SDP_800}" ]]
+          # shellcheck disable=SC1091
+          source "${QNX_SDP_800}/qnxsdp-env.sh"
+          export RUSTFLAGS="${RUSTFLAGS} --cfg qemu"
+          export CARGO_TARGET_DIR="${RUNNER_TEMP}/qnx-target"
+          cargo build -Z build-std --target aarch64-unknown-qnx --release -p qnx-test
+          test_binary="${CARGO_TARGET_DIR}/aarch64-unknown-qnx/release/qnx-test"
+          ./tools/qnx-qemu.sh "${test_binary}"
+        env:
+          QNX_SDP_800: ${{ vars.QNX_SDP_800 }}
+
   build:
     name: build (${{ matrix.name || matrix.rust }})
     needs: tidy

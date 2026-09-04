@@ -639,7 +639,7 @@ build() {
       if [[ "${target}" == *'-linux-musl'* ]] || [[ -n "${TESTS:-}" ]]; then
         # Script to get builtin targets that support crt-static:
         #   rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | if .value."crt-static-respected" == true then .value.os else empty end' | LC_ALL=C sort -u | tr '\n' '|' | sed -E 's/\|$/\n/g'
-        if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
+        if grep -Eq "^target_os=\"(aix|android|freebsd|hurd|linux|nto|qnx|redox|teeos|trusty|vxworks|wasi|windows)\"" <<<"${cfgs}"; then
           if grep -Eq '^target_feature="crt-static"' <<<"${cfgs}"; then
             CARGO_TARGET_DIR="${target_dir}/no-crt-static" \
               RUSTFLAGS="${target_rustflags} -C target-feature=-crt-static" \

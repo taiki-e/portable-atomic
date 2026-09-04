@@ -132,6 +132,17 @@ mod detect;
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
+    target_os = "qnx",
+    all(
+        target_os = "nto",
+        any(target_env = "nto71", target_env = "nto71_iosock", target_env = "nto80"),
+    ),
+))]
+#[cfg(any(test, qemu, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
+#[path = "../detect/aarch64_qnx.rs"]
+mod detect;
+#[cfg(not(portable_atomic_no_outline_atomics))]
+#[cfg(any(
     test,
     not(all(
         any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
@@ -198,6 +209,11 @@ macro_rules! debug_assert_lse {
                 target_os = "openbsd",
                 target_os = "illumos",
                 target_os = "fuchsia",
+                target_os = "qnx",
+                all(
+                    target_os = "nto",
+                    any(target_env = "nto71", target_env = "nto71_iosock", target_env = "nto80"),
+                ),
                 target_vendor = "apple",
                 windows,
             ),
@@ -1265,6 +1281,11 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             target_os = "illumos",
             target_os = "fuchsia",
+            target_os = "qnx",
+            all(
+                target_os = "nto",
+                any(target_env = "nto71", target_env = "nto71_iosock", target_env = "nto80"),
+            ),
             target_vendor = "apple",
             windows,
         ),
@@ -1401,6 +1422,11 @@ unsafe fn atomic_compare_exchange(
             target_os = "openbsd",
             target_os = "illumos",
             target_os = "fuchsia",
+            target_os = "qnx",
+            all(
+                target_os = "nto",
+                any(target_env = "nto71", target_env = "nto71_iosock", target_env = "nto80"),
+            ),
             target_vendor = "apple",
             windows,
         ),

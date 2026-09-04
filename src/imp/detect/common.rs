@@ -295,7 +295,13 @@ mod tests_common {
 
     // Static assertions for C type definitions.
     // Assertions with core::ffi types are in crate::utils::ffi module.
-    #[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
+    #[cfg(not(any(
+        windows,
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_os = "nto",
+        target_os = "qnx",
+    )))]
     const _: fn() = || {
         use test_helper::sys;
         let _: crate::utils::ffi::c_char = 0 as sys::c_char;

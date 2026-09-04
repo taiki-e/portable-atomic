@@ -18,6 +18,8 @@ Here is the table of targets that support run-time CPU feature detection and the
 | aarch64 | illumos | getisax | lse, lse2 | |
 | aarch64/arm64ec | windows | IsProcessorFeaturePresent | lse, lse2 | |
 | aarch64 | fuchsia | zx_system_get_features | lse | |
+| aarch64 | qnx (8.0+) | `_syspage_ptr` | lse | |
+| aarch64 | nto (7.1/8.0) | `_syspage_ptr` | lse | QNX SDP 7.0 doesn't provide the LSE flag; 8.0 uses the legacy `nto80` target |
 | riscv32/riscv64 | linux/android | riscv_hwprobe | all | |
 | powerpc64 | linux (gnu) | getauxval | all | weakref is used on big endian by default for compatibility with older versions |
 | powerpc64 | linux (musl) | getauxval | all | weakref is used by default unless dynamic linking or `std` feature enabled (both disabled by default, see [auxv.rs](auxv.rs) for details) |
