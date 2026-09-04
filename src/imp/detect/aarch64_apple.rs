@@ -30,7 +30,7 @@ target_feature="v8.7a"
 target_feature="wfxt"
 ```
 
-Non-macOS targets doesn't always supports FEAT_LSE2, so we use this module on them.
+Non-macOS targets doesn't always supports FEAT_LSE/FEAT_LSE2, so we use this module on them.
 As used in the example in https://developer.apple.com/documentation/xcode/writing-arm64-code-for-apple-platforms#Enable-DIT-for-constant-time-cryptographic-operations,
 and is_aarch64_feature_detected (https://github.com/rust-lang/stdarch/pull/1636) and swift
 (https://github.com/swiftlang/swift/blob/swift-6.4.x-DEVELOPMENT-SNAPSHOT-2026-08-01-a/stdlib/public/RuntimeModule/ImageMap%2BDarwin.swift#L17)
