@@ -6,6 +6,7 @@ aghi
 alcgr
 algr
 amocas
+andi
 aqrl
 argfile
 armasm
@@ -100,6 +101,7 @@ ldfadd
 ldfmaxnm
 ldfminnm
 ldiapp
+ldrb
 ldrexd
 ldsetp
 ldxp

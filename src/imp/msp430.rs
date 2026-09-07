@@ -96,7 +96,7 @@ items!({
                         let out;
                         #[cfg(not(portable_atomic_no_asm))]
                         __asm!(
-                            concat!("mov.", $size, " @{src}, {out}"), // atomic { out = *src }
+                            concat!("mov.", $size, " @{src}, {out}"), // atomic { out = zero_extend(*src) }
                             src = in(reg) src,
                             out = lateout(reg) out,
                             options(nostack, preserves_flags),
@@ -283,6 +283,30 @@ items!({
 
     // For AtomicBool
     impl AtomicU8 {
+        #[inline]
+        #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+        pub(crate) fn load_bool(&self, order: Ordering) -> crate::utils::RegSize {
+            crate::utils::assert_load_ordering(order);
+            let src = self.v.get();
+            // SAFETY: any data races are prevented by atomic intrinsics and the raw
+            // pointer passed in is valid because we got it from a reference.
+            unsafe {
+                let out;
+                #[cfg(not(portable_atomic_no_asm))]
+                __asm!(
+                    "mov.b @{src}, {out}", // atomic { out = zero_extend(*src) }
+                    src = in(reg) src,
+                    out = lateout(reg) out,
+                    options(nostack, preserves_flags),
+                );
+                #[cfg(portable_atomic_no_asm)]
+                llvm_asm!(
+                    "mov.b $1, $0"
+                    : "=r"(out) : "*m"(src) : "memory" : "volatile"
+                );
+                out
+            }
+        }
         #[inline]
         pub(crate) fn fetch_and_bool(&self, val: bool) -> bool {
             let dst = self.v.get();

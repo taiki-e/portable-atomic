@@ -8668,7 +8668,6 @@ asm_test::load::bool::seqcst:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -8676,7 +8675,6 @@ asm_test::load::bool::acquire:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 
@@ -8684,7 +8682,6 @@ asm_test::load::bool::relaxed:
         push              {r11, lr}
         mov               r11, sp
         ldrb              r0, [r0]
-        and               r0, r0, #1
         pop               {r11, lr}
         bx                lr
 

@@ -193,7 +193,7 @@ macro_rules! atomic_load_store {
                         ($acquire:tt, $release:tt) => {
                             __asm!(
                                 $release,                                // fence
-                                concat!("l", $size, " {out}, 0({src})"), // atomic { out = *src }
+                                concat!("l", $size, " {out}, 0({src})"), // atomic { out = sign_extend(*src) }
                                 $acquire,                                // fence
                                 src = in(reg) ptr_reg!(src),
                                 out = lateout(reg) out,
@@ -485,6 +485,42 @@ atomic!(AtomicIsize, isize, "d", max, min);
 atomic!(AtomicUsize, usize, "d", maxu, minu);
 #[cfg(target_pointer_width = "64")]
 atomic_ptr!("d");
+
+// For AtomicBool
+impl AtomicU8 {
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(portable_atomic_no_atomic_cas))]
+    #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(not(target_has_atomic = "ptr")))]
+    #[inline]
+    #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
+    pub(crate) fn load_bool(&self, order: Ordering) -> crate::utils::RegSize {
+        crate::utils::assert_load_ordering(order);
+        let src = self.v.get();
+        // SAFETY: any data races are prevented by atomic intrinsics and the raw
+        // pointer passed in is valid because we got it from a reference.
+        unsafe {
+            let out;
+            macro_rules! atomic_load {
+                ($acquire:tt, $release:tt) => {
+                    __asm!(
+                        $release,              // fence
+                        "lbu {out}, 0({src})", // atomic { out = zero_extend(*src) }
+                        $acquire,              // fence
+                        src = in(reg) ptr_reg!(src),
+                        out = lateout(reg) out,
+                        options(nostack, preserves_flags),
+                    )
+                };
+            }
+            match order {
+                Ordering::Relaxed => atomic_load!("", ""),
+                Ordering::Acquire => atomic_load!("fence r, rw", ""),
+                Ordering::SeqCst => atomic_load!("fence r, rw", "fence rw, rw"),
+                _ => unreachable!(),
+            }
+            out
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
