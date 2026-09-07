@@ -609,7 +609,7 @@ items!({
         pub(crate) fn fetch_and_bool(&self, val: bool, order: Ordering) -> u8 {
             let dst = self.as_ptr();
             let (dst, shift, _mask) = crate::utils::create_sub_word_mask_values(dst);
-            let val = !sllw(ZeroExtend::zero_extend(val as u8) ^ 1, shift);
+            let val = !(ZeroExtend::zero_extend(val as u8) ^ 1).wrapping_shl(shift);
             // SAFETY: any data races are prevented by atomic intrinsics and the raw
             // pointer passed in is valid because we got it from a reference.
             let out: u32 = unsafe { atomic_rmw_amo!(and, dst, val, order, "w") };
