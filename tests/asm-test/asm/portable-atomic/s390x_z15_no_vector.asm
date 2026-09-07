@@ -3647,351 +3647,658 @@ asm_test::compare_exchange::u64::release_relaxed:
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_seqcst_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_seqcst_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_acquire_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_relaxed_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_true:
@@ -4018,63 +4325,53 @@ asm_test::compare_exchange::bool::acqrel_seqcst_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_seqcst_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_seqcst_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_seqcst_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_acquire_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_relaxed_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_true:
@@ -4147,38 +4444,30 @@ asm_test::compare_exchange::bool::acqrel_relaxed_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_seqcst_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_acquire_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_relaxed_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_true:
@@ -4205,27 +4494,23 @@ asm_test::compare_exchange::bool::acquire_seqcst_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_acquire_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_relaxed_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_true:
@@ -4252,27 +4537,23 @@ asm_test::compare_exchange::bool::relaxed_seqcst_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::release_acquire_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_relaxed_true_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r3,%r0,8(%r2)
-        lr                %r2,%r3
-        xilf              %r2,1
+        xi                0(%r2),0
+        ipm               %r2
+        tmlh              %r2,4096
+        lhi               %r0,0
+        lochie            %r0,1
+        risbgnz           %r3,%r2,63,63,36
+        lr                %r2,%r0
         br                %r14
 
 asm_test::compare_exchange::bool::release_seqcst_false_true:
@@ -4345,35 +4626,23 @@ asm_test::compare_exchange::bool::seqcst_relaxed_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_seqcst_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_acquire_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::acqrel_relaxed_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
@@ -4424,13 +4693,9 @@ asm_test::compare_exchange::bool::acquire_relaxed_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_seqcst_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
@@ -4481,13 +4746,9 @@ asm_test::compare_exchange::bool::relaxed_relaxed_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_seqcst_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
@@ -4538,101 +4799,65 @@ asm_test::compare_exchange::bool::release_relaxed_true_false:
         br                %r14
 
 asm_test::compare_exchange::bool::release_seqcst_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_acquire_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::seqcst_relaxed_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_acquire_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::acquire_relaxed_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_acquire_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::relaxed_relaxed_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::release_acquire_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
 asm_test::compare_exchange::bool::release_relaxed_false_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r2,%r0,8(%r2)
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         lr                %r3,%r2
         br                %r14
 
@@ -6107,302 +6332,617 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acqrel_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::seqcst_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acqrel_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acqrel_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acquire_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::relaxed_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::release_seqcst:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::seqcst_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::seqcst_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acquire_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::acquire_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::relaxed_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::relaxed_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::release_acquire:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
 asm_test::compare_exchange_weak::bool::release_relaxed:
+        cije              %r3,0,0f
+        cije              %r4,0,1f
+        xi                0(%r2),0
+        ipm               %r2
+        j                 3f
+0:
+        cije              %r4,0,2f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r5,%r2
-        cije              %r3,0,0f
-        oilf              %r4,4294967040
-        rll               %r0,%r4,24(%r5)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        xrk               %r2,%r3,%r0
-        lr                %r3,%r0
-        br                %r14
-0:
-        rll               %r0,%r4,24(%r5)
+        lcr               %r4,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r4)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+1:
+        risbgnz           %r1,%r2,0,61
+        sll               %r2,3
+        lcr               %r4,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r4)
+        lan               %r0,%r0,0(%r1)
+        rll               %r0,%r0,8(%r2)
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
+        lr                %r3,%r0
+        br                %r14
+2:
+        xi                0(%r2),0
+        ipm               %r2
+3:
+        risbgnz           %r0,%r2,63,63,36
+        xrk               %r2,%r3,%r0
+        nilf              %r0,1
         lr                %r3,%r0
         br                %r14
 
@@ -12363,14 +12903,9 @@ asm_test::fetch_or::bool::seqcst_true:
         br                %r14
 
 asm_test::fetch_or::bool::acqrel_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_or::bool::acquire_true:
@@ -12407,96 +12942,116 @@ asm_test::fetch_or::bool::release_true:
         br                %r14
 
 asm_test::fetch_or::bool::seqcst_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_or::bool::acquire_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_or::bool::relaxed_false:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,0
-        rll               %r0,%r0,24(%r3)
-        lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_or::bool::release_false:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
+        br                %r14
+
+asm_test::fetch_or::bool::acqrel:
+        cije              %r3,0,0f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
         lcr               %r3,%r2
-        lhi               %r0,0
+        lhi               %r0,1
         rll               %r0,%r0,24(%r3)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
-
-asm_test::fetch_or::bool::acqrel:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r4,%r2
-        rll               %r0,%r3,24(%r4)
-        lao               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
+0:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_or::bool::seqcst:
+        cije              %r3,0,0f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r3)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_or::bool::acquire:
+        cije              %r3,0,0f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r3)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_or::bool::relaxed:
+        cije              %r3,0,0f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r3)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
+0:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
 
 asm_test::fetch_or::bool::release:
+        cije              %r3,0,0f
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,1
+        rll               %r0,%r0,24(%r3)
         lao               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
         risbgnz           %r2,%r0,63,63
         br                %r14
 
@@ -14891,25 +15446,15 @@ asm_test::fetch_and::u64::release:
         br                %r14
 
 asm_test::fetch_and::bool::acqrel_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_and::bool::seqcst_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_and::bool::acqrel_false:
@@ -14924,36 +15469,21 @@ asm_test::fetch_and::bool::acqrel_false:
         br                %r14
 
 asm_test::fetch_and::bool::acquire_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_and::bool::relaxed_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_and::bool::release_true:
-        risbgnz           %r1,%r2,0,61
-        sll               %r2,3
-        lcr               %r3,%r2
-        lhi               %r0,-255
-        rll               %r0,%r0,24(%r3)
-        lan               %r0,%r0,0(%r1)
-        rll               %r0,%r0,8(%r2)
-        risbgnz           %r2,%r0,63,63
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r2,%r2,63,63,36
         br                %r14
 
 asm_test::fetch_and::bool::seqcst_false:
@@ -15001,55 +15531,90 @@ asm_test::fetch_and::bool::release_false:
         br                %r14
 
 asm_test::fetch_and::bool::acqrel:
+        cije              %r3,0,0f
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        oilf              %r3,4294967040
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r3)
         lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_and::bool::seqcst:
+        cije              %r3,0,0f
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        oilf              %r3,4294967040
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r3)
         lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_and::bool::acquire:
+        cije              %r3,0,0f
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        oilf              %r3,4294967040
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r3)
         lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_and::bool::relaxed:
+        cije              %r3,0,0f
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        oilf              %r3,4294967040
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r3)
         lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63
         br                %r14
 
 asm_test::fetch_and::bool::release:
+        cije              %r3,0,0f
+        xi                0(%r2),0
+        ipm               %r2
+        risbgnz           %r0,%r2,63,63,36
+        risbgnz           %r2,%r0,63,63
+        br                %r14
+0:
         risbgnz           %r1,%r2,0,61
         sll               %r2,3
-        lcr               %r4,%r2
-        oilf              %r3,4294967040
-        rll               %r0,%r3,24(%r4)
+        lcr               %r3,%r2
+        lhi               %r0,-256
+        rll               %r0,%r0,24(%r3)
         lan               %r0,%r0,0(%r1)
         rll               %r0,%r0,8(%r2)
         risbgnz           %r2,%r0,63,63

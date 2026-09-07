@@ -17,6 +17,8 @@ Refs:
 See tests/asm-test/asm/portable-atomic for generated assembly.
 */
 
+// TODO: swap based relase/seqcst store for lam-bh?
+
 #[cfg(any(target_feature = "lam-bh", portable_atomic_target_feature = "lam-bh"))]
 cfg_core_atomic!({
     use core::sync::atomic::Ordering;
