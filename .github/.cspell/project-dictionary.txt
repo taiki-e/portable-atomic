@@ -186,6 +186,7 @@ selgr
 seqlock
 setb
 setne
+setz
 sifive
 signedness
 SIGTRAP
