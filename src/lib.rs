@@ -1098,6 +1098,11 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
         ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
@@ -1120,6 +1125,11 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
         )))]
         {
             match self.as_atomic_u8().compare_exchange(current as u8, new as u8, success, failure) {
@@ -1186,6 +1196,11 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
         ))]
         {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
@@ -1198,6 +1213,11 @@ impl AtomicBool {
             target_arch = "riscv64",
             target_arch = "loongarch32",
             target_arch = "loongarch64",
+            all(
+                target_arch = "avr",
+                any(target_feature = "rmw", portable_atomic_target_feature = "rmw"),
+                not(feature = "critical-section"),
+            ),
         )))]
         {
             match self
