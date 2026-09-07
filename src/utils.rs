@@ -470,6 +470,18 @@ macro_rules! impl_default_no_fetch_ops {
         }
     };
 }
+#[cfg(not(target_arch = "s390x"))]
+macro_rules! default_bit_ops_result {
+    ($op:expr, $mask:ident, $_bit:ident) => {
+        $op & $mask != 0
+    };
+}
+#[cfg(target_arch = "s390x")]
+macro_rules! default_bit_ops_result {
+    ($op:expr, $_mask:ident, $bit:ident) => {
+        $op.wrapping_shr($bit) & 1 != 0
+    };
+}
 macro_rules! impl_default_bit_opts {
     (AtomicPtr, $int_type:ty) => {
         impl<T> AtomicPtr<T> {
@@ -479,7 +491,7 @@ macro_rules! impl_default_bit_opts {
                 #[cfg(portable_atomic_no_strict_provenance)]
                 use crate::utils::ptr::PtrExt as _;
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_or(mask, order).addr() & mask != 0
+                default_bit_ops_result!(self.fetch_or(mask, order).addr(), mask, bit)
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -487,7 +499,7 @@ macro_rules! impl_default_bit_opts {
                 #[cfg(portable_atomic_no_strict_provenance)]
                 use crate::utils::ptr::PtrExt as _;
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_and(!mask, order).addr() & mask != 0
+                default_bit_ops_result!(self.fetch_and(!mask, order).addr(), mask, bit)
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
@@ -495,7 +507,7 @@ macro_rules! impl_default_bit_opts {
                 #[cfg(portable_atomic_no_strict_provenance)]
                 use crate::utils::ptr::PtrExt as _;
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_xor(mask, order).addr() & mask != 0
+                default_bit_ops_result!(self.fetch_xor(mask, order).addr(), mask, bit)
             }
         }
     };
@@ -505,19 +517,19 @@ macro_rules! impl_default_bit_opts {
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_set(&self, bit: u32, order: Ordering) -> bool {
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_or(mask, order) & mask != 0
+                default_bit_ops_result!(self.fetch_or(mask, order), mask, bit)
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_clear(&self, bit: u32, order: Ordering) -> bool {
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_and(!mask, order) & mask != 0
+                default_bit_ops_result!(self.fetch_and(!mask, order), mask, bit)
             }
             #[inline]
             #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
             pub(crate) fn bit_toggle(&self, bit: u32, order: Ordering) -> bool {
                 let mask = <$int_type>::wrapping_shl(1, bit);
-                self.fetch_xor(mask, order) & mask != 0
+                default_bit_ops_result!(self.fetch_xor(mask, order), mask, bit)
             }
         }
     };
