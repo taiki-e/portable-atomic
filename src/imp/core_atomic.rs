@@ -548,6 +548,15 @@ macro_rules! atomic_int {
             items!({
                 impl_default_bit_opts!($atomic_type, $int_type);
                 impl $atomic_type {
+                    #[cfg(not(all(
+                        target_arch = "s390x",
+                        not(any(miri, portable_atomic_sanitize_thread)),
+                        not(any(portable_atomic_no_asm, portable_atomic_no_reg_addr)),
+                        any(
+                            target_feature = "interlocked-access2",
+                            portable_atomic_target_feature = "interlocked-access2",
+                        ),
+                    )))]
                     #[inline]
                     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
                     pub(crate) fn not(&self, order: Ordering) {
