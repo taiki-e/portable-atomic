@@ -156,3 +156,20 @@
     obj:/usr/lib/s390x-linux-gnu/libc.so.6
     obj:*
 }
+{
+    getopts
+    Memcheck:Cond
+    fun:eq
+    fun:{closure#*}
+    fun:position<getopts::Opt, getopts::find_opt::{closure_env#*}>
+    fun:_*getopts8find_opt
+    fun:_*getopts*Matches8opt_vals
+    fun:*opt_present
+    fun:_*test3cli10parse_opts
+    fun:test_main_inner<test::test_main_static::{closure_env#*}>
+    fun:*test_main_static
+    ...
+    fun:_*std3sys9backtrace28___rust_begin_short_backtrace*
+    ...
+    fun:main
+}
