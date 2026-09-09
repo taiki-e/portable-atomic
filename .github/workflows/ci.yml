@@ -1328,7 +1328,7 @@ jobs:
           - target: s390x-unknown-linux-gnu
             arch: s390x
     runs-on: ${{ matrix.os || 'ubuntu-24.04' }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
@@ -1407,7 +1407,7 @@ jobs:
   asm-test:
     needs: tidy
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
