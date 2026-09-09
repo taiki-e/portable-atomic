@@ -470,15 +470,19 @@ fn main() {
                 {
                     subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
                     subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
-                    let mut i = subarch.splitn(2, '.');
+                    let mut i = subarch.rsplitn(2, '.');
                     subarch = i.next().unwrap();
-                    let suffix = i.next().unwrap_or_default(); // .base/.main suffix
+                    let mut suffix = "";
+                    if let Some(s) = i.next() {
+                        suffix = subarch; // .base/.main suffix
+                        subarch = s;
+                    }
                     let mut known = true;
                     // See https://github.com/taiki-e/atomic-maybe-uninit/blob/HEAD/build.rs for details
                     match subarch {
                         "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8" | "v8a" | "v9" | "v9a" => {} // aclass
                         "v7r" | "v8r" | "v9r" => {} // rclass
-                        "v6m" | "v7em" | "v7m" | "v8m" => mclass = true,
+                        "v6m" | "v7em" | "v7m" | "v8m" | "v8.1m" => mclass = true,
                         // arm-linux-androideabi is v5te
                         // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
                         _ if target == "arm-linux-androideabi" => subarch = "v5te",
