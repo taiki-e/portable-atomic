@@ -3373,13 +3373,14 @@ pub(crate) fn seqcst1<T: Send + Sync>(
 #[allow(dead_code)]
 pub(crate) fn catch_unwind_on_weak_memory_arch(pat: &str, function_name: &str, f: impl Fn()) {
     // With x86 TSO, RISC-V TSO (optional), SPARC TSO (optional, default?),
-    // and IBM-370 memory models should never be a panic here.
+    // IBM-370, and M68k memory models should never be a panic here.
     // Miri emulates weak memory models regardless of target architectures.
     if cfg!(all(
         any(
             target_arch = "x86",
             target_arch = "x86_64",
             target_arch = "s390x",
+            target_arch = "m68k",
             target_arch = "sparc",
             target_arch = "sparc64",
             all(any(target_arch = "riscv32", target_arch = "riscv64"), target_feature = "ztso"),
