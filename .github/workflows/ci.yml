@@ -717,7 +717,7 @@ jobs:
           )
           mv -- "${binary_path}" ./release-static
           cargo clean
-      - uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1.5.3
+      - uses: vmactions/freebsd-vm@4469451fe39bee80be4066836c5170362e9349f3 # v1.5.7
         with:
           envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           arch: powerpc64
