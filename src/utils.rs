@@ -842,16 +842,31 @@ pub(crate) struct Pair<T: Copy> {
     pub(crate) lo: T,
 }
 
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
+#[cfg(any(
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "xtensa"
+))]
 type MinWord = u32;
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
+#[cfg(any(
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "xtensa"
+))]
 type RetInt = u32;
 // Adapted from https://github.com/taiki-e/atomic-maybe-uninit/blob/v0.3.21/src/utils.rs#L630.
 // Helper for implementing sub-word atomic operations using word-sized LL/SC loop or CAS loop.
 //
 // Refs: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/CodeGen/AtomicExpandPass.cpp#L811
 // (aligned_ptr, shift, mask)
-#[cfg(any(target_arch = "riscv32", target_arch = "riscv64", target_arch = "s390x"))]
+#[cfg(any(
+    target_arch = "riscv32",
+    target_arch = "riscv64",
+    target_arch = "s390x",
+    target_arch = "xtensa"
+))]
 #[allow(dead_code)]
 #[inline]
 pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetInt, RetInt) {
@@ -879,7 +894,8 @@ pub(crate) fn create_sub_word_mask_values<T>(ptr: *mut T) -> (*mut MinWord, RetI
         target_arch = "s390x",
         target_arch = "sparc",
         target_arch = "sparc64",
-        target_arch = "xtensa",
+        // Xtensa also masks the shift amount, but our Xtensa implementation
+        // shifts in Rust rather than in asm, so it needs the masked values.
     ));
     const PTR_MASK: usize = mem::size_of::<MinWord>() - 1;
     const PTR_INV_MASK: usize = !PTR_MASK;
