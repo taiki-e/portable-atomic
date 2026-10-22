@@ -109,6 +109,48 @@ fn fence_acquire(order: Ordering) {
     }
 }
 
+// Kept at module level rather than inside the macros that use them, because
+// rustfmt does not format macro definitions nested in macro bodies idempotently.
+macro_rules! atomic_load {
+    ($insn:expr, $src:ident, $out:ident, $order:ident) => {
+        match $order {
+            Ordering::Relaxed => atomic_load!(@asm $insn, $src, $out, ""),
+            // Acquire and SeqCst loads are equivalent. This matches with LLVM.
+            Ordering::Acquire | Ordering::SeqCst => atomic_load!(@asm $insn, $src, $out, "memw"),
+            _ => unreachable!(),
+        }
+    };
+    (@asm $insn:expr, $src:ident, $out:ident, $acquire:tt) => {
+        __asm!(
+            concat!($insn, " {out}, {src}, 0"), // atomic { out = zero_extend(*src) }
+            $acquire,                           // fence
+            src = in(reg) ptr_reg!($src),
+            out = lateout(reg) $out,
+            options(nostack, preserves_flags),
+        )
+    };
+}
+macro_rules! atomic_store {
+    ($insn:expr, $dst:ident, $val:ident, $order:ident) => {
+        match $order {
+            Ordering::Relaxed => atomic_store!(@asm $insn, $dst, $val, "", ""),
+            Ordering::Release => atomic_store!(@asm $insn, $dst, $val, "", "memw"),
+            Ordering::SeqCst => atomic_store!(@asm $insn, $dst, $val, "memw", "memw"),
+            _ => unreachable!(),
+        }
+    };
+    (@asm $insn:expr, $dst:ident, $val:ident, $acquire:tt, $release:tt) => {
+        __asm!(
+            $release,                           // fence
+            concat!($insn, " {val}, {dst}, 0"), // atomic { *dst = val }
+            $acquire,                           // fence
+            dst = in(reg) ptr_reg!($dst),
+            val = in(reg) $val,
+            options(nostack, preserves_flags),
+        )
+    };
+}
+
 // Register-width values that can be accessed by a single instruction and
 // compared by s32c1i.
 trait Word: Copy + PartialEq {
@@ -161,23 +203,7 @@ macro_rules! impl_word {
                 let out;
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    macro_rules! atomic_load {
-                        ($acquire:tt) => {
-                            __asm!(
-                                concat!(n!("l32i"), " {out}, {src}, 0"), // atomic { out = *src }
-                                $acquire,                               // fence
-                                src = in(reg) ptr_reg!(src),
-                                out = lateout(reg) out,
-                                options(nostack, preserves_flags),
-                            )
-                        };
-                    }
-                    match order {
-                        Ordering::Relaxed => atomic_load!(""),
-                        // Acquire and SeqCst loads are equivalent. This matches with LLVM.
-                        Ordering::Acquire | Ordering::SeqCst => atomic_load!("memw"),
-                        _ => unreachable!(),
-                    }
+                    atomic_load!(n!("l32i"), src, out, order);
                 }
                 out
             }
@@ -185,24 +211,7 @@ macro_rules! impl_word {
             unsafe fn store(dst: *mut Self, val: Self, order: Ordering) {
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    macro_rules! atomic_store {
-                        ($acquire:tt, $release:tt) => {
-                            __asm!(
-                                $release,                               // fence
-                                concat!(n!("s32i"), " {val}, {dst}, 0"), // atomic { *dst = val }
-                                $acquire,                               // fence
-                                dst = in(reg) ptr_reg!(dst),
-                                val = in(reg) val,
-                                options(nostack, preserves_flags),
-                            )
-                        };
-                    }
-                    match order {
-                        Ordering::Relaxed => atomic_store!("", ""),
-                        Ordering::Release => atomic_store!("", "memw"),
-                        Ordering::SeqCst => atomic_store!("memw", "memw"),
-                        _ => unreachable!(),
-                    }
+                    atomic_store!(n!("s32i"), dst, val, order);
                 }
             }
             #[inline]
@@ -434,24 +443,7 @@ macro_rules! atomic_ops_sub_word {
                 let out: $unsigned_type;
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    macro_rules! atomic_load {
-                                ($acquire:tt) => {
-                                    __asm!(
-                                        // atomic { out = zero_extend(*src) }
-                                        concat!($load, " {out}, {src}, 0"),
-                                        $acquire, // fence
-                                        src = in(reg) ptr_reg!(src),
-                                        out = lateout(reg) out,
-                                        options(nostack, preserves_flags),
-                                    )
-                                };
-                            }
-                    match order {
-                        Ordering::Relaxed => atomic_load!(""),
-                        // Acquire and SeqCst loads are equivalent. This matches with LLVM.
-                        Ordering::Acquire | Ordering::SeqCst => atomic_load!("memw"),
-                        _ => unreachable!(),
-                    }
+                    atomic_load!($load, src, out, order);
                 }
                 out as Self
             }
@@ -462,24 +454,7 @@ macro_rules! atomic_ops_sub_word {
                 let val = val as $unsigned_type;
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
-                    macro_rules! atomic_store {
-                                ($acquire:tt, $release:tt) => {
-                                    __asm!(
-                                        $release,                            // fence
-                                        concat!($store, " {val}, {dst}, 0"), // atomic { *dst = val }
-                                        $acquire,                            // fence
-                                        dst = in(reg) ptr_reg!(dst),
-                                        val = in(reg) val,
-                                        options(nostack, preserves_flags),
-                                    )
-                                };
-                            }
-                    match order {
-                        Ordering::Relaxed => atomic_store!("", ""),
-                        Ordering::Release => atomic_store!("", "memw"),
-                        Ordering::SeqCst => atomic_store!("memw", "memw"),
-                        _ => unreachable!(),
-                    }
+                    atomic_store!($store, dst, val, order);
                 }
             }
             #[inline]
