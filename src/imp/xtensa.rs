@@ -435,17 +435,17 @@ macro_rules! atomic_ops_sub_word {
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
                     macro_rules! atomic_load {
-                        ($acquire:tt) => {
-                            __asm!(
-                                // atomic { out = zero_extend(*src) }
-                                concat!($load, " {out}, {src}, 0"),
-                                $acquire, // fence
-                                src = in(reg) ptr_reg!(src),
-                                out = lateout(reg) out,
-                                options(nostack, preserves_flags),
-                            )
-                        };
-                    }
+                                ($acquire:tt) => {
+                                    __asm!(
+                                        // atomic { out = zero_extend(*src) }
+                                        concat!($load, " {out}, {src}, 0"),
+                                        $acquire, // fence
+                                        src = in(reg) ptr_reg!(src),
+                                        out = lateout(reg) out,
+                                        options(nostack, preserves_flags),
+                                    )
+                                };
+                            }
                     match order {
                         Ordering::Relaxed => atomic_load!(""),
                         // Acquire and SeqCst loads are equivalent. This matches with LLVM.
@@ -463,17 +463,17 @@ macro_rules! atomic_ops_sub_word {
                 // SAFETY: the caller must uphold the safety contract.
                 unsafe {
                     macro_rules! atomic_store {
-                        ($acquire:tt, $release:tt) => {
-                            __asm!(
-                                $release,                            // fence
-                                concat!($store, " {val}, {dst}, 0"), // atomic { *dst = val }
-                                $acquire,                            // fence
-                                dst = in(reg) ptr_reg!(dst),
-                                val = in(reg) val,
-                                options(nostack, preserves_flags),
-                            )
-                        };
-                    }
+                                ($acquire:tt, $release:tt) => {
+                                    __asm!(
+                                        $release,                            // fence
+                                        concat!($store, " {val}, {dst}, 0"), // atomic { *dst = val }
+                                        $acquire,                            // fence
+                                        dst = in(reg) ptr_reg!(dst),
+                                        val = in(reg) val,
+                                        options(nostack, preserves_flags),
+                                    )
+                                };
+                            }
                     match order {
                         Ordering::Relaxed => atomic_store!("", ""),
                         Ordering::Release => atomic_store!("", "memw"),
@@ -514,9 +514,7 @@ macro_rules! atomic_ops_sub_word {
                 let val = (val as $unsigned_type as u32) << shift;
                 // SAFETY: the caller must uphold the safety contract, and the
                 // aligned pointer is in the same word as `dst`.
-                let prev_word = unsafe {
-                    update_word(aligned, order, |word| word & !mask | val)
-                };
+                let prev_word = unsafe { update_word(aligned, order, |word| word & !mask | val) };
                 (prev_word >> shift) as Self
             }
             #[inline]
@@ -528,9 +526,7 @@ macro_rules! atomic_ops_sub_word {
                 // SAFETY: the caller must uphold the safety contract, and the
                 // aligned pointer is in the same word as `dst`.
                 let prev_word = unsafe {
-                    update_word(aligned, order, |word| {
-                        word & !mask | word.wrapping_add(val) & mask
-                    })
+                    update_word(aligned, order, |word| word & !mask | word.wrapping_add(val) & mask)
                 };
                 (prev_word >> shift) as Self
             }
@@ -542,9 +538,7 @@ macro_rules! atomic_ops_sub_word {
                 // SAFETY: the caller must uphold the safety contract, and the
                 // aligned pointer is in the same word as `dst`.
                 let prev_word = unsafe {
-                    update_word(aligned, order, |word| {
-                        word & !mask | word.wrapping_sub(val) & mask
-                    })
+                    update_word(aligned, order, |word| word & !mask | word.wrapping_sub(val) & mask)
                 };
                 (prev_word >> shift) as Self
             }
