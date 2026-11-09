@@ -73,6 +73,7 @@ fistp
 FPSR
 FUNCDESC
 getauxval
+getex
 getisax
 getpid
 getsystemcfg
@@ -129,6 +130,7 @@ maxu
 mcpu
 memcheck
 memd
+memw
 mfcr
 mfence
 mgba
@@ -181,6 +183,7 @@ rsil
 RTLD
 sbcs
 scdp
+scompare
 scwp
 selgr
 seqlock

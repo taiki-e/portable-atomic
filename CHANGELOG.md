@@ -12,7 +12,7 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 ## [Unreleased]
 
-- Xtensa: route atomic operations on ESP32 / ESP32-S3 PSRAM addresses through a critical section.
+- Xtensa: implement atomic operations on ESP32 / ESP32-S3 in inline assembly (`s32c1i`), and route operations on PSRAM addresses, where `s32c1i` does not behave atomically, through a critical section. This keeps atomic CAS and the 64-bit and 128-bit lock-based fallbacks available on these chips even though the compiler cannot expose atomic CAS on them.
 
 ## [1.15.0] - 2026-08-09
 
