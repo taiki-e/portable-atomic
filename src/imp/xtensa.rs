@@ -140,10 +140,13 @@ impl<T> AtomicPtr<T> {
     pub(crate) fn is_lock_free() -> bool {
         Self::IS_ALWAYS_LOCK_FREE
     }
-    // Not lock-free: if the atomic happens to live in PSRAM, every access
-    // takes a critical section. We can only give a conservative compile-time
-    // answer.
-    pub(crate) const IS_ALWAYS_LOCK_FREE: bool = false;
+    // With the `critical-section` feature, an atomic that happens to live in
+    // PSRAM takes a critical section on every access, and critical-section
+    // implementations might use locks internally. The address is not known at
+    // compile time, so we can only give a conservative answer.
+    // Without the feature, no lock is ever taken: every operation is either
+    // the native instruction or (RMW on PSRAM) a panic.
+    pub(crate) const IS_ALWAYS_LOCK_FREE: bool = cfg!(not(feature = "critical-section"));
 
     #[inline]
     #[cfg_attr(any(debug_assertions, miri), track_caller)]
@@ -396,9 +399,8 @@ macro_rules! atomic_int {
             pub(crate) fn is_lock_free() -> bool {
                 Self::IS_ALWAYS_LOCK_FREE
             }
-            // We cannot promise lock-freedom without knowing the address
-            // at compile time; every access on PSRAM takes a critical section.
-            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = false;
+            // See the comment on AtomicPtr::IS_ALWAYS_LOCK_FREE.
+            pub(crate) const IS_ALWAYS_LOCK_FREE: bool = cfg!(not(feature = "critical-section"));
 
             #[inline]
             #[cfg_attr(any(debug_assertions, miri), track_caller)]
