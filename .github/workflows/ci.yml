@@ -482,7 +482,7 @@ jobs:
           grep -Fq 'Tests finished successfully' "${log}"
 
   test-vm:
-    name: test (${{ matrix.target }}${{ matrix.version }})
+    name: test (${{ matrix.target }}${{ matrix.os != 'omnios' && matrix.version || '' }})
     needs: tidy
     strategy:
       fail-fast: false
@@ -500,7 +500,7 @@ jobs:
             toolchain: '13'
           - target: aarch64-unknown-freebsd
             os: freebsd
-            version: '14.4'
+            version: '14.5'
             toolchain: '14'
           - target: aarch64-unknown-freebsd
             os: freebsd
@@ -508,18 +508,19 @@ jobs:
             # toolchain: '15' # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
           - target: aarch64-unknown-netbsd
             os: netbsd
-            version: '10.1'
+            version: '10.2'
           - target: aarch64-unknown-netbsd
             os: netbsd
-            version: '11.0'
+            version: '11.1'
           - target: aarch64-unknown-openbsd
             os: openbsd
-            version: '7.9'
+            version: '8.0'
           - target: aarch64-unknown-openbsd
             os: openbsd
             version: '7.5' # no elf_aux_info
           - target: aarch64-unknown-illumos
             os: omnios
+            version: 'r151060'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -566,7 +567,7 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
         if: matrix.toolchain != ''
-      - uses: taiki-e/cross-platform-actions-action@e735ca921a2863a4c963b0993a19e6181464bccd # dev # zizmor: ignore[stale-action-refs]
+      - uses: taiki-e/cross-platform-actions-action@89c652d5a8d2a77c8053188f98ee4ec7439e928d # dev # zizmor: ignore[stale-action-refs]
         env:
           OS_VERSION: ${{ matrix.version }}
           TOOLCHAIN: ${{ matrix.toolchain }}
@@ -574,7 +575,7 @@ jobs:
           environment_variables: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES OS_VERSION TOOLCHAIN
           operating_system: ${{ matrix.os }}
           architecture: ${{ matrix.os == 'omnios' && 'x86_64' || 'aarch64' }}
-          version: ${{ matrix.os == 'omnios' && 'r151058' || matrix.version }}
+          version: ${{ matrix.version }}
           shell: bash
           cpu: ${{ matrix.os != 'omnios' && 'cortex-a76' || '' }}
           sync_files: ${{ matrix.os == 'omnios' && 'true' || 'runner-to-vm' }}
