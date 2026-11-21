@@ -219,6 +219,10 @@ run() {
     esac
   fi
   case "${target}" in
+    riscv64*)
+      # Work around LLD bug fixed in https://github.com/llvm/llvm-project/pull/219143.
+      target_rustflags+=" -C debuginfo=0"
+      ;;
     xtensa*)
       # TODO: run test with simulator on CI
       if ! type -P "${WOKWI_CLI:-wokwi-cli}" >/dev/null; then
