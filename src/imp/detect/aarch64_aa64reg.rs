@@ -38,6 +38,7 @@ On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
     https://github.com/qemu/qemu/commit/bc6bd20ee3538347afb750c4bd06edca4a922897
     https://github.com/qemu/qemu/commit/4002b76c1cf14101ac5cbdcce936330234a9de8f
 - On FreeBSD, this approach causes SIGILL on FreeBSD 12.{2,3,4} on QEMU (works on FreeBSD 13 and 14).
+  - Actually HWCAP_CPUID is set since FreeBSD 13.
 */
 
 include!("common.rs");
