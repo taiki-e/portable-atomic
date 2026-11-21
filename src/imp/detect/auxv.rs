@@ -611,6 +611,10 @@ mod arch {
         // OpenBSD 7.7+
         // https://github.com/openbsd/src/commit/483a78e15aaa23c010911940770c1c97db5c1287
         pub(crate) const PPC_FEATURE2_ARCH_3_1: ffi::c_ulong = 0x00040000;
+        // Linux 7.3+
+        // https://github.com/torvalds/linux/commit/e671e147ea51e95d7535940ccb2b76ce681ff765
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        pub(crate) const PPC_FEATURE2_ARCH_3_2: ffi::c_ulong = 0x00010000;
     });
 
     #[cold]
@@ -631,6 +635,12 @@ mod arch {
         // OpenBSD (as of 8.0-beta) doesn't set 2_07 even when 3_00 is set.
         // https://github.com/openbsd/src/blob/d2e81eb18e50973c87ae2c9c2ba348ff3ff89cf9/sys/arch/powerpc64/powerpc64/cpu.c#L222-L238
         // Other OSes should be fine, but check all OSs in the same way just in case.
+        #[cfg(any(target_os = "linux", target_os = "android"))]
+        let isa_2_07_or_later = PPC_FEATURE2_ARCH_2_07
+            | PPC_FEATURE2_ARCH_3_00
+            | PPC_FEATURE2_ARCH_3_1
+            | PPC_FEATURE2_ARCH_3_2;
+        #[cfg(not(any(target_os = "linux", target_os = "android")))]
         let isa_2_07_or_later =
             PPC_FEATURE2_ARCH_2_07 | PPC_FEATURE2_ARCH_3_00 | PPC_FEATURE2_ARCH_3_1;
         if hwcap2 & isa_2_07_or_later != 0 {
