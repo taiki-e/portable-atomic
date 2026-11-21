@@ -693,7 +693,7 @@ jobs:
       matrix:
         include:
           - { version: '13.5', toolchain: '13' }
-          - { version: '14.4', toolchain: '14' }
+          - { version: '14.5', toolchain: '14' }
           - { version: '15.1', toolchain: '14' } # TODO: freebsd 15 toolchain once supported by setup-cross-toolchain-action
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -718,7 +718,7 @@ jobs:
           )
           mv -- "${binary_path}" ./release-static
           cargo clean
-      - uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1.5.3
+      - uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b # v1.6.0
         with:
           envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           arch: powerpc64
@@ -741,12 +741,12 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '9.4'
+          - '9.5'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: vmactions/netbsd-vm@bf34bcd909bb50856f934a67d09a8fbe2b966a1b # v1.4.4
+      - uses: vmactions/netbsd-vm@5957cf330aef2e6ddc63c604364c99ce2e02b91d # v1.5.3
         with:
           envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
           arch: aarch64
