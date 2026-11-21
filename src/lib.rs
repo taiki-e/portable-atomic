@@ -594,31 +594,13 @@ compile_error!(
 );
 
 #[cfg(feature = "require-cas")]
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(not(any(
-        not(portable_atomic_no_atomic_cas),
-        target_arch = "avr",
-        target_arch = "msp430",
-        feature = "critical-section",
-        portable_atomic_unsafe_assume_single_core,
-    )))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(not(any(
-        target_has_atomic = "ptr",
-        target_arch = "avr",
-        target_arch = "msp430",
-        feature = "critical-section",
-        portable_atomic_unsafe_assume_single_core,
-    )))
-)]
-compile_error!(
-    "dependents require atomic CAS but not available on this target by default;\n\
-    consider enabling one of the `critical-section` feature or `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).\n\
-    see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
-);
+cfg_no_atomic_cas! {
+    compile_error!(
+        "dependents require atomic CAS but not available on this target by default;\n\
+        consider enabling one of the `critical-section` feature or `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).\n\
+        see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+    );
+}
 
 #[macro_use]
 mod utils;
