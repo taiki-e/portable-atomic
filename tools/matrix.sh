@@ -264,9 +264,8 @@ add_matrix() {
     return
   fi
   case "${target}" in
-    *-windows-gnullvm) ;;
-    x86_64-pc-windows-msvc) ;;
-    x86_64*-windows* | i?86*-windows*) toolchain="${toolchain}-${target}" ;;
+    *-windows-gnullvm | x86_64-pc-windows-msvc) ;;
+    x86_64*-windows*) toolchain="${toolchain}-${target}" ;;
   esac
   local target_out="\"rust\": \"${toolchain}\""
   target_out+=",\"target\": \"${target}\""
@@ -297,7 +296,7 @@ for target in "${targets[@]}"; do
     x86_64*-apple-* | i?86*-apple-*) base_os=macos-15-intel ;;
     aarch64*-apple-* | arm*-apple-*) base_os=macos-latest ;;
     x86_64*-windows* | i?86*-windows*) base_os=windows-latest ;;
-    aarch64*-windows* | arm*-windows*) base_os=windows-11-arm ;;
+    aarch64*-windows* | arm*-windows* | thumb*-windows*) base_os=windows-11-arm ;;
   esac
   os="${base_os}"
   container="${base_container}"
