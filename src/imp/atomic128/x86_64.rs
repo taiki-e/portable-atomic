@@ -189,7 +189,7 @@ unsafe fn cmpxchg16b(dst: *mut u128, old: u128, new: u128) -> (u128, bool) {
 // Note that we cannot use cfg(target_abi = "softfloat") because cfg(target_abi)
 // is unavailable on old rustc and target_abi = "softfloat" is not set for
 // softfloat x86_64 targets as of Rust 1.95.
-// See also https://github.com/rust-lang/rust/blob/1.84.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
+// See also https://github.com/rust-lang/rust/blob/1.100.0/src/doc/rustc/src/platform-support/x86_64-unknown-none.md.
 #[cfg(not(all(
     not(target_feature = "avx"),
     any(portable_atomic_no_outline_atomics, target_env = "sgx", not(target_feature = "sse")),

@@ -19,7 +19,7 @@ macro_rules! __test_atomic_common {
         }
         #[test]
         fn alignment() {
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/tests/atomic.rs#L252
+            // https://github.com/rust-lang/rust/blob/1.100.0/library/coretests/tests/atomic.rs#L280
             assert_eq!(mem::align_of::<$atomic_type>(), mem::size_of::<$atomic_type>());
             assert_eq!(mem::size_of::<$atomic_type>(), mem::size_of::<$value_type>());
         }
@@ -2091,7 +2091,7 @@ macro_rules! __test_atomic_ptr {
                 assert_eq!(a.load(Ordering::Relaxed), x as *mut _);
             }
         }
-        // https://github.com/rust-lang/rust/blob/1.84.0/library/core/tests/atomic.rs#L130-L213
+        // https://github.com/rust-lang/rust/blob/1.100.0/library/coretests/tests/atomic.rs#L162-L245
         #[test]
         fn ptr_add_null() {
             let atom = AtomicPtr::<i64>::new(core::ptr::null_mut());

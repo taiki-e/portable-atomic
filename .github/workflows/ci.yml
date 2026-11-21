@@ -164,9 +164,6 @@ jobs:
           printf 'CARGO_PROFILE_RELEASE_OPT_LEVEL=0\n' >>"${GITHUB_ENV}"
         if: startsWith(matrix.target, 'sparc-')
       # for f16 and f128
-      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_llvm/src/llvm_util.rs#L373
-      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_cranelift/src/lib.rs#L203
-      # https://github.com/rust-lang/rust/blob/ffb9d94dcf4ade0d534842be3672d5e9f47e1333/compiler/rustc_codegen_gcc/src/builder.rs#L1916
       - run: |
           rustflags="${RUSTFLAGS:-}"
           if rustc --print cfg --target "${TARGET}" | grep -Fq has_reliable_f16; then
@@ -186,6 +183,9 @@ jobs:
           fi
         env:
           TARGET: ${{ matrix.target }}
+        # TODO(f16,f128): cranelift and gcc now have f16/f128?
+        # https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_codegen_cranelift/src/lib.rs#L181
+        # https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_codegen_gcc/src/builder.rs#L2042
         if: matrix.rust == 'nightly' && !contains(matrix.flags, 'codegen-backend=cranelift') && !contains(matrix.flags, 'codegen-backend=gcc')
       # TODO(gcc): for disabling some failing tests
       - run: printf 'RUSTC_CODEGEN_GCC=1\n' >>"${GITHUB_ENV}"
@@ -792,8 +792,8 @@ jobs:
           tool: rust@nightly+${{ matrix.target }}
           fallback: none
       # Refs:
-      # - https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/doc/rustc/src/platform-support/fuchsia.md
-      # - https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/ci/docker/scripts/fuchsia-test-runner.py
+      # - https://github.com/rust-lang/rust/blob/1.100.0/src/doc/rustc/src/platform-support/fuchsia.md
+      # - https://github.com/rust-lang/rust/blob/1.100.0/src/ci/docker/scripts/fuchsia-test-runner.py
       - run: |
           retry() {
             for i in {1..10}; do
@@ -810,7 +810,8 @@ jobs:
             exit 1
           }
 
-          # https://github.com/rust-lang/rust/blob/008fa22ce3f8d3c8dfaca2e6486043c2b21851eb/src/ci/docker/scripts/build-fuchsia-toolchain.sh#L7
+          # https://github.com/rust-lang/rust/blob/1.100.0/src/ci/docker/scripts/build-fuchsia-toolchain.sh#L7
+          # TODO: update toolchain https://github.com/rust-lang/rust/commit/8ed900812ce92f32059f189b3801146740380532
           sdk_id='version:26.20241211.7.1'
           sdk_path="${RUNNER_TEMP}/fuchsia-sdk"
           tmp_dir="${RUNNER_TEMP}/fuchsia-test"

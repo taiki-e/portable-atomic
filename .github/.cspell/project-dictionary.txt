@@ -225,6 +225,7 @@ uart
 udevadm
 umax
 umin
+upstreamed
 usart
 uscat
 usesh

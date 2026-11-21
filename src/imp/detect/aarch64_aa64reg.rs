@@ -3,15 +3,15 @@
 /*
 Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
 
-As of Rust 1.97, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
-https://github.com/rust-lang/rust/blob/1.97.0/library/std_detect/src/detect/mod.rs
+As of Rust 1.100, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
+https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/mod.rs
 Run-time detection on OpenBSD by is_aarch64_feature_detected is supported on Rust 1.70+.
 https://github.com/rust-lang/stdarch/pull/1374 / https://github.com/rust-lang/stdarch/pull/1379
 
 Refs:
 - https://developer.arm.com/documentation/ddi0601/2025-06/AArch64-Registers
 - https://github.com/torvalds/linux/blob/v6.19/Documentation/arch/arm64/cpu-feature-registers.rst
-- https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/std_detect/src/detect/os/aarch64.rs
+- https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/os/aarch64.rs
 
 Supported platforms:
 - Linux 4.11+ (emulate mrs instruction)

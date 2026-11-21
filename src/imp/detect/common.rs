@@ -118,7 +118,7 @@ macro_rules! flags {
     };
 }
 
-// rustc definitions: https://github.com/rust-lang/rust/blob/ddaf12390d3ffb7d5ba74491a48f3cd528e5d777/compiler/rustc_target/src/target_features.rs
+// rustc definitions: https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs
 
 // LLVM definitions: https://github.com/llvm/llvm-project/blob/llvmorg-22.1.0-rc1/llvm/lib/Target/AArch64/AArch64Features.td
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]

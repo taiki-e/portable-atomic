@@ -92,7 +92,7 @@ of the same error.)
 This seems to be due to the fact that compiler-builtins is built before libc (which is a dependency
 of std) links musl. And the std and its dependent can use getauxval without this problem at least
 since the rust-lang/rust patch mentioned above:
-https://github.com/rust-lang/rust/blob/1.85.0/library/std/src/sys/pal/unix/stack_overflow.rs#L268
+https://github.com/rust-lang/rust/blob/1.100.0/library/std/src/sys/pal/unix/stack_overflow.rs#L336
 (According to https://github.com/rust-lang/rust/issues/89626#issuecomment-2420469392, this problem
 may have been fixed in https://github.com/rust-lang/rust/commit/9ed0d11efbec18a1fa4155576a3bcb685676d23c.)
 See also https://github.com/rust-lang/stdarch/pull/1746.
@@ -118,8 +118,8 @@ See tests::test_alternative and aarch64_aa64reg.rs for (test-only) alternative i
 
 # FreeBSD
 
-As of Rust 1.97, is_aarch64_feature_detected always uses mrs on AArch64 FreeBSD.
-https://github.com/rust-lang/rust/blob/1.97.0/library/std_detect/src/detect/os/freebsd/aarch64.rs
+As of Rust 1.100, is_aarch64_feature_detected always uses mrs on AArch64 FreeBSD.
+https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/os/freebsd/aarch64.rs
 However, that approach causes SIGILL on FreeBSD 12.{2,3,4} on QEMU (works on FreeBSD 13 and 14).
 Run-time detection of FEAT_LSE2 on FreeBSD by is_aarch64_feature_detected is supported on Rust 1.70+.
 https://github.com/rust-lang/stdarch/pull/1379
