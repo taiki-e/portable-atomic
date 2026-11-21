@@ -4549,8 +4549,8 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4565,8 +4565,8 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4581,8 +4581,8 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4597,8 +4597,8 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4613,8 +4613,8 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4629,8 +4629,8 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4645,8 +4645,8 @@ asm_test::compare_exchange::u128::release_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4661,8 +4661,8 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4677,8 +4677,8 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4693,8 +4693,8 @@ asm_test::compare_exchange::u128::acquire_acquire:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4709,8 +4709,8 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4725,8 +4725,8 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4741,8 +4741,8 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4757,8 +4757,8 @@ asm_test::compare_exchange::u128::release_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4773,8 +4773,8 @@ asm_test::compare_exchange::u128::release_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6544,8 +6544,8 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6560,8 +6560,8 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6576,8 +6576,8 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6592,8 +6592,8 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6608,8 +6608,8 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6624,8 +6624,8 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6640,8 +6640,8 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6656,8 +6656,8 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6672,8 +6672,8 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6688,8 +6688,8 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6704,8 +6704,8 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6720,8 +6720,8 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6736,8 +6736,8 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         stxp              w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6752,8 +6752,8 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6768,8 +6768,8 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         stlxp             w11, x12, x13, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret

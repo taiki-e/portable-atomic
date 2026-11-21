@@ -1201,14 +1201,14 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1221,14 +1221,14 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1241,14 +1241,14 @@ asm_test::compare_exchange::u8::acqrel_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1261,14 +1261,14 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1281,14 +1281,14 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1301,14 +1301,14 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1321,14 +1321,14 @@ asm_test::compare_exchange::u8::release_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1341,14 +1341,14 @@ asm_test::compare_exchange::u8::seqcst_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1361,14 +1361,14 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1381,14 +1381,14 @@ asm_test::compare_exchange::u8::acquire_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1401,14 +1401,14 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1421,14 +1421,14 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1441,14 +1441,14 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1461,14 +1461,14 @@ asm_test::compare_exchange::u8::release_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1481,14 +1481,14 @@ asm_test::compare_exchange::u8::release_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -1504,7 +1504,7 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1524,7 +1524,7 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1544,7 +1544,7 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1564,7 +1564,7 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1584,7 +1584,7 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1604,7 +1604,7 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1624,7 +1624,7 @@ asm_test::compare_exchange::u16::release_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1644,7 +1644,7 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1664,7 +1664,7 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1684,7 +1684,7 @@ asm_test::compare_exchange::u16::acquire_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1704,7 +1704,7 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1724,7 +1724,7 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1744,7 +1744,7 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1764,7 +1764,7 @@ asm_test::compare_exchange::u16::release_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -1784,7 +1784,7 @@ asm_test::compare_exchange::u16::release_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3166,14 +3166,14 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3186,14 +3186,14 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3206,14 +3206,14 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3226,14 +3226,14 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3246,14 +3246,14 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3266,14 +3266,14 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3286,14 +3286,14 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3306,14 +3306,14 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3326,14 +3326,14 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3346,14 +3346,14 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3366,14 +3366,14 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3386,14 +3386,14 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3406,14 +3406,14 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3426,14 +3426,14 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3446,14 +3446,14 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         dint
         nop
         mov.b             0(r12),	r13	;
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         jnz               0f
         mov.b             r14,	0(r12)	;
 0:
         nop
         mov               r11,	r2	;
         nop
-        cmp.b             r15,	r13	;
+        cmp.b             r13,	r15	;
         mov               r2,	r14	;
         rra               r14		;
         mov               #1,	r12	;r3 As==01
@@ -3469,7 +3469,7 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3489,7 +3489,7 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3509,7 +3509,7 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3529,7 +3529,7 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3549,7 +3549,7 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3569,7 +3569,7 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3589,7 +3589,7 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3609,7 +3609,7 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3629,7 +3629,7 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3649,7 +3649,7 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3669,7 +3669,7 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3689,7 +3689,7 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3709,7 +3709,7 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3729,7 +3729,7 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
@@ -3749,7 +3749,7 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         dint
         nop
         mov               0(r15),	r13	;
-        cmp               r11,	r13	;
+        cmp               r13,	r11	;
         jnz               0f
         mov               r14,	0(r15)	;
         clr               r12		;
