@@ -77,7 +77,6 @@ pub(crate) static NO_ATOMIC: &[&str] = &[
     "thumbv5te-none-eabi",
 ];
 pub(crate) static POWERPC_QUADWORD_ATOMICS_CPU: &[&str] = &[
-    "future",
     "ppc64le",
     "pwr10",
     "pwr11",

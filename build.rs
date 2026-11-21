@@ -652,7 +652,15 @@ fn main() {
                 let mut quadword_atomics = false;
                 // Note that `-C target-cpu=native` is currently ignored.
                 // (Technically, supporting it is possible on PowerPC64 Linux by reusing the code in src/imp/detect.
-                if let Some(cpu) = rustflags.target_cpu {
+                if let Some(mut cpu) = rustflags.target_cpu {
+                    // In the recent LLVM, "future" is based on pwr11 features,
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L571
+                    // but on the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
+                    // on this target (see matrix.sh), "future" is based on pwr10 features.
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
+                    if cpu == "future" {
+                        cpu = "pwr10";
+                    }
                     if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
