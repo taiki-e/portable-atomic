@@ -1030,6 +1030,7 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/github-actions/free-device-space@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+        if: matrix.rust == 'nightly'
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
           tool: rust@${{ matrix.rust }},cargo-hack
@@ -1073,6 +1074,7 @@ jobs:
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - uses: taiki-e/github-actions/free-device-space@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+        if: matrix.rust == 'nightly'
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
           tool: rust@${{ matrix.rust }}${{ matrix.rust == 'stable' && ',cargo-hack,espup' || '' }}
