@@ -262,11 +262,6 @@ cfg_sel!({
             AtomicUsize,
         };
     }
-    // bpf & !(critical section) => core atomic
-    #[cfg(target_arch = "bpf")]
-    {
-        pub(crate) use self::core_atomic::{AtomicIsize, AtomicPtr, AtomicUsize};
-    }
     #[cfg(else)]
     {
         // no atomic
@@ -398,11 +393,6 @@ cfg_sel!({
     #[cfg(target_arch = "riscv64")]
     {
         pub(crate) use self::riscv::{AtomicI64, AtomicU64};
-    }
-    // bpf & !(critical section) => core atomic
-    #[cfg(target_arch = "bpf")]
-    {
-        pub(crate) use self::core_atomic::{AtomicI64, AtomicU64};
     }
     #[cfg(else)]
     {

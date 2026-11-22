@@ -427,7 +427,6 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
         portable_atomic_no_atomic_load_store,
         not(any(
             target_arch = "avr",
-            target_arch = "bpf",
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
@@ -594,31 +593,13 @@ compile_error!(
 );
 
 #[cfg(feature = "require-cas")]
-#[cfg_attr(
-    portable_atomic_no_cfg_target_has_atomic,
-    cfg(not(any(
-        not(portable_atomic_no_atomic_cas),
-        target_arch = "avr",
-        target_arch = "msp430",
-        feature = "critical-section",
-        portable_atomic_unsafe_assume_single_core,
-    )))
-)]
-#[cfg_attr(
-    not(portable_atomic_no_cfg_target_has_atomic),
-    cfg(not(any(
-        target_has_atomic = "ptr",
-        target_arch = "avr",
-        target_arch = "msp430",
-        feature = "critical-section",
-        portable_atomic_unsafe_assume_single_core,
-    )))
-)]
-compile_error!(
-    "dependents require atomic CAS but not available on this target by default;\n\
-    consider enabling one of the `critical-section` feature or `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).\n\
-    see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
-);
+cfg_no_atomic_cas! {
+    compile_error!(
+        "dependents require atomic CAS but not available on this target by default;\n\
+        consider enabling one of the `critical-section` feature or `unsafe-assume-single-core` feature (or `portable_atomic_unsafe_assume_single_core` cfg).\n\
+        see <https://docs.rs/portable-atomic/latest/portable_atomic/#optional-features> for more."
+    );
+}
 
 #[macro_use]
 mod utils;
@@ -1300,7 +1281,7 @@ impl AtomicBool {
         }
         cfg_emulate_bool_swap! {
             // See https://github.com/rust-lang/rust/pull/114034 for details.
-            // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+            // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L903
             // https://godbolt.org/z/ofbGGdx44
             if val { self.fetch_or(true, order) } else { self.fetch_and(false, order) }
         }
@@ -1377,7 +1358,7 @@ impl AtomicBool {
             }
             cfg_no_emulate_bool_swap! {
                 // See https://github.com/rust-lang/rust/pull/114034 for details.
-                // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L249
+                // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L1041
                 // https://godbolt.org/z/ofbGGdx44
                 let old = if current == new {
                     // This is a no-op, but we still need to perform the operation
@@ -1637,7 +1618,7 @@ impl AtomicBool {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub fn fetch_nand(&self, val: bool, order: Ordering) -> bool {
-        // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L973-L985
+        // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L1245
         if val {
             // !(x & true) == !x
             // We must invert the bool.
@@ -2285,7 +2266,7 @@ impl<T> From<*mut T> for AtomicPtr<T> {
 impl<T> fmt::Debug for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L2863
         fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -2293,7 +2274,7 @@ impl<T> fmt::Debug for AtomicPtr<T> {
 impl<T> fmt::Pointer for AtomicPtr<T> {
     #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
+        // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L2863
         fmt::Pointer::fmt(&self.load(Ordering::Relaxed), f)
     }
 }
@@ -5376,7 +5357,6 @@ use self::diagnostic_helper::{
             portable_atomic_no_atomic_load_store,
             not(any(
                 target_arch = "avr",
-                target_arch = "bpf",
                 target_arch = "msp430",
                 target_arch = "riscv32",
                 target_arch = "riscv64",

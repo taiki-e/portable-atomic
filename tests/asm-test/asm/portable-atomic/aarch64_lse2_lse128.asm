@@ -3323,9 +3323,9 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3334,9 +3334,9 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3345,9 +3345,9 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3356,9 +3356,9 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3367,9 +3367,9 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3378,9 +3378,9 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3389,9 +3389,9 @@ asm_test::compare_exchange::u128::release_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3400,9 +3400,9 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3411,9 +3411,9 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3422,9 +3422,9 @@ asm_test::compare_exchange::u128::acquire_acquire:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3433,9 +3433,9 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3444,9 +3444,9 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3455,9 +3455,9 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         mov               x7, x3
         mov               x6, x2
         casp              x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3466,9 +3466,9 @@ asm_test::compare_exchange::u128::release_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -3477,9 +3477,9 @@ asm_test::compare_exchange::u128::release_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspl             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4478,9 +4478,9 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4489,9 +4489,9 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4500,9 +4500,9 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4511,9 +4511,9 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4522,9 +4522,9 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4533,9 +4533,9 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4544,9 +4544,9 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4555,9 +4555,9 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4566,9 +4566,9 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4577,9 +4577,9 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4588,9 +4588,9 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4599,9 +4599,9 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         mov               x7, x3
         mov               x6, x2
         caspa             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4610,9 +4610,9 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         mov               x7, x3
         mov               x6, x2
         casp              x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4621,9 +4621,9 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         mov               x7, x3
         mov               x6, x2
         caspal            x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4632,9 +4632,9 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         mov               x7, x3
         mov               x6, x2
         caspl             x6, x7, x4, x5, [x0]
-        cmp               x6, x2
+        cmp               x2, x6
         stp               x6, x7, [x8, #0x10]
-        ccmp              x7, x3, #0x0, eq
+        ccmp              x3, x7, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret

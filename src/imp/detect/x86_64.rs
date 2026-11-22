@@ -3,13 +3,13 @@
 /*
 Run-time CPU feature detection on x86_64 by using CPUID.
 
-Adapted from https://github.com/rust-lang/rust/blob/1.92.0/library/std_detect/src/detect/os/x86.rs.
+Adapted from https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/os/x86.rs.
 */
 
 #![cfg_attr(portable_atomic_sanitize_thread, allow(dead_code))]
 
 // Miri doesn't support inline assembly used in __cpuid: https://github.com/rust-lang/miri/issues/932
-// SGX doesn't support CPUID: https://github.com/rust-lang/rust/blob/1.92.0/library/std_detect/src/detect/os/x86.rs#L30-L33
+// SGX doesn't support CPUID: https://github.com/rust-lang/rust/blob/1.100.0/library/stdarch/crates/core_arch/src/x86/cpuid.rs#L63
 #[cfg(any(target_env = "sgx", miri))]
 compile_error!("internal error: this module is not supported on this environment");
 
@@ -23,7 +23,7 @@ use core::arch::x86_64::CpuidResult;
 // Refs:
 // - https://www.felixcloutier.com/x86/cpuid
 // - https://en.wikipedia.org/wiki/CPUID
-// - https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs
+// - https://github.com/rust-lang/rust/blob/1.100.0/library/stdarch/crates/core_arch/src/x86/cpuid.rs
 #[cfg(not(target_env = "sgx"))]
 fn __cpuid(leaf: u32) -> CpuidResult {
     let eax;
@@ -32,7 +32,7 @@ fn __cpuid(leaf: u32) -> CpuidResult {
     let edx;
     // SAFETY: Calling `__cpuid` is safe on all x86_64 CPUs except for SGX,
     // which doesn't support `cpuid`.
-    // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/x86/cpuid.rs#L102-L109
+    // https://github.com/rust-lang/rust/blob/1.100.0/library/stdarch/crates/core_arch/src/x86/cpuid.rs#L63
     unsafe {
         __asm!(
             "mov r8, rbx", // save rbx which is reserved by LLVM
@@ -53,7 +53,7 @@ fn __cpuid(leaf: u32) -> CpuidResult {
 fn _detect(mut info: CpuInfo) -> CpuInfo {
     let CpuidResult { ecx: proc_info_ecx, .. } = __cpuid(1);
 
-    // https://github.com/rust-lang/rust/blob/1.92.0/library/std_detect/src/detect/os/x86.rs#L104
+    // https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/os/x86.rs#L103
     if test(proc_info_ecx, 13) {
         info.set(CpuInfoFlag::cmpxchg16b);
     }
@@ -63,7 +63,7 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
     {
         use core::arch::x86_64::_xgetbv;
 
-        // https://github.com/rust-lang/rust/blob/1.92.0/library/std_detect/src/detect/os/x86.rs#L166-L236
+        // https://github.com/rust-lang/rust/blob/1.100.0/library/std_detect/src/detect/os/x86.rs#L167-L258
         let cpu_xsave = test(proc_info_ecx, 26);
         if cpu_xsave {
             let cpu_osxsave = test(proc_info_ecx, 27);

@@ -203,8 +203,8 @@ asm_test::bit_toggle::u64::acqrel:
         xor               a2, a4, a7
         xor               a3, a5, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -232,8 +232,8 @@ asm_test::bit_toggle::u64::seqcst:
         xor               a2, a4, a7
         xor               a3, a5, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -261,8 +261,8 @@ asm_test::bit_toggle::u64::acquire:
         xor               a2, a4, a7
         xor               a3, a5, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -290,8 +290,8 @@ asm_test::bit_toggle::u64::relaxed:
         xor               a2, a4, a7
         xor               a3, a5, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -319,8 +319,8 @@ asm_test::bit_toggle::u64::release:
         xor               a2, a4, a7
         xor               a3, a5, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -1031,8 +1031,8 @@ asm_test::fetch_nand::u64::acqrel_all:
         not               a2, a4
         not               a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1048,8 +1048,8 @@ asm_test::fetch_nand::u64::seqcst_all:
         not               a2, a4
         not               a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1065,8 +1065,8 @@ asm_test::fetch_nand::u64::acqrel_zero:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1081,8 +1081,8 @@ asm_test::fetch_nand::u64::acquire_all:
         not               a2, a4
         not               a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1098,8 +1098,8 @@ asm_test::fetch_nand::u64::relaxed_all:
         not               a2, a4
         not               a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1115,8 +1115,8 @@ asm_test::fetch_nand::u64::release_all:
         not               a2, a4
         not               a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1132,8 +1132,8 @@ asm_test::fetch_nand::u64::seqcst_zero:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1148,8 +1148,8 @@ asm_test::fetch_nand::u64::acquire_zero:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1164,8 +1164,8 @@ asm_test::fetch_nand::u64::relaxed_zero:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1180,8 +1180,8 @@ asm_test::fetch_nand::u64::release_zero:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1199,8 +1199,8 @@ asm_test::fetch_nand::u64::acqrel:
         not               a2, a2
         not               a3, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1219,8 +1219,8 @@ asm_test::fetch_nand::u64::seqcst:
         not               a2, a2
         not               a3, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1239,8 +1239,8 @@ asm_test::fetch_nand::u64::acquire:
         not               a2, a2
         not               a3, a3
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1259,8 +1259,8 @@ asm_test::fetch_nand::u64::relaxed:
         not               a2, a2
         not               a3, a3
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1279,8 +1279,8 @@ asm_test::fetch_nand::u64::release:
         not               a2, a2
         not               a3, a3
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1721,8 +1721,8 @@ asm_test::fetch_umax::u64::acqrel:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -1757,8 +1757,8 @@ asm_test::fetch_umax::u64::seqcst:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -1793,8 +1793,8 @@ asm_test::fetch_umax::u64::acquire:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -1829,8 +1829,8 @@ asm_test::fetch_umax::u64::relaxed:
         mv                a5, a7
         mv                a4, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -1865,8 +1865,8 @@ asm_test::fetch_umax::u64::release:
         mv                a5, a7
         mv                a4, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2126,8 +2126,8 @@ asm_test::fetch_umin::u64::acqrel:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2162,8 +2162,8 @@ asm_test::fetch_umin::u64::seqcst:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2198,8 +2198,8 @@ asm_test::fetch_umin::u64::acquire:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2234,8 +2234,8 @@ asm_test::fetch_umin::u64::relaxed:
         mv                a5, a7
         mv                a4, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2270,8 +2270,8 @@ asm_test::fetch_umin::u64::release:
         mv                a5, a7
         mv                a4, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -3568,8 +3568,8 @@ asm_test::compare_exchange::u64::acqrel_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3589,8 +3589,8 @@ asm_test::compare_exchange::u64::seqcst_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3609,8 +3609,8 @@ asm_test::compare_exchange::u64::acqrel_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3629,8 +3629,8 @@ asm_test::compare_exchange::u64::acqrel_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3650,8 +3650,8 @@ asm_test::compare_exchange::u64::acquire_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3671,8 +3671,8 @@ asm_test::compare_exchange::u64::relaxed_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3692,8 +3692,8 @@ asm_test::compare_exchange::u64::release_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3712,8 +3712,8 @@ asm_test::compare_exchange::u64::seqcst_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3732,8 +3732,8 @@ asm_test::compare_exchange::u64::seqcst_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3752,8 +3752,8 @@ asm_test::compare_exchange::u64::acquire_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3772,8 +3772,8 @@ asm_test::compare_exchange::u64::acquire_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3792,8 +3792,8 @@ asm_test::compare_exchange::u64::relaxed_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3812,8 +3812,8 @@ asm_test::compare_exchange::u64::relaxed_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d          a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3832,8 +3832,8 @@ asm_test::compare_exchange::u64::release_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -3852,8 +3852,8 @@ asm_test::compare_exchange::u64::release_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.rl       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6138,8 +6138,8 @@ asm_test::compare_exchange_weak::u64::acqrel_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6159,8 +6159,8 @@ asm_test::compare_exchange_weak::u64::seqcst_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6179,8 +6179,8 @@ asm_test::compare_exchange_weak::u64::acqrel_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6199,8 +6199,8 @@ asm_test::compare_exchange_weak::u64::acqrel_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6220,8 +6220,8 @@ asm_test::compare_exchange_weak::u64::acquire_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6241,8 +6241,8 @@ asm_test::compare_exchange_weak::u64::relaxed_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6262,8 +6262,8 @@ asm_test::compare_exchange_weak::u64::release_seqcst:
         mv                a2, a7
         fence             rw, rw
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6282,8 +6282,8 @@ asm_test::compare_exchange_weak::u64::seqcst_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6302,8 +6302,8 @@ asm_test::compare_exchange_weak::u64::seqcst_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6322,8 +6322,8 @@ asm_test::compare_exchange_weak::u64::acquire_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6342,8 +6342,8 @@ asm_test::compare_exchange_weak::u64::acquire_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6362,8 +6362,8 @@ asm_test::compare_exchange_weak::u64::relaxed_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aq       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6382,8 +6382,8 @@ asm_test::compare_exchange_weak::u64::relaxed_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d          a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6402,8 +6402,8 @@ asm_test::compare_exchange_weak::u64::release_acquire:
         mv                a3, a6
         mv                a2, a7
         amocas.d.aqrl     a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -6422,8 +6422,8 @@ asm_test::compare_exchange_weak::u64::release_relaxed:
         mv                a3, a6
         mv                a2, a7
         amocas.d.rl       a4, a2, (a1)
-        xor               a1, a4, t1
-        xor               a2, a5, t0
+        xor               a1, t1, a4
+        xor               a2, t0, a5
         or                a1, a1, a2
         snez              a1, a1
         sw                a1, 0x0(a0)
@@ -7076,7 +7076,7 @@ asm_test::or::u64::acqrel_all:
         mv                a4, a1
         li                a2, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7093,7 +7093,7 @@ asm_test::or::u64::seqcst_all:
         mv                a4, a1
         li                a2, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7125,7 +7125,7 @@ asm_test::or::u64::acquire_all:
         mv                a4, a1
         li                a2, -0x1
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7142,7 +7142,7 @@ asm_test::or::u64::relaxed_all:
         mv                a4, a1
         li                a2, -0x1
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7159,7 +7159,7 @@ asm_test::or::u64::release_all:
         mv                a4, a1
         li                a2, -0x1
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7237,8 +7237,8 @@ asm_test::or::u64::acqrel:
         or                a2, a7, a1
         or                a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7255,8 +7255,8 @@ asm_test::or::u64::seqcst:
         or                a2, a7, a1
         or                a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7273,8 +7273,8 @@ asm_test::or::u64::acquire:
         or                a2, a7, a1
         or                a3, t0, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7291,8 +7291,8 @@ asm_test::or::u64::relaxed:
         or                a2, a7, a1
         or                a3, t0, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7309,8 +7309,8 @@ asm_test::or::u64::release:
         or                a2, a7, a1
         or                a3, t0, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7769,8 +7769,8 @@ asm_test::add::u64::acqrel:
         add               t1, t0, a6
         add               a3, a3, t1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7789,8 +7789,8 @@ asm_test::add::u64::seqcst:
         add               t1, t0, a6
         add               a3, a3, t1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7809,8 +7809,8 @@ asm_test::add::u64::acquire:
         add               t1, t0, a6
         add               a3, a3, t1
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7829,8 +7829,8 @@ asm_test::add::u64::relaxed:
         add               t1, t0, a6
         add               a3, a3, t1
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7849,8 +7849,8 @@ asm_test::add::u64::release:
         add               t1, t0, a6
         add               a3, a3, t1
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8226,7 +8226,7 @@ asm_test::and::u64::acqrel_zero:
         mv                a4, a6
         li                a2, 0x0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8288,7 +8288,7 @@ asm_test::and::u64::seqcst_zero:
         mv                a4, a6
         li                a2, 0x0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8305,7 +8305,7 @@ asm_test::and::u64::acquire_zero:
         mv                a4, a6
         li                a2, 0x0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8322,7 +8322,7 @@ asm_test::and::u64::relaxed_zero:
         mv                a4, a6
         li                a2, 0x0
         amocas.d          a4, a2, (a0)
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8339,7 +8339,7 @@ asm_test::and::u64::release_zero:
         mv                a4, a6
         li                a2, 0x0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8357,8 +8357,8 @@ asm_test::and::u64::acqrel:
         and               a2, a7, a1
         and               a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8375,8 +8375,8 @@ asm_test::and::u64::seqcst:
         and               a2, a7, a1
         and               a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8393,8 +8393,8 @@ asm_test::and::u64::acquire:
         and               a2, a7, a1
         and               a3, t0, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8411,8 +8411,8 @@ asm_test::and::u64::relaxed:
         and               a2, a7, a1
         and               a3, t0, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8429,8 +8429,8 @@ asm_test::and::u64::release:
         and               a2, a7, a1
         and               a3, t0, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8933,7 +8933,7 @@ asm_test::neg::u64::acqrel:
         neg               a7, a6
         sub               a3, a7, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -8952,7 +8952,7 @@ asm_test::neg::u64::seqcst:
         neg               a7, a6
         sub               a3, a7, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -8971,7 +8971,7 @@ asm_test::neg::u64::acquire:
         neg               a7, a6
         sub               a3, a7, a3
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -8990,7 +8990,7 @@ asm_test::neg::u64::relaxed:
         neg               a7, a6
         sub               a3, a7, a3
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9009,7 +9009,7 @@ asm_test::neg::u64::release:
         neg               a7, a6
         sub               a3, a7, a3
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9146,7 +9146,7 @@ asm_test::not::u64::acqrel:
         not               a2, a1
         not               a3, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9163,7 +9163,7 @@ asm_test::not::u64::seqcst:
         not               a2, a1
         not               a3, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9180,7 +9180,7 @@ asm_test::not::u64::acquire:
         not               a2, a1
         not               a3, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9197,7 +9197,7 @@ asm_test::not::u64::relaxed:
         not               a2, a1
         not               a3, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9214,7 +9214,7 @@ asm_test::not::u64::release:
         not               a2, a1
         not               a3, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9614,8 +9614,8 @@ asm_test::sub::u64::acqrel:
         sub               a2, a7, a1
         sub               a3, t1, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9634,8 +9634,8 @@ asm_test::sub::u64::seqcst:
         sub               a2, a7, a1
         sub               a3, t1, a3
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9654,8 +9654,8 @@ asm_test::sub::u64::acquire:
         sub               a2, a7, a1
         sub               a3, t1, a3
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9674,8 +9674,8 @@ asm_test::sub::u64::relaxed:
         sub               a2, a7, a1
         sub               a3, t1, a3
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9694,8 +9694,8 @@ asm_test::sub::u64::release:
         sub               a2, a7, a1
         sub               a3, t1, a3
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9957,8 +9957,8 @@ asm_test::xor::u64::acqrel:
         xor               a2, a7, a1
         xor               a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9975,8 +9975,8 @@ asm_test::xor::u64::seqcst:
         xor               a2, a7, a1
         xor               a3, t0, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9993,8 +9993,8 @@ asm_test::xor::u64::acquire:
         xor               a2, a7, a1
         xor               a3, t0, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10011,8 +10011,8 @@ asm_test::xor::u64::relaxed:
         xor               a2, a7, a1
         xor               a3, t0, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10029,8 +10029,8 @@ asm_test::xor::u64::release:
         xor               a2, a7, a1
         xor               a3, t0, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10386,8 +10386,8 @@ asm_test::swap::f64::acqrel:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10402,8 +10402,8 @@ asm_test::swap::f64::seqcst:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10418,8 +10418,8 @@ asm_test::swap::f64::acquire:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aq       a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10434,8 +10434,8 @@ asm_test::swap::f64::relaxed:
         mv                a1, a5
         mv                a6, a4
         amocas.d          a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10450,8 +10450,8 @@ asm_test::swap::f64::release:
         mv                a1, a5
         mv                a6, a4
         amocas.d.rl       a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10576,8 +10576,8 @@ asm_test::swap::u64::acqrel:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10592,8 +10592,8 @@ asm_test::swap::u64::seqcst:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10608,8 +10608,8 @@ asm_test::swap::u64::acquire:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aq       a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10624,8 +10624,8 @@ asm_test::swap::u64::relaxed:
         mv                a1, a5
         mv                a6, a4
         amocas.d          a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10640,8 +10640,8 @@ asm_test::swap::u64::release:
         mv                a1, a5
         mv                a6, a4
         amocas.d.rl       a4, a2, (a0)
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -10896,8 +10896,8 @@ asm_test::store::f64::seqcst:
         mv                a5, a6
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -10913,8 +10913,8 @@ asm_test::store::f64::relaxed:
         mv                a5, a6
         mv                a4, a7
         amocas.d          a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -10930,8 +10930,8 @@ asm_test::store::f64::release:
         mv                a5, a6
         mv                a4, a7
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -10977,8 +10977,8 @@ asm_test::store::u64::seqcst:
         mv                a5, a6
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -10994,8 +10994,8 @@ asm_test::store::u64::relaxed:
         mv                a5, a6
         mv                a4, a7
         amocas.d          a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -11011,8 +11011,8 @@ asm_test::store::u64::release:
         mv                a5, a6
         mv                a4, a7
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -11223,8 +11223,8 @@ asm_test::bit_set::u64::acqrel:
         or                a2, a4, a7
         or                a3, a5, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11252,8 +11252,8 @@ asm_test::bit_set::u64::seqcst:
         or                a2, a4, a7
         or                a3, a5, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11281,8 +11281,8 @@ asm_test::bit_set::u64::acquire:
         or                a2, a4, a7
         or                a3, a5, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11310,8 +11310,8 @@ asm_test::bit_set::u64::relaxed:
         or                a2, a4, a7
         or                a3, a5, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11339,8 +11339,8 @@ asm_test::bit_set::u64::release:
         or                a2, a4, a7
         or                a3, a5, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11678,8 +11678,8 @@ asm_test::fetch_or::u64::acqrel_all:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -11694,8 +11694,8 @@ asm_test::fetch_or::u64::seqcst_all:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -11708,8 +11708,8 @@ asm_test::fetch_or::u64::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -11725,8 +11725,8 @@ asm_test::fetch_or::u64::acquire_all:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -11741,8 +11741,8 @@ asm_test::fetch_or::u64::relaxed_all:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -11757,8 +11757,8 @@ asm_test::fetch_or::u64::release_all:
         li                a2, -0x1
         li                a3, -0x1
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -11771,8 +11771,8 @@ asm_test::fetch_or::u64::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -11786,8 +11786,8 @@ asm_test::fetch_or::u64::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -11801,8 +11801,8 @@ asm_test::fetch_or::u64::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -11816,8 +11816,8 @@ asm_test::fetch_or::u64::release_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -11834,8 +11834,8 @@ asm_test::fetch_or::u64::acqrel:
         or                a2, a4, a1
         or                a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -11852,8 +11852,8 @@ asm_test::fetch_or::u64::seqcst:
         or                a2, a4, a1
         or                a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -11870,8 +11870,8 @@ asm_test::fetch_or::u64::acquire:
         or                a2, a4, a1
         or                a3, a5, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -11888,8 +11888,8 @@ asm_test::fetch_or::u64::relaxed:
         or                a2, a4, a1
         or                a3, a5, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -11906,8 +11906,8 @@ asm_test::fetch_or::u64::release:
         or                a2, a4, a1
         or                a3, a5, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12305,8 +12305,8 @@ asm_test::bit_clear::u64::acqrel:
         and               a2, a4, t1
         and               a3, a5, t2
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12336,8 +12336,8 @@ asm_test::bit_clear::u64::seqcst:
         and               a2, a4, t1
         and               a3, a5, t2
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12367,8 +12367,8 @@ asm_test::bit_clear::u64::acquire:
         and               a2, a4, t1
         and               a3, a5, t2
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12398,8 +12398,8 @@ asm_test::bit_clear::u64::relaxed:
         and               a2, a4, t1
         and               a3, a5, t2
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12429,8 +12429,8 @@ asm_test::bit_clear::u64::release:
         and               a2, a4, t1
         and               a3, a5, t2
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12478,8 +12478,8 @@ asm_test::fetch_abs::f64::acqrel:
         slli              a3, a5, 0x1
         srli              a3, a3, 0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a6, a4, a2
+        xor               a3, a1, a5
+        xor               a6, a2, a4
         or                a3, a6, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -12494,8 +12494,8 @@ asm_test::fetch_abs::f64::seqcst:
         slli              a3, a5, 0x1
         srli              a3, a3, 0x1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a6, a4, a2
+        xor               a3, a1, a5
+        xor               a6, a2, a4
         or                a3, a6, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -12510,8 +12510,8 @@ asm_test::fetch_abs::f64::acquire:
         slli              a3, a5, 0x1
         srli              a3, a3, 0x1
         amocas.d.aq       a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a6, a4, a2
+        xor               a3, a1, a5
+        xor               a6, a2, a4
         or                a3, a6, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -12526,8 +12526,8 @@ asm_test::fetch_abs::f64::relaxed:
         slli              a3, a5, 0x1
         srli              a3, a3, 0x1
         amocas.d          a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a6, a4, a2
+        xor               a3, a1, a5
+        xor               a6, a2, a4
         or                a3, a6, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -12542,8 +12542,8 @@ asm_test::fetch_abs::f64::release:
         slli              a3, a5, 0x1
         srli              a3, a3, 0x1
         amocas.d.rl       a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a6, a4, a2
+        xor               a3, a1, a5
+        xor               a6, a2, a4
         or                a3, a6, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -12966,8 +12966,8 @@ asm_test::fetch_add::f64::acqrel_zero:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s0)
-        xor               a0, a4, s2
-        xor               a1, a5, s1
+        xor               a0, s2, a4
+        xor               a1, s1, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s2
@@ -13006,8 +13006,8 @@ asm_test::fetch_add::f64::seqcst_zero:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s0)
-        xor               a0, a4, s2
-        xor               a1, a5, s1
+        xor               a0, s2, a4
+        xor               a1, s1, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s2
@@ -13046,8 +13046,8 @@ asm_test::fetch_add::f64::acquire_zero:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aq       a4, a2, (s0)
-        xor               a0, a4, s2
-        xor               a1, a5, s1
+        xor               a0, s2, a4
+        xor               a1, s1, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s2
@@ -13086,8 +13086,8 @@ asm_test::fetch_add::f64::relaxed_zero:
         mv                a3, a1
         mv                a2, a0
         amocas.d          a4, a2, (s0)
-        xor               a0, a4, s2
-        xor               a1, a5, s1
+        xor               a0, s2, a4
+        xor               a1, s1, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s2
@@ -13126,8 +13126,8 @@ asm_test::fetch_add::f64::release_zero:
         mv                a3, a1
         mv                a2, a0
         amocas.d.rl       a4, a2, (s0)
-        xor               a0, a4, s2
-        xor               a1, a5, s1
+        xor               a0, s2, a4
+        xor               a1, s1, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s2
@@ -13170,8 +13170,8 @@ asm_test::fetch_add::f64::acqrel:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -13216,8 +13216,8 @@ asm_test::fetch_add::f64::seqcst:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -13262,8 +13262,8 @@ asm_test::fetch_add::f64::acquire:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aq       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -13308,8 +13308,8 @@ asm_test::fetch_add::f64::relaxed:
         mv                a3, a1
         mv                a2, a0
         amocas.d          a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -13354,8 +13354,8 @@ asm_test::fetch_add::f64::release:
         mv                a3, a1
         mv                a2, a0
         amocas.d.rl       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -13546,8 +13546,8 @@ asm_test::fetch_add::u64::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13561,8 +13561,8 @@ asm_test::fetch_add::u64::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13576,8 +13576,8 @@ asm_test::fetch_add::u64::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13591,8 +13591,8 @@ asm_test::fetch_add::u64::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13606,8 +13606,8 @@ asm_test::fetch_add::u64::release_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13627,8 +13627,8 @@ asm_test::fetch_add::u64::acqrel:
         add               a3, a3, a4
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13648,8 +13648,8 @@ asm_test::fetch_add::u64::seqcst:
         add               a3, a3, a4
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13669,8 +13669,8 @@ asm_test::fetch_add::u64::acquire:
         add               a3, a3, a4
         mv                a4, a7
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13690,8 +13690,8 @@ asm_test::fetch_add::u64::relaxed:
         add               a3, a3, a4
         mv                a4, a7
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13711,8 +13711,8 @@ asm_test::fetch_add::u64::release:
         add               a3, a3, a4
         mv                a4, a7
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14096,8 +14096,8 @@ asm_test::fetch_and::u64::acqrel_all:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14111,8 +14111,8 @@ asm_test::fetch_and::u64::seqcst_all:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14128,8 +14128,8 @@ asm_test::fetch_and::u64::acqrel_zero:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14142,8 +14142,8 @@ asm_test::fetch_and::u64::acquire_all:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14157,8 +14157,8 @@ asm_test::fetch_and::u64::relaxed_all:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14172,8 +14172,8 @@ asm_test::fetch_and::u64::release_all:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14189,8 +14189,8 @@ asm_test::fetch_and::u64::seqcst_zero:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14205,8 +14205,8 @@ asm_test::fetch_and::u64::acquire_zero:
         mv                a1, a5
         mv                a6, a4
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14221,8 +14221,8 @@ asm_test::fetch_and::u64::relaxed_zero:
         mv                a1, a5
         mv                a6, a4
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14237,8 +14237,8 @@ asm_test::fetch_and::u64::release_zero:
         mv                a1, a5
         mv                a6, a4
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14254,8 +14254,8 @@ asm_test::fetch_and::u64::acqrel:
         and               a2, a4, a1
         and               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14272,8 +14272,8 @@ asm_test::fetch_and::u64::seqcst:
         and               a2, a4, a1
         and               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14290,8 +14290,8 @@ asm_test::fetch_and::u64::acquire:
         and               a2, a4, a1
         and               a3, a5, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14308,8 +14308,8 @@ asm_test::fetch_and::u64::relaxed:
         and               a2, a4, a1
         and               a3, a5, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14326,8 +14326,8 @@ asm_test::fetch_and::u64::release:
         and               a2, a4, a1
         and               a3, a5, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14815,8 +14815,8 @@ asm_test::fetch_max::f64::acqrel:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -14861,8 +14861,8 @@ asm_test::fetch_max::f64::seqcst:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -14907,8 +14907,8 @@ asm_test::fetch_max::f64::acquire:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aq       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -14953,8 +14953,8 @@ asm_test::fetch_max::f64::relaxed:
         mv                a3, a1
         mv                a2, a0
         amocas.d          a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -14999,8 +14999,8 @@ asm_test::fetch_max::f64::release:
         mv                a3, a1
         mv                a2, a0
         amocas.d.rl       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15173,8 +15173,8 @@ asm_test::fetch_max::i64::acqrel:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15209,8 +15209,8 @@ asm_test::fetch_max::i64::seqcst:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15245,8 +15245,8 @@ asm_test::fetch_max::i64::acquire:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15281,8 +15281,8 @@ asm_test::fetch_max::i64::relaxed:
         mv                a5, a7
         mv                a4, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15317,8 +15317,8 @@ asm_test::fetch_max::i64::release:
         mv                a5, a7
         mv                a4, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15635,8 +15635,8 @@ asm_test::fetch_min::f64::acqrel:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15681,8 +15681,8 @@ asm_test::fetch_min::f64::seqcst:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15727,8 +15727,8 @@ asm_test::fetch_min::f64::acquire:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aq       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15773,8 +15773,8 @@ asm_test::fetch_min::f64::relaxed:
         mv                a3, a1
         mv                a2, a0
         amocas.d          a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15819,8 +15819,8 @@ asm_test::fetch_min::f64::release:
         mv                a3, a1
         mv                a2, a0
         amocas.d.rl       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -15993,8 +15993,8 @@ asm_test::fetch_min::i64::acqrel:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16029,8 +16029,8 @@ asm_test::fetch_min::i64::seqcst:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16065,8 +16065,8 @@ asm_test::fetch_min::i64::acquire:
         mv                a5, a7
         mv                a4, t0
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16101,8 +16101,8 @@ asm_test::fetch_min::i64::relaxed:
         mv                a5, a7
         mv                a4, t0
         amocas.d          a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16137,8 +16137,8 @@ asm_test::fetch_min::i64::release:
         mv                a5, a7
         mv                a4, t0
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a4, t0
-        xor               a3, a5, a7
+        xor               a2, t0, a4
+        xor               a3, a7, a5
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16338,8 +16338,8 @@ asm_test::fetch_neg::f64::acqrel:
         mv                a2, a4
         xor               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a7, a4, a2
+        xor               a3, a1, a5
+        xor               a7, a2, a4
         or                a3, a7, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -16354,8 +16354,8 @@ asm_test::fetch_neg::f64::seqcst:
         mv                a2, a4
         xor               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a7, a4, a2
+        xor               a3, a1, a5
+        xor               a7, a2, a4
         or                a3, a7, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -16370,8 +16370,8 @@ asm_test::fetch_neg::f64::acquire:
         mv                a2, a4
         xor               a3, a5, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a7, a4, a2
+        xor               a3, a1, a5
+        xor               a7, a2, a4
         or                a3, a7, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -16386,8 +16386,8 @@ asm_test::fetch_neg::f64::relaxed:
         mv                a2, a4
         xor               a3, a5, a6
         amocas.d          a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a7, a4, a2
+        xor               a3, a1, a5
+        xor               a7, a2, a4
         or                a3, a7, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -16402,8 +16402,8 @@ asm_test::fetch_neg::f64::release:
         mv                a2, a4
         xor               a3, a5, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a3, a5, a1
-        xor               a7, a4, a2
+        xor               a3, a1, a5
+        xor               a7, a2, a4
         or                a3, a7, a3
         bnez              a3, 0b
         mv                a0, a2
@@ -16616,8 +16616,8 @@ asm_test::fetch_neg::u64::acqrel:
         sub               a3, a4, a3
         mv                a4, a1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16636,8 +16636,8 @@ asm_test::fetch_neg::u64::seqcst:
         sub               a3, a4, a3
         mv                a4, a1
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16656,8 +16656,8 @@ asm_test::fetch_neg::u64::acquire:
         sub               a3, a4, a3
         mv                a4, a1
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16676,8 +16676,8 @@ asm_test::fetch_neg::u64::relaxed:
         sub               a3, a4, a3
         mv                a4, a1
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16696,8 +16696,8 @@ asm_test::fetch_neg::u64::release:
         sub               a3, a4, a3
         mv                a4, a1
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16833,8 +16833,8 @@ asm_test::fetch_not::u64::acqrel:
         not               a2, a4
         not               a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16850,8 +16850,8 @@ asm_test::fetch_not::u64::seqcst:
         not               a2, a4
         not               a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16867,8 +16867,8 @@ asm_test::fetch_not::u64::acquire:
         not               a2, a4
         not               a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16884,8 +16884,8 @@ asm_test::fetch_not::u64::relaxed:
         not               a2, a4
         not               a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16901,8 +16901,8 @@ asm_test::fetch_not::u64::release:
         not               a2, a4
         not               a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -17279,8 +17279,8 @@ asm_test::fetch_sub::f64::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17297,8 +17297,8 @@ asm_test::fetch_sub::f64::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17315,8 +17315,8 @@ asm_test::fetch_sub::f64::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17333,8 +17333,8 @@ asm_test::fetch_sub::f64::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17351,8 +17351,8 @@ asm_test::fetch_sub::f64::release_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17390,8 +17390,8 @@ asm_test::fetch_sub::f64::acqrel:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -17436,8 +17436,8 @@ asm_test::fetch_sub::f64::seqcst:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aqrl     a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -17482,8 +17482,8 @@ asm_test::fetch_sub::f64::acquire:
         mv                a3, a1
         mv                a2, a0
         amocas.d.aq       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -17528,8 +17528,8 @@ asm_test::fetch_sub::f64::relaxed:
         mv                a3, a1
         mv                a2, a0
         amocas.d          a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -17574,8 +17574,8 @@ asm_test::fetch_sub::f64::release:
         mv                a3, a1
         mv                a2, a0
         amocas.d.rl       a4, a2, (s2)
-        xor               a0, a4, s4
-        xor               a1, a5, s3
+        xor               a0, s4, a4
+        xor               a1, s3, a5
         or                a0, a0, a1
         bnez              a0, 0b
         mv                a0, s4
@@ -17771,8 +17771,8 @@ asm_test::fetch_sub::u64::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17786,8 +17786,8 @@ asm_test::fetch_sub::u64::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17801,8 +17801,8 @@ asm_test::fetch_sub::u64::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17816,8 +17816,8 @@ asm_test::fetch_sub::u64::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17831,8 +17831,8 @@ asm_test::fetch_sub::u64::release_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17852,8 +17852,8 @@ asm_test::fetch_sub::u64::acqrel:
         sub               a3, a4, a3
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17873,8 +17873,8 @@ asm_test::fetch_sub::u64::seqcst:
         sub               a3, a4, a3
         mv                a4, a7
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17894,8 +17894,8 @@ asm_test::fetch_sub::u64::acquire:
         sub               a3, a4, a3
         mv                a4, a7
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17915,8 +17915,8 @@ asm_test::fetch_sub::u64::relaxed:
         sub               a3, a4, a3
         mv                a4, a7
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17936,8 +17936,8 @@ asm_test::fetch_sub::u64::release:
         sub               a3, a4, a3
         mv                a4, a7
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18151,8 +18151,8 @@ asm_test::fetch_xor::u64::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -18166,8 +18166,8 @@ asm_test::fetch_xor::u64::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -18181,8 +18181,8 @@ asm_test::fetch_xor::u64::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.aq       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -18196,8 +18196,8 @@ asm_test::fetch_xor::u64::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d          a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -18211,8 +18211,8 @@ asm_test::fetch_xor::u64::release_zero:
         mv                a2, a4
         mv                a3, a5
         amocas.d.rl       a4, a2, (a0)
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -18229,8 +18229,8 @@ asm_test::fetch_xor::u64::acqrel:
         xor               a2, a4, a1
         xor               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18247,8 +18247,8 @@ asm_test::fetch_xor::u64::seqcst:
         xor               a2, a4, a1
         xor               a3, a5, a6
         amocas.d.aqrl     a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18265,8 +18265,8 @@ asm_test::fetch_xor::u64::acquire:
         xor               a2, a4, a1
         xor               a3, a5, a6
         amocas.d.aq       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18283,8 +18283,8 @@ asm_test::fetch_xor::u64::relaxed:
         xor               a2, a4, a1
         xor               a3, a5, a6
         amocas.d          a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18301,8 +18301,8 @@ asm_test::fetch_xor::u64::release:
         xor               a2, a4, a1
         xor               a3, a5, a6
         amocas.d.rl       a4, a2, (a0)
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7

@@ -329,7 +329,7 @@ fn main() {
                 // TODO: Handles cases where a specific target cpu
                 // implicitly enables target feature.
                 for &(enabled, name) in &rustflags.target_feature {
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L425
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L427
                     match name {
                         b"cmpxchg16b" => cmpxchg16b = enabled,
                         _ => {}
@@ -386,7 +386,7 @@ fn main() {
                         }
                     };
                 }
-                // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L216
+                // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L218
                 match name {
                     b"lsfe" => lsfe = enabled,
                     _ if !no_unstable => {}
@@ -414,8 +414,8 @@ fn main() {
                     emit_target_feature_fallback("lse", lse);
                 }
             }
-            // As of Rust 1.85, target_feature "lsfe" is not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.85.0/compiler/rustc_target/src/target_features.rs
+            // As of Rust 1.100, target_feature "lsfe" is not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L218
             emit_target_feature_fallback("lsfe", lsfe);
 
             // As of Apple M1/M1 Pro, on Apple hardware, CAS-loop-based RMW is much slower than
@@ -433,7 +433,7 @@ fn main() {
             {
                 let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default();
                 // The compiler normally rejects crt-static for pauthtest ABI, but check just in case.
-                // https://github.com/rust-lang/rust/blob/0844f35a32c98882d77e39da8c2a872ec74615cd/compiler/rustc_session/src/session.rs#L1510
+                // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_session/src/session.rs#L1633
                 // crt-static is not shown in CARGO_CFG_TARGET_FEATURE when enabled by default, but fine in this case.
                 if !cfg!(feature = "std")
                     && target_env == "musl"
@@ -484,10 +484,10 @@ fn main() {
                         "v7r" | "v8r" | "v9r" => {} // rclass
                         "v6m" | "v7em" | "v7m" | "v8m" | "v8.1m" => mclass = true,
                         // arm-linux-androideabi is v5te
-                        // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
+                        // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L21
                         _ if target == "arm-linux-androideabi" => subarch = "v5te",
                         // armeb-unknown-linux-gnueabi is v8 & aclass
-                        // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
+                        // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L20
                         _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",
                         // Legacy Arm architectures (pre-v7 except v6m) don't have *class target feature.
                         "" => subarch = "v6",
@@ -506,7 +506,7 @@ fn main() {
                     }
                     if known && (subarch.starts_with("v8") || subarch.starts_with("v9")) {
                         // Armv8-M is not considered as v8 by LLVM.
-                        // https://github.com/rust-lang/stdarch/blob/a0c30f3e3c75adcd6ee7efc94014ebcead61c507/crates/core_arch/src/arm_shared/mod.rs
+                        // https://github.com/rust-lang/rust/blob/1.100.0/library/stdarch/crates/core_arch/src/arm_shared/mod.rs
                         if mclass {
                             // Armv8-M Mainline is a superset of Armv7-M.
                             // Armv8-M Baseline is a superset of Armv6-M.
@@ -540,7 +540,7 @@ fn main() {
                             }
                         };
                     }
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L160
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L160
                     match name {
                         b"v8" | b"v8m.main" | b"v8.1m.main" | b"mve" | b"mve.fp" => {
                             dep!(v6, v7);
@@ -602,7 +602,7 @@ fn main() {
                             }
                         };
                     }
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L674
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L678
                     match name {
                         b"zacas" => {
                             zacas = enabled;
@@ -652,7 +652,15 @@ fn main() {
                 let mut quadword_atomics = false;
                 // Note that `-C target-cpu=native` is currently ignored.
                 // (Technically, supporting it is possible on PowerPC64 Linux by reusing the code in src/imp/detect.
-                if let Some(cpu) = rustflags.target_cpu {
+                if let Some(mut cpu) = rustflags.target_cpu {
+                    // In the recent LLVM, "future" is based on pwr11 features,
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L571
+                    // but on the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
+                    // on this target (see matrix.sh), "future" is based on pwr10 features.
+                    // https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
+                    if cpu == "future" {
+                        cpu = "pwr10";
+                    }
                     if let Some(mut cpu_version) = strip_prefix(cpu, "pwr") {
                         cpu_version = strip_suffix(cpu_version, "x").unwrap_or(cpu_version); // for pwr5x and pwr6x
                         if let Ok(cpu_version) = cpu_version.parse::<u32>() {
@@ -669,7 +677,7 @@ fn main() {
                         == "little";
                 }
                 for &(enabled, name) in &rustflags.target_feature {
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L595
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L597
                     match name {
                         b"quadword-atomics" => quadword_atomics = enabled,
                         _ => {}
@@ -745,7 +753,7 @@ fn main() {
             // arch13 (z15) features: https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc3/llvm/lib/Target/SystemZ/SystemZFeatures.td#L303
             let mut misc_ext_3 = arch_version >= 13;
             for &(enabled, name) in &rustflags.target_feature {
-                // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L925
+                // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L937
                 match name {
                     b"fast-serialization" => fast_serialization = enabled,
                     b"load-store-on-cond" => load_store_on_cond = enabled,
@@ -763,8 +771,8 @@ fn main() {
                 // nand (nnr{,g}k), select (sel{,g}r), etc.
                 emit_target_feature_fallback("miscellaneous-extensions-3", misc_ext_3);
             }
-            // As of Rust 1.98, these target features are not available on rustc side:
-            // https://github.com/rust-lang/rust/blob/1.98.0/compiler/rustc_target/src/target_features.rs#L898
+            // As of Rust 1.100, these target features are not available on rustc side:
+            // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L937
             // bcr 14,0
             emit_target_feature_fallback("fast-serialization", fast_serialization);
             // {l,st}oc{,g}{,r}
@@ -795,7 +803,7 @@ fn main() {
                     }
                 }
                 for &(enabled, name) in &rustflags.target_feature {
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L904
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L916
                     match name {
                         b"lam-bh" => lam_bh = enabled,
                         b"lamcas" => lamcas = enabled,
@@ -817,7 +825,7 @@ fn main() {
                     }
                 }
                 for &(enabled, name) in &rustflags.target_feature {
-                    // https://github.com/rust-lang/rust/blob/eab115ea6d842276c6ad7b819e08297c8e7693f0/compiler/rustc_target/src/target_features.rs#L981
+                    // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_target/src/target_features.rs#L1000
                     match name {
                         b"rmw" => rmw = enabled,
                         _ => {}

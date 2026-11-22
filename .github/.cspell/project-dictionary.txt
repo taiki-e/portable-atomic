@@ -1,4 +1,5 @@
 ACCDATA
+ACPI
 addc
 adde
 aeabi
@@ -225,6 +226,7 @@ uart
 udevadm
 umax
 umin
+upstreamed
 usart
 uscat
 usesh

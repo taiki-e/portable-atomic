@@ -4601,8 +4601,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4618,8 +4618,8 @@
         cbnz              w11, 0b
         dmb               ish
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4634,8 +4634,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4650,8 +4650,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4666,8 +4666,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4682,8 +4682,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4698,25 +4698,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
-        cset              w9, ne
-        stp               x9, xzr, [x8]
-        ret
-
-.text:
-0:
-        ldaxp             x9, x10, [x0]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
-        csel              x12, x4, x9, eq
-        csel              x15, x5, x10, eq
-        stlxp             w11, x12, x15, [x0]
-        cbnz              w11, 0b
-        dmb               ish
-        stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4732,8 +4715,25 @@
         cbnz              w11, 0b
         dmb               ish
         stp               x9, x10, [x8, #0x10]
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
+        cset              w9, ne
+        stp               x9, xzr, [x8]
+        ret
+
+.text:
+0:
+        ldaxp             x9, x10, [x0]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        stp               x9, x10, [x8, #0x10]
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4748,8 +4748,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4764,8 +4764,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4780,8 +4780,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4796,8 +4796,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4812,8 +4812,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -4828,8 +4828,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6704,8 +6704,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6721,8 +6721,8 @@
         cbnz              w11, 0b
         dmb               ish
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6737,8 +6737,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6753,8 +6753,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6769,8 +6769,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6785,8 +6785,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6801,25 +6801,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
-        cset              w9, ne
-        stp               x9, xzr, [x8]
-        ret
-
-.text:
-0:
-        ldaxp             x9, x10, [x0]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
-        csel              x12, x4, x9, eq
-        csel              x15, x5, x10, eq
-        stlxp             w11, x12, x15, [x0]
-        cbnz              w11, 0b
-        dmb               ish
-        stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6835,8 +6818,25 @@
         cbnz              w11, 0b
         dmb               ish
         stp               x9, x10, [x8, #0x10]
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
+        cset              w9, ne
+        stp               x9, xzr, [x8]
+        ret
+
+.text:
+0:
+        ldaxp             x9, x10, [x0]
         cmp               x9, x2
         ccmp              x10, x3, #0x0, eq
+        csel              x12, x4, x9, eq
+        csel              x15, x5, x10, eq
+        stlxp             w11, x12, x15, [x0]
+        cbnz              w11, 0b
+        dmb               ish
+        stp               x9, x10, [x8, #0x10]
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6851,8 +6851,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6867,8 +6867,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6883,8 +6883,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6899,8 +6899,8 @@
         stxp              w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6915,8 +6915,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret
@@ -6931,8 +6931,8 @@
         stlxp             w11, x12, x15, [x0]
         cbnz              w11, 0b
         stp               x9, x10, [x8, #0x10]
-        cmp               x9, x2
-        ccmp              x10, x3, #0x0, eq
+        cmp               x2, x9
+        ccmp              x3, x10, #0x0, eq
         cset              w9, ne
         stp               x9, xzr, [x8]
         ret

@@ -852,10 +852,10 @@ asm_test::fetch_umin::u32::release:
 asm_test::compare_exchange::u8::acqrel_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -865,10 +865,10 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
 asm_test::compare_exchange::u8::seqcst_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -878,10 +878,10 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
 asm_test::compare_exchange::u8::acqrel_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -891,10 +891,10 @@ asm_test::compare_exchange::u8::acqrel_acquire:
 asm_test::compare_exchange::u8::acqrel_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -904,10 +904,10 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
 asm_test::compare_exchange::u8::acquire_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -917,10 +917,10 @@ asm_test::compare_exchange::u8::acquire_seqcst:
 asm_test::compare_exchange::u8::relaxed_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -930,10 +930,10 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
 asm_test::compare_exchange::u8::release_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -943,10 +943,10 @@ asm_test::compare_exchange::u8::release_seqcst:
 asm_test::compare_exchange::u8::seqcst_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -956,10 +956,10 @@ asm_test::compare_exchange::u8::seqcst_acquire:
 asm_test::compare_exchange::u8::seqcst_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -969,10 +969,10 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
 asm_test::compare_exchange::u8::acquire_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -982,10 +982,10 @@ asm_test::compare_exchange::u8::acquire_acquire:
 asm_test::compare_exchange::u8::acquire_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -995,10 +995,10 @@ asm_test::compare_exchange::u8::acquire_relaxed:
 asm_test::compare_exchange::u8::relaxed_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -1008,10 +1008,10 @@ asm_test::compare_exchange::u8::relaxed_acquire:
 asm_test::compare_exchange::u8::relaxed_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -1021,10 +1021,10 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
 asm_test::compare_exchange::u8::release_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -1034,10 +1034,10 @@ asm_test::compare_exchange::u8::release_acquire:
 asm_test::compare_exchange::u8::release_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -1242,7 +1242,7 @@ asm_test::compare_exchange::f32::release_relaxed:
 asm_test::compare_exchange::u16::acqrel_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1260,7 +1260,7 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
 asm_test::compare_exchange::u16::seqcst_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1278,7 +1278,7 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
 asm_test::compare_exchange::u16::acqrel_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1296,7 +1296,7 @@ asm_test::compare_exchange::u16::acqrel_acquire:
 asm_test::compare_exchange::u16::acqrel_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1314,7 +1314,7 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
 asm_test::compare_exchange::u16::acquire_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1332,7 +1332,7 @@ asm_test::compare_exchange::u16::acquire_seqcst:
 asm_test::compare_exchange::u16::relaxed_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1350,7 +1350,7 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
 asm_test::compare_exchange::u16::release_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1368,7 +1368,7 @@ asm_test::compare_exchange::u16::release_seqcst:
 asm_test::compare_exchange::u16::seqcst_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1386,7 +1386,7 @@ asm_test::compare_exchange::u16::seqcst_acquire:
 asm_test::compare_exchange::u16::seqcst_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1404,7 +1404,7 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
 asm_test::compare_exchange::u16::acquire_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1422,7 +1422,7 @@ asm_test::compare_exchange::u16::acquire_acquire:
 asm_test::compare_exchange::u16::acquire_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1440,7 +1440,7 @@ asm_test::compare_exchange::u16::acquire_relaxed:
 asm_test::compare_exchange::u16::relaxed_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1458,7 +1458,7 @@ asm_test::compare_exchange::u16::relaxed_acquire:
 asm_test::compare_exchange::u16::relaxed_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1476,7 +1476,7 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
 asm_test::compare_exchange::u16::release_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1494,7 +1494,7 @@ asm_test::compare_exchange::u16::release_acquire:
 asm_test::compare_exchange::u16::release_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -1512,7 +1512,7 @@ asm_test::compare_exchange::u16::release_relaxed:
 asm_test::compare_exchange::u32::acqrel_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1530,7 +1530,7 @@ asm_test::compare_exchange::u32::acqrel_seqcst:
 asm_test::compare_exchange::u32::seqcst_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1548,7 +1548,7 @@ asm_test::compare_exchange::u32::seqcst_seqcst:
 asm_test::compare_exchange::u32::acqrel_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1566,7 +1566,7 @@ asm_test::compare_exchange::u32::acqrel_acquire:
 asm_test::compare_exchange::u32::acqrel_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1584,7 +1584,7 @@ asm_test::compare_exchange::u32::acqrel_relaxed:
 asm_test::compare_exchange::u32::acquire_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1602,7 +1602,7 @@ asm_test::compare_exchange::u32::acquire_seqcst:
 asm_test::compare_exchange::u32::relaxed_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1620,7 +1620,7 @@ asm_test::compare_exchange::u32::relaxed_seqcst:
 asm_test::compare_exchange::u32::release_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1638,7 +1638,7 @@ asm_test::compare_exchange::u32::release_seqcst:
 asm_test::compare_exchange::u32::seqcst_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1656,7 +1656,7 @@ asm_test::compare_exchange::u32::seqcst_acquire:
 asm_test::compare_exchange::u32::seqcst_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1674,7 +1674,7 @@ asm_test::compare_exchange::u32::seqcst_relaxed:
 asm_test::compare_exchange::u32::acquire_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1692,7 +1692,7 @@ asm_test::compare_exchange::u32::acquire_acquire:
 asm_test::compare_exchange::u32::acquire_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1710,7 +1710,7 @@ asm_test::compare_exchange::u32::acquire_relaxed:
 asm_test::compare_exchange::u32::relaxed_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1728,7 +1728,7 @@ asm_test::compare_exchange::u32::relaxed_acquire:
 asm_test::compare_exchange::u32::relaxed_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1746,7 +1746,7 @@ asm_test::compare_exchange::u32::relaxed_relaxed:
 asm_test::compare_exchange::u32::release_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -1764,7 +1764,7 @@ asm_test::compare_exchange::u32::release_acquire:
 asm_test::compare_exchange::u32::release_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -2337,10 +2337,10 @@ asm_test::compare_exchange::bool::release_relaxed_false_false:
 asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2350,10 +2350,10 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
 asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2363,10 +2363,10 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
 asm_test::compare_exchange_weak::u8::acqrel_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2376,10 +2376,10 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
 asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2389,10 +2389,10 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
 asm_test::compare_exchange_weak::u8::acquire_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2402,10 +2402,10 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
 asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2415,10 +2415,10 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
 asm_test::compare_exchange_weak::u8::release_seqcst:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2428,10 +2428,10 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
 asm_test::compare_exchange_weak::u8::seqcst_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2441,10 +2441,10 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
 asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2454,10 +2454,10 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
 asm_test::compare_exchange_weak::u8::acquire_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2467,10 +2467,10 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
 asm_test::compare_exchange_weak::u8::acquire_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2480,10 +2480,10 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
 asm_test::compare_exchange_weak::u8::relaxed_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2493,10 +2493,10 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
 asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2506,10 +2506,10 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
 asm_test::compare_exchange_weak::u8::release_acquire:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2519,10 +2519,10 @@ asm_test::compare_exchange_weak::u8::release_acquire:
 asm_test::compare_exchange_weak::u8::release_relaxed:
         csrrci            a4, mstatus, 0x8
         lbu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         sb                a2, 0x0(a0)
 0:
-        xor               a1, a3, a1
+        xor               a1, a1, a3
         andi              a4, a4, 0x8
         snez              a0, a1
         csrs              mstatus, a4
@@ -2727,7 +2727,7 @@ asm_test::compare_exchange_weak::f32::release_relaxed:
 asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2745,7 +2745,7 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
 asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2763,7 +2763,7 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
 asm_test::compare_exchange_weak::u16::acqrel_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2781,7 +2781,7 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
 asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2799,7 +2799,7 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
 asm_test::compare_exchange_weak::u16::acquire_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2817,7 +2817,7 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
 asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2835,7 +2835,7 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
 asm_test::compare_exchange_weak::u16::release_seqcst:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2853,7 +2853,7 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
 asm_test::compare_exchange_weak::u16::seqcst_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2871,7 +2871,7 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
 asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2889,7 +2889,7 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
 asm_test::compare_exchange_weak::u16::acquire_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2907,7 +2907,7 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
 asm_test::compare_exchange_weak::u16::acquire_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2925,7 +2925,7 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
 asm_test::compare_exchange_weak::u16::relaxed_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2943,7 +2943,7 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
 asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2961,7 +2961,7 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
 asm_test::compare_exchange_weak::u16::release_acquire:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2979,7 +2979,7 @@ asm_test::compare_exchange_weak::u16::release_acquire:
 asm_test::compare_exchange_weak::u16::release_relaxed:
         csrrci            a5, mstatus, 0x8
         lhu               a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sh                a2, 0x0(a4)
@@ -2997,7 +2997,7 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
 asm_test::compare_exchange_weak::u32::acqrel_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3015,7 +3015,7 @@ asm_test::compare_exchange_weak::u32::acqrel_seqcst:
 asm_test::compare_exchange_weak::u32::seqcst_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3033,7 +3033,7 @@ asm_test::compare_exchange_weak::u32::seqcst_seqcst:
 asm_test::compare_exchange_weak::u32::acqrel_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3051,7 +3051,7 @@ asm_test::compare_exchange_weak::u32::acqrel_acquire:
 asm_test::compare_exchange_weak::u32::acqrel_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3069,7 +3069,7 @@ asm_test::compare_exchange_weak::u32::acqrel_relaxed:
 asm_test::compare_exchange_weak::u32::acquire_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3087,7 +3087,7 @@ asm_test::compare_exchange_weak::u32::acquire_seqcst:
 asm_test::compare_exchange_weak::u32::relaxed_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3105,7 +3105,7 @@ asm_test::compare_exchange_weak::u32::relaxed_seqcst:
 asm_test::compare_exchange_weak::u32::release_seqcst:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3123,7 +3123,7 @@ asm_test::compare_exchange_weak::u32::release_seqcst:
 asm_test::compare_exchange_weak::u32::seqcst_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3141,7 +3141,7 @@ asm_test::compare_exchange_weak::u32::seqcst_acquire:
 asm_test::compare_exchange_weak::u32::seqcst_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3159,7 +3159,7 @@ asm_test::compare_exchange_weak::u32::seqcst_relaxed:
 asm_test::compare_exchange_weak::u32::acquire_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3177,7 +3177,7 @@ asm_test::compare_exchange_weak::u32::acquire_acquire:
 asm_test::compare_exchange_weak::u32::acquire_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3195,7 +3195,7 @@ asm_test::compare_exchange_weak::u32::acquire_relaxed:
 asm_test::compare_exchange_weak::u32::relaxed_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3213,7 +3213,7 @@ asm_test::compare_exchange_weak::u32::relaxed_acquire:
 asm_test::compare_exchange_weak::u32::relaxed_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3231,7 +3231,7 @@ asm_test::compare_exchange_weak::u32::relaxed_relaxed:
 asm_test::compare_exchange_weak::u32::release_acquire:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -3249,7 +3249,7 @@ asm_test::compare_exchange_weak::u32::release_acquire:
 asm_test::compare_exchange_weak::u32::release_relaxed:
         csrrci            a5, mstatus, 0x8
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0f
+        bne               a1, a3, 0f
         mv                a4, a0
         li                a0, 0x0
         sw                a2, 0x0(a4)
@@ -5732,14 +5732,14 @@ asm_test::fetch_add::f32::acqrel_zero:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
         li                a1, 0x0
@@ -5767,14 +5767,14 @@ asm_test::fetch_add::f32::seqcst_zero:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
         li                a1, 0x0
@@ -5802,14 +5802,14 @@ asm_test::fetch_add::f32::acquire_zero:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
         li                a1, 0x0
@@ -5837,14 +5837,14 @@ asm_test::fetch_add::f32::relaxed_zero:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
         li                a1, 0x0
@@ -5872,14 +5872,14 @@ asm_test::fetch_add::f32::release_zero:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
         li                a1, 0x0
@@ -5908,14 +5908,14 @@ asm_test::fetch_add::f32::acqrel:
         csrrci            s2, mstatus, 0x8
         lw                a2, 0x0(a0)
         mv                a0, a1
-        beq               a2, s1, 1f
+        beq               s1, a2, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a2
         lw                a2, 0x0(s0)
-        bne               a2, s1, 0b
+        bne               s1, a2, 0b
 1:
         mv                a1, s1
 2:
@@ -5943,14 +5943,14 @@ asm_test::fetch_add::f32::seqcst:
         csrrci            s2, mstatus, 0x8
         lw                a2, 0x0(a0)
         mv                a0, a1
-        beq               a2, s1, 1f
+        beq               s1, a2, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a2
         lw                a2, 0x0(s0)
-        bne               a2, s1, 0b
+        bne               s1, a2, 0b
 1:
         mv                a1, s1
 2:
@@ -5978,14 +5978,14 @@ asm_test::fetch_add::f32::acquire:
         csrrci            s2, mstatus, 0x8
         lw                a2, 0x0(a0)
         mv                a0, a1
-        beq               a2, s1, 1f
+        beq               s1, a2, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a2
         lw                a2, 0x0(s0)
-        bne               a2, s1, 0b
+        bne               s1, a2, 0b
 1:
         mv                a1, s1
 2:
@@ -6013,14 +6013,14 @@ asm_test::fetch_add::f32::relaxed:
         csrrci            s2, mstatus, 0x8
         lw                a2, 0x0(a0)
         mv                a0, a1
-        beq               a2, s1, 1f
+        beq               s1, a2, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a2
         lw                a2, 0x0(s0)
-        bne               a2, s1, 0b
+        bne               s1, a2, 0b
 1:
         mv                a1, s1
 2:
@@ -6048,14 +6048,14 @@ asm_test::fetch_add::f32::release:
         csrrci            s2, mstatus, 0x8
         lw                a2, 0x0(a0)
         mv                a0, a1
-        beq               a2, s1, 1f
+        beq               s1, a2, 1f
 0:
         andi              a1, s2, 0x8
         csrs              mstatus, a1
         csrrci            s2, mstatus, 0x8
         mv                s1, a2
         lw                a2, 0x0(s0)
-        bne               a2, s1, 0b
+        bne               s1, a2, 0b
 1:
         mv                a1, s1
 2:
@@ -6492,14 +6492,14 @@ asm_test::fetch_max::f32::acqrel:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6526,14 +6526,14 @@ asm_test::fetch_max::f32::seqcst:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6560,14 +6560,14 @@ asm_test::fetch_max::f32::acquire:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6594,14 +6594,14 @@ asm_test::fetch_max::f32::relaxed:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6628,14 +6628,14 @@ asm_test::fetch_max::f32::release:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6722,14 +6722,14 @@ asm_test::fetch_min::f32::acqrel:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6756,14 +6756,14 @@ asm_test::fetch_min::f32::seqcst:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6790,14 +6790,14 @@ asm_test::fetch_min::f32::acquire:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6824,14 +6824,14 @@ asm_test::fetch_min::f32::relaxed:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -6858,14 +6858,14 @@ asm_test::fetch_min::f32::release:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -7256,14 +7256,14 @@ asm_test::fetch_sub::f32::acqrel_zero:
         lw                a1, 0x0(a0)
         csrrci            a2, mstatus, 0x8
         lw                a3, 0x0(a0)
-        beq               a3, a1, 1f
+        beq               a1, a3, 1f
 0:
         andi              a2, a2, 0x8
         csrs              mstatus, a2
         csrrci            a2, mstatus, 0x8
         mv                a1, a3
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0b
+        bne               a1, a3, 0b
 1:
         sw                a1, 0x0(a0)
         andi              a2, a2, 0x8
@@ -7275,14 +7275,14 @@ asm_test::fetch_sub::f32::seqcst_zero:
         lw                a1, 0x0(a0)
         csrrci            a2, mstatus, 0x8
         lw                a3, 0x0(a0)
-        beq               a3, a1, 1f
+        beq               a1, a3, 1f
 0:
         andi              a2, a2, 0x8
         csrs              mstatus, a2
         csrrci            a2, mstatus, 0x8
         mv                a1, a3
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0b
+        bne               a1, a3, 0b
 1:
         sw                a1, 0x0(a0)
         andi              a2, a2, 0x8
@@ -7294,14 +7294,14 @@ asm_test::fetch_sub::f32::acquire_zero:
         lw                a1, 0x0(a0)
         csrrci            a2, mstatus, 0x8
         lw                a3, 0x0(a0)
-        beq               a3, a1, 1f
+        beq               a1, a3, 1f
 0:
         andi              a2, a2, 0x8
         csrs              mstatus, a2
         csrrci            a2, mstatus, 0x8
         mv                a1, a3
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0b
+        bne               a1, a3, 0b
 1:
         sw                a1, 0x0(a0)
         andi              a2, a2, 0x8
@@ -7313,14 +7313,14 @@ asm_test::fetch_sub::f32::relaxed_zero:
         lw                a1, 0x0(a0)
         csrrci            a2, mstatus, 0x8
         lw                a3, 0x0(a0)
-        beq               a3, a1, 1f
+        beq               a1, a3, 1f
 0:
         andi              a2, a2, 0x8
         csrs              mstatus, a2
         csrrci            a2, mstatus, 0x8
         mv                a1, a3
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0b
+        bne               a1, a3, 0b
 1:
         sw                a1, 0x0(a0)
         andi              a2, a2, 0x8
@@ -7332,14 +7332,14 @@ asm_test::fetch_sub::f32::release_zero:
         lw                a1, 0x0(a0)
         csrrci            a2, mstatus, 0x8
         lw                a3, 0x0(a0)
-        beq               a3, a1, 1f
+        beq               a1, a3, 1f
 0:
         andi              a2, a2, 0x8
         csrs              mstatus, a2
         csrrci            a2, mstatus, 0x8
         mv                a1, a3
         lw                a3, 0x0(a0)
-        bne               a3, a1, 0b
+        bne               a1, a3, 0b
 1:
         sw                a1, 0x0(a0)
         andi              a2, a2, 0x8
@@ -7357,14 +7357,14 @@ asm_test::fetch_sub::f32::acqrel:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -7391,14 +7391,14 @@ asm_test::fetch_sub::f32::seqcst:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -7425,14 +7425,14 @@ asm_test::fetch_sub::f32::acquire:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -7459,14 +7459,14 @@ asm_test::fetch_sub::f32::relaxed:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:
@@ -7493,14 +7493,14 @@ asm_test::fetch_sub::f32::release:
         lw                s1, 0x0(a0)
         csrrci            s2, mstatus, 0x8
         lw                a0, 0x0(a0)
-        beq               a0, s1, 1f
+        beq               s1, a0, 1f
 0:
         andi              a2, s2, 0x8
         csrs              mstatus, a2
         csrrci            s2, mstatus, 0x8
         mv                s1, a0
         lw                a0, 0x0(s0)
-        bne               a0, s1, 0b
+        bne               s1, a0, 0b
 1:
         mv                a0, s1
 2:

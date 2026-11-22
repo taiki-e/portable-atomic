@@ -1240,19 +1240,19 @@ asm_test::compare_exchange::u8::acqrel_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1263,19 +1263,19 @@ asm_test::compare_exchange::u8::seqcst_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1286,19 +1286,19 @@ asm_test::compare_exchange::u8::acqrel_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1309,19 +1309,19 @@ asm_test::compare_exchange::u8::acqrel_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1332,19 +1332,19 @@ asm_test::compare_exchange::u8::acquire_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1355,19 +1355,19 @@ asm_test::compare_exchange::u8::relaxed_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1378,19 +1378,19 @@ asm_test::compare_exchange::u8::release_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1401,19 +1401,19 @@ asm_test::compare_exchange::u8::seqcst_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1424,19 +1424,19 @@ asm_test::compare_exchange::u8::seqcst_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1447,19 +1447,19 @@ asm_test::compare_exchange::u8::acquire_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1470,19 +1470,19 @@ asm_test::compare_exchange::u8::acquire_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1493,19 +1493,19 @@ asm_test::compare_exchange::u8::relaxed_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1516,19 +1516,19 @@ asm_test::compare_exchange::u8::relaxed_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1539,19 +1539,19 @@ asm_test::compare_exchange::u8::release_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1562,19 +1562,19 @@ asm_test::compare_exchange::u8::release_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -1588,8 +1588,8 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1597,8 +1597,8 @@ asm_test::compare_exchange::u16::acqrel_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1612,8 +1612,8 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1621,8 +1621,8 @@ asm_test::compare_exchange::u16::seqcst_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1636,8 +1636,8 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1645,8 +1645,8 @@ asm_test::compare_exchange::u16::acqrel_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1660,8 +1660,8 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1669,8 +1669,8 @@ asm_test::compare_exchange::u16::acqrel_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1684,8 +1684,8 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1693,8 +1693,8 @@ asm_test::compare_exchange::u16::acquire_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1708,8 +1708,8 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1717,8 +1717,8 @@ asm_test::compare_exchange::u16::relaxed_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1732,8 +1732,8 @@ asm_test::compare_exchange::u16::release_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1741,8 +1741,8 @@ asm_test::compare_exchange::u16::release_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1756,8 +1756,8 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1765,8 +1765,8 @@ asm_test::compare_exchange::u16::seqcst_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1780,8 +1780,8 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1789,8 +1789,8 @@ asm_test::compare_exchange::u16::seqcst_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1804,8 +1804,8 @@ asm_test::compare_exchange::u16::acquire_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1813,8 +1813,8 @@ asm_test::compare_exchange::u16::acquire_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1828,8 +1828,8 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1837,8 +1837,8 @@ asm_test::compare_exchange::u16::acquire_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1852,8 +1852,8 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1861,8 +1861,8 @@ asm_test::compare_exchange::u16::relaxed_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1876,8 +1876,8 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1885,8 +1885,8 @@ asm_test::compare_exchange::u16::relaxed_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1900,8 +1900,8 @@ asm_test::compare_exchange::u16::release_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1909,8 +1909,8 @@ asm_test::compare_exchange::u16::release_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -1924,8 +1924,8 @@ asm_test::compare_exchange::u16::release_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -1933,8 +1933,8 @@ asm_test::compare_exchange::u16::release_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3070,19 +3070,19 @@ asm_test::compare_exchange_weak::u8::acqrel_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3093,19 +3093,19 @@ asm_test::compare_exchange_weak::u8::seqcst_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3116,19 +3116,19 @@ asm_test::compare_exchange_weak::u8::acqrel_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3139,19 +3139,19 @@ asm_test::compare_exchange_weak::u8::acqrel_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3162,19 +3162,19 @@ asm_test::compare_exchange_weak::u8::acquire_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3185,19 +3185,19 @@ asm_test::compare_exchange_weak::u8::relaxed_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3208,19 +3208,19 @@ asm_test::compare_exchange_weak::u8::release_seqcst:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3231,19 +3231,19 @@ asm_test::compare_exchange_weak::u8::seqcst_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3254,19 +3254,19 @@ asm_test::compare_exchange_weak::u8::seqcst_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3277,19 +3277,19 @@ asm_test::compare_exchange_weak::u8::acquire_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3300,19 +3300,19 @@ asm_test::compare_exchange_weak::u8::acquire_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3323,19 +3323,19 @@ asm_test::compare_exchange_weak::u8::relaxed_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3346,19 +3346,19 @@ asm_test::compare_exchange_weak::u8::relaxed_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3369,19 +3369,19 @@ asm_test::compare_exchange_weak::u8::release_acquire:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3392,19 +3392,19 @@ asm_test::compare_exchange_weak::u8::release_relaxed:
         in                r24, 0x3f	; 63
         cli
         ld                r25, X
-        cp                r25, r22
+        cp                r22, r25
 0:
         breq              0f
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 1:
         breq              1f
         ret
         st                X, r20
         out               0x3f, r24	; 63
         ldi               r24, 0x01	; 1
-        cp                r25, r22
+        cp                r22, r25
 2:
         brne              2f
         mov               r24, r1
@@ -3418,8 +3418,8 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3427,8 +3427,8 @@ asm_test::compare_exchange_weak::u16::acqrel_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3442,8 +3442,8 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3451,8 +3451,8 @@ asm_test::compare_exchange_weak::u16::seqcst_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3466,8 +3466,8 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3475,8 +3475,8 @@ asm_test::compare_exchange_weak::u16::acqrel_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3490,8 +3490,8 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3499,8 +3499,8 @@ asm_test::compare_exchange_weak::u16::acqrel_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3514,8 +3514,8 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3523,8 +3523,8 @@ asm_test::compare_exchange_weak::u16::acquire_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3538,8 +3538,8 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3547,8 +3547,8 @@ asm_test::compare_exchange_weak::u16::relaxed_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3562,8 +3562,8 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3571,8 +3571,8 @@ asm_test::compare_exchange_weak::u16::release_seqcst:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3586,8 +3586,8 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3595,8 +3595,8 @@ asm_test::compare_exchange_weak::u16::seqcst_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3610,8 +3610,8 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3619,8 +3619,8 @@ asm_test::compare_exchange_weak::u16::seqcst_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3634,8 +3634,8 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3643,8 +3643,8 @@ asm_test::compare_exchange_weak::u16::acquire_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3658,8 +3658,8 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3667,8 +3667,8 @@ asm_test::compare_exchange_weak::u16::acquire_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3682,8 +3682,8 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3691,8 +3691,8 @@ asm_test::compare_exchange_weak::u16::relaxed_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3706,8 +3706,8 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3715,8 +3715,8 @@ asm_test::compare_exchange_weak::u16::relaxed_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3730,8 +3730,8 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3739,8 +3739,8 @@ asm_test::compare_exchange_weak::u16::release_acquire:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
@@ -3754,8 +3754,8 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         movw              r30, r26
         ld                r23, Z
         ldd               r24, Z+1	; 0x01
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 0:
         brne              0f
         movw              r30, r26
@@ -3763,8 +3763,8 @@ asm_test::compare_exchange_weak::u16::release_relaxed:
         st                Z, r20
         out               0x3f, r25	; 63
         ldi               r22, 0x01	; 1
-        cp                r23, r18
-        cpc               r24, r19
+        cp                r18, r23
+        cpc               r19, r24
 1:
         brne              1f
         mov               r22, r1
