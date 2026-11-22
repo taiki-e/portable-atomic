@@ -165,7 +165,10 @@ no_atomic_64=()
 # `"max-atomic-width" == 0` means that atomic is not supported at all.
 # We always provide lock-free atomic load/store by default for avr, msp430, and riscv
 # regardless of the contents of NO_ATOMIC.
-no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8)) and .value.arch != "msp430") | .key')
+# We always provide lock-free atomic load/store by default for avr, msp430, and riscv regardless
+# of the contents of NO_ATOMIC. bpf has crazy per-cpu-atomic-widths currently always means
+# max-atomic-width == 0.
+no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8) or .value.arch == "bpf") and .value.arch != "msp430") | .key')
 
 # old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do

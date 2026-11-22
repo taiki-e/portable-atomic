@@ -427,7 +427,6 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
         portable_atomic_no_atomic_load_store,
         not(any(
             target_arch = "avr",
-            target_arch = "bpf",
             target_arch = "msp430",
             target_arch = "riscv32",
             target_arch = "riscv64",
@@ -5358,7 +5357,6 @@ use self::diagnostic_helper::{
             portable_atomic_no_atomic_load_store,
             not(any(
                 target_arch = "avr",
-                target_arch = "bpf",
                 target_arch = "msp430",
                 target_arch = "riscv32",
                 target_arch = "riscv64",
