@@ -747,9 +747,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - name: Record runner time
+        run: printf 'NETBSD_VM_HOST_EPOCH=%s\n' "$(date -u +%s)" >>"${GITHUB_ENV}"
       - uses: vmactions/netbsd-vm@5957cf330aef2e6ddc63c604364c99ce2e02b91d # v1.5.3
+        env:
+          # NetBSD 9 has been reached EoL and packages have been moved off ftp.netbsd.org.
+          # Pass this before VM setup to use the archive in rsync installation.
+          PKG_PATH: https://archive.netbsd.org/pub/pkgsrc-archive/packages/NetBSD/aarch64/9.0_2026Q2/All
         with:
-          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES
+          envs: CARGO_INCREMENTAL CARGO_NET_RETRY CARGO_TERM_COLOR RUST_BACKTRACE RUST_TEST_THREADS RUSTDOCFLAGS RUSTFLAGS RUSTUP_MAX_RETRIES PORTABLE_ATOMIC_DENY_WARNINGS TEST_FEATURES PKG_PATH NETBSD_VM_HOST_EPOCH
           arch: aarch64
           release: ${{ matrix.version }}
           usesh: true
@@ -757,6 +763,11 @@ jobs:
           run: |
             # shellcheck disable=SC3040,SC3041
             set -CeEuxo pipefail
+            # With ACPI disabled, this guest can boot with the filesystem timestamp.
+            # Advance a stale guest clock before validating TLS certificates.
+            if [ "$(date -u +%s)" -lt "${NETBSD_VM_HOST_EPOCH:?}" ]; then
+              date -n -u -f %s "${NETBSD_VM_HOST_EPOCH}"
+            fi
             retry() {
               for i in 1 2 3 4 5 6 7 8 9 10; do
                 if "$@"; then
