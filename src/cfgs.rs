@@ -141,7 +141,10 @@ mod atomic_32_macros {
             ),
         ),
         not(portable_atomic_no_atomic_64),
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        all(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            any(not(target_arch = "bpf"), feature = "critical-section"),
+        ),
         all(
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -165,7 +168,10 @@ mod atomic_32_macros {
             ),
         ),
         target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        all(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            any(not(target_arch = "bpf"), feature = "critical-section"),
+        ),
         all(
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -202,7 +208,10 @@ mod atomic_64_macros {
             ),
         ),
         not(portable_atomic_no_atomic_64),
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        all(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            any(not(target_arch = "bpf"), feature = "critical-section"),
+        ),
         all(
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -226,7 +235,10 @@ mod atomic_64_macros {
             ),
         ),
         target_has_atomic = "64",
-        not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        all(
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+            any(not(target_arch = "bpf"), feature = "critical-section"),
+        ),
         all(
             target_arch = "riscv32",
             not(any(miri, portable_atomic_sanitize_thread)),
@@ -557,7 +569,6 @@ mod atomic_cas_macros {
         any(target_arch = "riscv32", target_arch = "riscv64"),
         cfg(not(any(target_feature = "zabha", portable_atomic_target_feature = "zabha")))
     )]
-    #[cfg_attr(target_arch = "bpf", allow(unused_macros))]
     macro_rules! cfg_no_atomic_cas_or_amo8 {
         ($($tt:tt)*) => {
             $($tt)*
@@ -586,10 +597,7 @@ macro_rules! cfg_core_atomic {
         #[cfg(not(any(
             target_arch = "avr",
             target_arch = "msp430",
-            all(
-                portable_atomic_no_atomic_load_store,
-                not(all(target_arch = "bpf", not(feature = "critical-section"))),
-            ),
+            portable_atomic_no_atomic_load_store,
         )))]
         #[cfg_attr(
             portable_atomic_no_cfg_target_has_atomic,

@@ -223,7 +223,7 @@ mod elf {
                     // - There is no good way to recognize `-Z pointer-authentication=-calls`
                     // // https://github.com/ARM-software/abi-aa/blob/2025Q4/pauthabielf64/pauthabielf64.rst
                     // // https://llvm.org/docs/PointerAuth.html#assembly-representation
-                    // // https://github.com/rust-lang/rust/blob/1ed2df61a19042f231709eb05d032ae9e2cb2084/compiler/rustc_session/src/session.rs#L125
+                    // // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_session/src/session.rs#L125
                     // weakref_slot_asm!(
                     //     $name,
                     //     $ty,
@@ -411,7 +411,7 @@ macro_rules! impl_debug {
         impl fmt::Debug for $atomic_type {
             #[inline] // fmt is not hot path, but #[inline] on fmt seems to still be useful: https://github.com/rust-lang/rust/pull/117727
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L2188
+                // std atomic types use Relaxed in Debug::fmt: https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L2863
                 fmt::Debug::fmt(&self.load(Ordering::Relaxed), f)
             }
         }
@@ -649,7 +649,7 @@ pub(crate) unsafe fn bool_from_reg_unchecked(x: RegSize) -> bool {
     }
 }
 
-// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3338
+// https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L4315
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_load_ordering(order: Ordering) {
@@ -660,7 +660,7 @@ pub(crate) fn assert_load_ordering(order: Ordering) {
         _ => unreachable!(),
     }
 }
-// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3323
+// https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L4299
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_store_ordering(order: Ordering) {
@@ -671,7 +671,7 @@ pub(crate) fn assert_store_ordering(order: Ordering) {
         _ => unreachable!(),
     }
 }
-// https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/sync/atomic.rs#L3404
+// https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/sync/atomic.rs#L4388
 #[inline]
 #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]
 pub(crate) fn assert_compare_exchange_ordering(success: Ordering, failure: Ordering) {
@@ -1034,7 +1034,7 @@ pub(crate) mod ffi {
 
     pub(crate) type c_void = core::ffi::c_void;
     // c_{,u}int is {i,u}16 on 16-bit targets, otherwise {i,u}32.
-    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L156
+    // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/ffi/primitives.rs#L177
     cfg_sel!({
         #[cfg(target_pointer_width = "16")]
         {
@@ -1048,7 +1048,11 @@ pub(crate) mod ffi {
         }
     });
     // c_{,u}long is {i,u}64 on non-Windows 64-bit targets, otherwise {i,u}32.
-    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L168
+    // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/ffi/primitives.rs#L138
+    // Do not include WASM Linux because it is not upstreamed and ABI is different between implementations.
+    // https://github.com/Wasm-Thin-Kernel-Interfaces/wali-musl-libc/blob/ac08acb01cb951c725f7d05c5693a47129f5f679/arch/wasm32/bits/alltypes.h.in#L7
+    // https://github.com/joelseverin/linux-wasm/blob/970e08b0d605e63e36a99d22596e8899a1dab8b5/patches/musl/0001-NOMERGE-Hacks-to-get-Linux-Wasm-to-compile-minimal-a.patch#L150
+    #[cfg(not(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "linux")))]
     cfg_sel!({
         #[cfg(all(target_pointer_width = "64", not(windows)))]
         {
@@ -1062,7 +1066,7 @@ pub(crate) mod ffi {
         }
     });
     // c_size_t is currently always usize.
-    // https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/mod.rs#L76
+    // https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/ffi/primitives.rs#L161
     pub(crate) type c_size_t = usize;
     // c_char is u8 by default on non-Apple/non-Windows/non-Vita Arm/C-SKY/Hexagon/MSP430/PowerPC/RISC-V/s390x/Xtensa targets, otherwise i8 by default.
     // See references in https://github.com/rust-lang/rust/issues/129945 for details.
@@ -1169,7 +1173,7 @@ pub(crate) mod ffi {
         }
         #[cfg(not(portable_atomic_no_track_caller))]
         {
-            // Based on https://github.com/rust-lang/rust/blob/1.84.0/library/core/src/ffi/c_str.rs#L417
+            // Based on https://github.com/rust-lang/rust/blob/1.100.0/library/core/src/ffi/c_str.rs#L399
             // - bytes must be nul-terminated.
             // - bytes must not contain any interior nul bytes.
             if bytes.is_empty() {

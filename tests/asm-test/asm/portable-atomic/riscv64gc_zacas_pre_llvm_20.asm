@@ -243,8 +243,8 @@ asm_test::bit_toggle::u128::acqrel:
         xor               a2, a4, a7
         xor               a3, a5, t0
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -272,8 +272,8 @@ asm_test::bit_toggle::u128::seqcst:
         xor               a2, a4, a7
         xor               a3, a5, t0
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -301,8 +301,8 @@ asm_test::bit_toggle::u128::acquire:
         xor               a2, a4, a7
         xor               a3, a5, t0
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -330,8 +330,8 @@ asm_test::bit_toggle::u128::relaxed:
         xor               a2, a4, a7
         xor               a3, a5, t0
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -359,8 +359,8 @@ asm_test::bit_toggle::u128::release:
         xor               a2, a4, a7
         xor               a3, a5, t0
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -1429,8 +1429,8 @@ asm_test::fetch_nand::u128::acqrel_all:
         not               a2, a4
         not               a3, a5
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1446,8 +1446,8 @@ asm_test::fetch_nand::u128::seqcst_all:
         not               a2, a4
         not               a3, a5
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1463,8 +1463,8 @@ asm_test::fetch_nand::u128::acqrel_zero:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1479,8 +1479,8 @@ asm_test::fetch_nand::u128::acquire_all:
         not               a2, a4
         not               a3, a5
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1496,8 +1496,8 @@ asm_test::fetch_nand::u128::relaxed_all:
         not               a2, a4
         not               a3, a5
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1513,8 +1513,8 @@ asm_test::fetch_nand::u128::release_all:
         not               a2, a4
         not               a3, a5
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -1530,8 +1530,8 @@ asm_test::fetch_nand::u128::seqcst_zero:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1546,8 +1546,8 @@ asm_test::fetch_nand::u128::acquire_zero:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2cc5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1562,8 +1562,8 @@ asm_test::fetch_nand::u128::relaxed_zero:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x28c5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1578,8 +1578,8 @@ asm_test::fetch_nand::u128::release_zero:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ac5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -1597,8 +1597,8 @@ asm_test::fetch_nand::u128::acqrel:
         not               a2, a2
         not               a3, a3
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1617,8 +1617,8 @@ asm_test::fetch_nand::u128::seqcst:
         not               a2, a2
         not               a3, a3
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1637,8 +1637,8 @@ asm_test::fetch_nand::u128::acquire:
         not               a2, a2
         not               a3, a3
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1657,8 +1657,8 @@ asm_test::fetch_nand::u128::relaxed:
         not               a2, a2
         not               a3, a3
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1677,8 +1677,8 @@ asm_test::fetch_nand::u128::release:
         not               a2, a2
         not               a3, a3
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -1939,8 +1939,8 @@ asm_test::fetch_umax::u128::acqrel:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -1975,8 +1975,8 @@ asm_test::fetch_umax::u128::seqcst:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2011,8 +2011,8 @@ asm_test::fetch_umax::u128::acquire:
         mv                a4, t0
         mv                a5, a7
         .word             0x2cc5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2047,8 +2047,8 @@ asm_test::fetch_umax::u128::relaxed:
         mv                a4, t0
         mv                a5, a7
         .word             0x28c5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2083,8 +2083,8 @@ asm_test::fetch_umax::u128::release:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ac5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2364,8 +2364,8 @@ asm_test::fetch_umin::u128::acqrel:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2400,8 +2400,8 @@ asm_test::fetch_umin::u128::seqcst:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2436,8 +2436,8 @@ asm_test::fetch_umin::u128::acquire:
         mv                a4, t0
         mv                a5, a7
         .word             0x2cc5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2472,8 +2472,8 @@ asm_test::fetch_umin::u128::relaxed:
         mv                a4, t0
         mv                a5, a7
         .word             0x28c5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -2508,8 +2508,8 @@ asm_test::fetch_umin::u128::release:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ac5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -4803,8 +4803,8 @@ asm_test::compare_exchange::u128::acqrel_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4826,8 +4826,8 @@ asm_test::compare_exchange::u128::seqcst_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4848,8 +4848,8 @@ asm_test::compare_exchange::u128::acqrel_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4870,8 +4870,8 @@ asm_test::compare_exchange::u128::acqrel_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4893,8 +4893,8 @@ asm_test::compare_exchange::u128::acquire_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4916,8 +4916,8 @@ asm_test::compare_exchange::u128::relaxed_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4939,8 +4939,8 @@ asm_test::compare_exchange::u128::release_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4961,8 +4961,8 @@ asm_test::compare_exchange::u128::seqcst_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -4983,8 +4983,8 @@ asm_test::compare_exchange::u128::seqcst_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5005,8 +5005,8 @@ asm_test::compare_exchange::u128::acquire_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5027,8 +5027,8 @@ asm_test::compare_exchange::u128::acquire_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5049,8 +5049,8 @@ asm_test::compare_exchange::u128::relaxed_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5071,8 +5071,8 @@ asm_test::compare_exchange::u128::relaxed_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x28c5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5093,8 +5093,8 @@ asm_test::compare_exchange::u128::release_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -5115,8 +5115,8 @@ asm_test::compare_exchange::u128::release_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ac5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6748,8 +6748,8 @@ asm_test::compare_exchange_weak::u128::acqrel_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6771,8 +6771,8 @@ asm_test::compare_exchange_weak::u128::seqcst_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6793,8 +6793,8 @@ asm_test::compare_exchange_weak::u128::acqrel_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6815,8 +6815,8 @@ asm_test::compare_exchange_weak::u128::acqrel_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6838,8 +6838,8 @@ asm_test::compare_exchange_weak::u128::acquire_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6861,8 +6861,8 @@ asm_test::compare_exchange_weak::u128::relaxed_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6884,8 +6884,8 @@ asm_test::compare_exchange_weak::u128::release_seqcst:
         mv                a0, a1
         fence             rw, rw
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6906,8 +6906,8 @@ asm_test::compare_exchange_weak::u128::seqcst_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6928,8 +6928,8 @@ asm_test::compare_exchange_weak::u128::seqcst_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6950,8 +6950,8 @@ asm_test::compare_exchange_weak::u128::acquire_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6972,8 +6972,8 @@ asm_test::compare_exchange_weak::u128::acquire_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -6994,8 +6994,8 @@ asm_test::compare_exchange_weak::u128::relaxed_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2cc5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -7016,8 +7016,8 @@ asm_test::compare_exchange_weak::u128::relaxed_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x28c5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -7038,8 +7038,8 @@ asm_test::compare_exchange_weak::u128::release_acquire:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ec5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -7060,8 +7060,8 @@ asm_test::compare_exchange_weak::u128::release_relaxed:
         mv                a2, a7
         mv                a0, a1
         .word             0x2ac5472f
-        xor               a0, a4, t1
-        xor               a1, a5, t0
+        xor               a0, t1, a4
+        xor               a1, t0, a5
         or                a0, a0, a1
         snez              a0, a0
         sd                a0, 0x0(t2)
@@ -7514,7 +7514,7 @@ asm_test::or::u128::acqrel_all:
         mv                a5, a6
         li                a2, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7531,7 +7531,7 @@ asm_test::or::u128::seqcst_all:
         mv                a5, a6
         li                a2, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7563,7 +7563,7 @@ asm_test::or::u128::acquire_all:
         mv                a5, a6
         li                a2, -0x1
         .word             0x2cc5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7580,7 +7580,7 @@ asm_test::or::u128::relaxed_all:
         mv                a5, a6
         li                a2, -0x1
         .word             0x28c5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7597,7 +7597,7 @@ asm_test::or::u128::release_all:
         mv                a5, a6
         li                a2, -0x1
         .word             0x2ac5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -7675,8 +7675,8 @@ asm_test::or::u128::acqrel:
         or                a2, a7, a1
         or                a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7693,8 +7693,8 @@ asm_test::or::u128::seqcst:
         or                a2, a7, a1
         or                a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7711,8 +7711,8 @@ asm_test::or::u128::acquire:
         or                a2, a7, a1
         or                a3, t0, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7729,8 +7729,8 @@ asm_test::or::u128::relaxed:
         or                a2, a7, a1
         or                a3, t0, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -7747,8 +7747,8 @@ asm_test::or::u128::release:
         or                a2, a7, a1
         or                a3, t0, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8137,8 +8137,8 @@ asm_test::add::u128::acqrel:
         add               t1, t0, a6
         add               a3, a3, t1
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8157,8 +8157,8 @@ asm_test::add::u128::seqcst:
         add               t1, t0, a6
         add               a3, a3, t1
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8177,8 +8177,8 @@ asm_test::add::u128::acquire:
         add               t1, t0, a6
         add               a3, a3, t1
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8197,8 +8197,8 @@ asm_test::add::u128::relaxed:
         add               t1, t0, a6
         add               a3, a3, t1
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8217,8 +8217,8 @@ asm_test::add::u128::release:
         add               t1, t0, a6
         add               a3, a3, t1
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8804,7 +8804,7 @@ asm_test::and::u128::acqrel_zero:
         mv                a5, a1
         li                a2, 0x0
         .word             0x2ec5472f
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8866,7 +8866,7 @@ asm_test::and::u128::seqcst_zero:
         mv                a5, a1
         li                a2, 0x0
         .word             0x2ec5472f
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8883,7 +8883,7 @@ asm_test::and::u128::acquire_zero:
         mv                a5, a1
         li                a2, 0x0
         .word             0x2cc5472f
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8900,7 +8900,7 @@ asm_test::and::u128::relaxed_zero:
         mv                a5, a1
         li                a2, 0x0
         .word             0x28c5472f
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8917,7 +8917,7 @@ asm_test::and::u128::release_zero:
         mv                a5, a1
         li                a2, 0x0
         .word             0x2ac5472f
-        xor               a2, a4, a6
+        xor               a2, a6, a4
         xor               a1, a1, a5
         or                a2, a2, a1
         mv                a6, a4
@@ -8935,8 +8935,8 @@ asm_test::and::u128::acqrel:
         and               a2, a7, a1
         and               a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8953,8 +8953,8 @@ asm_test::and::u128::seqcst:
         and               a2, a7, a1
         and               a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8971,8 +8971,8 @@ asm_test::and::u128::acquire:
         and               a2, a7, a1
         and               a3, t0, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -8989,8 +8989,8 @@ asm_test::and::u128::relaxed:
         and               a2, a7, a1
         and               a3, t0, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9007,8 +9007,8 @@ asm_test::and::u128::release:
         and               a2, a7, a1
         and               a3, t0, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -9391,7 +9391,7 @@ asm_test::neg::u128::acqrel:
         neg               a7, a6
         sub               a3, a7, a3
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9410,7 +9410,7 @@ asm_test::neg::u128::seqcst:
         neg               a7, a6
         sub               a3, a7, a3
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9429,7 +9429,7 @@ asm_test::neg::u128::acquire:
         neg               a7, a6
         sub               a3, a7, a3
         .word             0x2cc5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9448,7 +9448,7 @@ asm_test::neg::u128::relaxed:
         neg               a7, a6
         sub               a3, a7, a3
         .word             0x28c5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9467,7 +9467,7 @@ asm_test::neg::u128::release:
         neg               a7, a6
         sub               a3, a7, a3
         .word             0x2ac5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9659,7 +9659,7 @@ asm_test::not::u128::acqrel:
         not               a2, a1
         not               a3, a6
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9676,7 +9676,7 @@ asm_test::not::u128::seqcst:
         not               a2, a1
         not               a3, a6
         .word             0x2ec5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9693,7 +9693,7 @@ asm_test::not::u128::acquire:
         not               a2, a1
         not               a3, a6
         .word             0x2cc5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9710,7 +9710,7 @@ asm_test::not::u128::relaxed:
         not               a2, a1
         not               a3, a6
         .word             0x28c5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -9727,7 +9727,7 @@ asm_test::not::u128::release:
         not               a2, a1
         not               a3, a6
         .word             0x2ac5472f
-        xor               a2, a5, a6
+        xor               a2, a6, a5
         xor               a1, a1, a4
         or                a2, a2, a1
         mv                a1, a4
@@ -10127,8 +10127,8 @@ asm_test::sub::u128::acqrel:
         sub               a2, a7, a1
         sub               a3, t1, a3
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10147,8 +10147,8 @@ asm_test::sub::u128::seqcst:
         sub               a2, a7, a1
         sub               a3, t1, a3
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10167,8 +10167,8 @@ asm_test::sub::u128::acquire:
         sub               a2, a7, a1
         sub               a3, t1, a3
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10187,8 +10187,8 @@ asm_test::sub::u128::relaxed:
         sub               a2, a7, a1
         sub               a3, t1, a3
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10207,8 +10207,8 @@ asm_test::sub::u128::release:
         sub               a2, a7, a1
         sub               a3, t1, a3
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10600,8 +10600,8 @@ asm_test::xor::u128::acqrel:
         xor               a2, a7, a1
         xor               a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10618,8 +10618,8 @@ asm_test::xor::u128::seqcst:
         xor               a2, a7, a1
         xor               a3, t0, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10636,8 +10636,8 @@ asm_test::xor::u128::acquire:
         xor               a2, a7, a1
         xor               a3, t0, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10654,8 +10654,8 @@ asm_test::xor::u128::relaxed:
         xor               a2, a7, a1
         xor               a3, t0, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -10672,8 +10672,8 @@ asm_test::xor::u128::release:
         xor               a2, a7, a1
         xor               a3, t0, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         mv                a7, a4
         mv                t0, a5
@@ -11310,8 +11310,8 @@ asm_test::swap::u128::acqrel:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ec5472f
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -11326,8 +11326,8 @@ asm_test::swap::u128::seqcst:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ec5472f
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -11342,8 +11342,8 @@ asm_test::swap::u128::acquire:
         mv                a1, a5
         mv                a6, a4
         .word             0x2cc5472f
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -11358,8 +11358,8 @@ asm_test::swap::u128::relaxed:
         mv                a1, a5
         mv                a6, a4
         .word             0x28c5472f
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -11374,8 +11374,8 @@ asm_test::swap::u128::release:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ac5472f
-        xor               a7, a5, a1
-        xor               t0, a4, a6
+        xor               a7, a1, a5
+        xor               t0, a6, a4
         or                a7, t0, a7
         bnez              a7, 0b
         mv                a0, a6
@@ -11501,8 +11501,8 @@ asm_test::store::u128::seqcst:
         mv                a4, a7
         mv                a5, a6
         .word             0x2ec5472f
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -11518,8 +11518,8 @@ asm_test::store::u128::relaxed:
         mv                a4, a7
         mv                a5, a6
         .word             0x28c5472f
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -11535,8 +11535,8 @@ asm_test::store::u128::release:
         mv                a4, a7
         mv                a5, a6
         .word             0x2ac5472f
-        xor               a1, a4, a7
-        xor               a6, a5, a6
+        xor               a1, a7, a4
+        xor               a6, a6, a5
         or                a1, a1, a6
         mv                a7, a4
         mv                a6, a5
@@ -11772,8 +11772,8 @@ asm_test::bit_set::u128::acqrel:
         or                a2, a4, a7
         or                a3, a5, t0
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11801,8 +11801,8 @@ asm_test::bit_set::u128::seqcst:
         or                a2, a4, a7
         or                a3, a5, t0
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11830,8 +11830,8 @@ asm_test::bit_set::u128::acquire:
         or                a2, a4, a7
         or                a3, a5, t0
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11859,8 +11859,8 @@ asm_test::bit_set::u128::relaxed:
         or                a2, a4, a7
         or                a3, a5, t0
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -11888,8 +11888,8 @@ asm_test::bit_set::u128::release:
         or                a2, a4, a7
         or                a3, a5, t0
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12417,8 +12417,8 @@ asm_test::fetch_or::u128::acqrel_all:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -12433,8 +12433,8 @@ asm_test::fetch_or::u128::seqcst_all:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -12447,8 +12447,8 @@ asm_test::fetch_or::u128::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -12464,8 +12464,8 @@ asm_test::fetch_or::u128::acquire_all:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2cc5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -12480,8 +12480,8 @@ asm_test::fetch_or::u128::relaxed_all:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x28c5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -12496,8 +12496,8 @@ asm_test::fetch_or::u128::release_all:
         li                a2, -0x1
         li                a3, -0x1
         .word             0x2ac5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -12510,8 +12510,8 @@ asm_test::fetch_or::u128::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -12525,8 +12525,8 @@ asm_test::fetch_or::u128::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2cc5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -12540,8 +12540,8 @@ asm_test::fetch_or::u128::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x28c5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -12555,8 +12555,8 @@ asm_test::fetch_or::u128::release_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ac5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -12573,8 +12573,8 @@ asm_test::fetch_or::u128::acqrel:
         or                a2, a4, a1
         or                a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12591,8 +12591,8 @@ asm_test::fetch_or::u128::seqcst:
         or                a2, a4, a1
         or                a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12609,8 +12609,8 @@ asm_test::fetch_or::u128::acquire:
         or                a2, a4, a1
         or                a3, a5, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12627,8 +12627,8 @@ asm_test::fetch_or::u128::relaxed:
         or                a2, a4, a1
         or                a3, a5, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12645,8 +12645,8 @@ asm_test::fetch_or::u128::release:
         or                a2, a4, a1
         or                a3, a5, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -12949,8 +12949,8 @@ asm_test::bit_clear::u128::acqrel:
         and               a2, a4, t1
         and               a3, a5, t2
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -12980,8 +12980,8 @@ asm_test::bit_clear::u128::seqcst:
         and               a2, a4, t1
         and               a3, a5, t2
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -13011,8 +13011,8 @@ asm_test::bit_clear::u128::acquire:
         and               a2, a4, t1
         and               a3, a5, t2
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -13042,8 +13042,8 @@ asm_test::bit_clear::u128::relaxed:
         and               a2, a4, t1
         and               a3, a5, t2
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -13073,8 +13073,8 @@ asm_test::bit_clear::u128::release:
         and               a2, a4, t1
         and               a3, a5, t2
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         and               a0, a1, a7
@@ -13735,8 +13735,8 @@ asm_test::fetch_add::u128::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13750,8 +13750,8 @@ asm_test::fetch_add::u128::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13765,8 +13765,8 @@ asm_test::fetch_add::u128::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2cc5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13780,8 +13780,8 @@ asm_test::fetch_add::u128::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x28c5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13795,8 +13795,8 @@ asm_test::fetch_add::u128::release_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ac5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -13816,8 +13816,8 @@ asm_test::fetch_add::u128::acqrel:
         add               a3, a3, a4
         mv                a4, a7
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13837,8 +13837,8 @@ asm_test::fetch_add::u128::seqcst:
         add               a3, a3, a4
         mv                a4, a7
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13858,8 +13858,8 @@ asm_test::fetch_add::u128::acquire:
         add               a3, a3, a4
         mv                a4, a7
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13879,8 +13879,8 @@ asm_test::fetch_add::u128::relaxed:
         add               a3, a3, a4
         mv                a4, a7
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -13900,8 +13900,8 @@ asm_test::fetch_add::u128::release:
         add               a3, a3, a4
         mv                a4, a7
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14525,8 +14525,8 @@ asm_test::fetch_and::u128::acqrel_all:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14540,8 +14540,8 @@ asm_test::fetch_and::u128::seqcst_all:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14557,8 +14557,8 @@ asm_test::fetch_and::u128::acqrel_zero:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14571,8 +14571,8 @@ asm_test::fetch_and::u128::acquire_all:
         mv                a2, a4
         mv                a3, a5
         .word             0x2cc5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14586,8 +14586,8 @@ asm_test::fetch_and::u128::relaxed_all:
         mv                a2, a4
         mv                a3, a5
         .word             0x28c5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14601,8 +14601,8 @@ asm_test::fetch_and::u128::release_all:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ac5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -14618,8 +14618,8 @@ asm_test::fetch_and::u128::seqcst_zero:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ec5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14634,8 +14634,8 @@ asm_test::fetch_and::u128::acquire_zero:
         mv                a1, a5
         mv                a6, a4
         .word             0x2cc5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14650,8 +14650,8 @@ asm_test::fetch_and::u128::relaxed_zero:
         mv                a1, a5
         mv                a6, a4
         .word             0x28c5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14666,8 +14666,8 @@ asm_test::fetch_and::u128::release_zero:
         mv                a1, a5
         mv                a6, a4
         .word             0x2ac5472f
-        xor               a2, a5, a1
-        xor               a3, a4, a6
+        xor               a2, a1, a5
+        xor               a3, a6, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a6
@@ -14683,8 +14683,8 @@ asm_test::fetch_and::u128::acqrel:
         and               a2, a4, a1
         and               a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14701,8 +14701,8 @@ asm_test::fetch_and::u128::seqcst:
         and               a2, a4, a1
         and               a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14719,8 +14719,8 @@ asm_test::fetch_and::u128::acquire:
         and               a2, a4, a1
         and               a3, a5, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14737,8 +14737,8 @@ asm_test::fetch_and::u128::relaxed:
         and               a2, a4, a1
         and               a3, a5, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -14755,8 +14755,8 @@ asm_test::fetch_and::u128::release:
         and               a2, a4, a1
         and               a3, a5, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -15182,8 +15182,8 @@ asm_test::fetch_max::i128::acqrel:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15218,8 +15218,8 @@ asm_test::fetch_max::i128::seqcst:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15254,8 +15254,8 @@ asm_test::fetch_max::i128::acquire:
         mv                a4, t0
         mv                a5, a7
         .word             0x2cc5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15290,8 +15290,8 @@ asm_test::fetch_max::i128::relaxed:
         mv                a4, t0
         mv                a5, a7
         .word             0x28c5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15326,8 +15326,8 @@ asm_test::fetch_max::i128::release:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ac5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15772,8 +15772,8 @@ asm_test::fetch_min::i128::acqrel:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15808,8 +15808,8 @@ asm_test::fetch_min::i128::seqcst:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ec5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15844,8 +15844,8 @@ asm_test::fetch_min::i128::acquire:
         mv                a4, t0
         mv                a5, a7
         .word             0x2cc5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15880,8 +15880,8 @@ asm_test::fetch_min::i128::relaxed:
         mv                a4, t0
         mv                a5, a7
         .word             0x28c5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -15916,8 +15916,8 @@ asm_test::fetch_min::i128::release:
         mv                a4, t0
         mv                a5, a7
         .word             0x2ac5472f
-        xor               a2, a5, a7
-        xor               a3, a4, t0
+        xor               a2, a7, a5
+        xor               a3, t0, a4
         or                a2, a2, a3
         beqz              a2, 4f
 1:
@@ -16405,8 +16405,8 @@ asm_test::fetch_neg::u128::acqrel:
         sub               a3, a4, a3
         mv                a4, a1
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16425,8 +16425,8 @@ asm_test::fetch_neg::u128::seqcst:
         sub               a3, a4, a3
         mv                a4, a1
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16445,8 +16445,8 @@ asm_test::fetch_neg::u128::acquire:
         sub               a3, a4, a3
         mv                a4, a1
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16465,8 +16465,8 @@ asm_test::fetch_neg::u128::relaxed:
         sub               a3, a4, a3
         mv                a4, a1
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16485,8 +16485,8 @@ asm_test::fetch_neg::u128::release:
         sub               a3, a4, a3
         mv                a4, a1
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16697,8 +16697,8 @@ asm_test::fetch_not::u128::acqrel:
         not               a2, a4
         not               a3, a5
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16714,8 +16714,8 @@ asm_test::fetch_not::u128::seqcst:
         not               a2, a4
         not               a3, a5
         .word             0x2ec5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16731,8 +16731,8 @@ asm_test::fetch_not::u128::acquire:
         not               a2, a4
         not               a3, a5
         .word             0x2cc5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16748,8 +16748,8 @@ asm_test::fetch_not::u128::relaxed:
         not               a2, a4
         not               a3, a5
         .word             0x28c5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -16765,8 +16765,8 @@ asm_test::fetch_not::u128::release:
         not               a2, a4
         not               a3, a5
         .word             0x2ac5472f
-        xor               a2, a5, a6
-        xor               a3, a4, a1
+        xor               a2, a6, a5
+        xor               a3, a1, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a1
@@ -17325,8 +17325,8 @@ asm_test::fetch_sub::u128::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17340,8 +17340,8 @@ asm_test::fetch_sub::u128::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17355,8 +17355,8 @@ asm_test::fetch_sub::u128::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2cc5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17370,8 +17370,8 @@ asm_test::fetch_sub::u128::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x28c5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17385,8 +17385,8 @@ asm_test::fetch_sub::u128::release_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ac5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17406,8 +17406,8 @@ asm_test::fetch_sub::u128::acqrel:
         sub               a3, a4, a3
         mv                a4, a7
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17427,8 +17427,8 @@ asm_test::fetch_sub::u128::seqcst:
         sub               a3, a4, a3
         mv                a4, a7
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17448,8 +17448,8 @@ asm_test::fetch_sub::u128::acquire:
         sub               a3, a4, a3
         mv                a4, a7
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17469,8 +17469,8 @@ asm_test::fetch_sub::u128::relaxed:
         sub               a3, a4, a3
         mv                a4, a7
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17490,8 +17490,8 @@ asm_test::fetch_sub::u128::release:
         sub               a3, a4, a3
         mv                a4, a7
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17870,8 +17870,8 @@ asm_test::fetch_xor::u128::acqrel_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17885,8 +17885,8 @@ asm_test::fetch_xor::u128::seqcst_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ec5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17900,8 +17900,8 @@ asm_test::fetch_xor::u128::acquire_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2cc5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17915,8 +17915,8 @@ asm_test::fetch_xor::u128::relaxed_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x28c5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17930,8 +17930,8 @@ asm_test::fetch_xor::u128::release_zero:
         mv                a2, a4
         mv                a3, a5
         .word             0x2ac5472f
-        xor               a1, a5, a3
-        xor               a6, a4, a2
+        xor               a1, a3, a5
+        xor               a6, a2, a4
         or                a1, a6, a1
         bnez              a1, 0b
         mv                a0, a2
@@ -17948,8 +17948,8 @@ asm_test::fetch_xor::u128::acqrel:
         xor               a2, a4, a1
         xor               a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17966,8 +17966,8 @@ asm_test::fetch_xor::u128::seqcst:
         xor               a2, a4, a1
         xor               a3, a5, a6
         .word             0x2ec5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -17984,8 +17984,8 @@ asm_test::fetch_xor::u128::acquire:
         xor               a2, a4, a1
         xor               a3, a5, a6
         .word             0x2cc5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18002,8 +18002,8 @@ asm_test::fetch_xor::u128::relaxed:
         xor               a2, a4, a1
         xor               a3, a5, a6
         .word             0x28c5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7
@@ -18020,8 +18020,8 @@ asm_test::fetch_xor::u128::release:
         xor               a2, a4, a1
         xor               a3, a5, a6
         .word             0x2ac5472f
-        xor               a2, a5, t0
-        xor               a3, a4, a7
+        xor               a2, t0, a5
+        xor               a3, a7, a4
         or                a2, a2, a3
         bnez              a2, 0b
         mv                a0, a7

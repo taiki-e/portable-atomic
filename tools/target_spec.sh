@@ -165,7 +165,10 @@ no_atomic_64=()
 # `"max-atomic-width" == 0` means that atomic is not supported at all.
 # We always provide lock-free atomic load/store by default for avr, msp430, and riscv
 # regardless of the contents of NO_ATOMIC.
-no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8)) and .value.arch != "msp430") | .key')
+# We always provide lock-free atomic load/store by default for avr, msp430, and riscv regardless
+# of the contents of NO_ATOMIC. bpf has crazy per-cpu-atomic-widths currently always means
+# max-atomic-width == 0.
+no_atomic=$(rustc -Z unstable-options --print all-target-specs-json | jq -r '. | to_entries[] | select(((.value."max-atomic-width" == 0) or (.value."min-atomic-width" and .value."min-atomic-width" != 8) or .value.arch == "bpf") and .value.arch != "msp430") | .key')
 
 # old rustc doesn't support all-target-specs-json
 for target in $(rustc +nightly-2022-02-10 --print target-list); do
@@ -193,21 +196,12 @@ target=powerpc-unknown-linux-gnu
 powerpc_quadword_atomics=()
 cpus=$(rustc --print target-cpus --target "${target}")
 while IFS= read -r cpu; do
-  if [[ "${cpu}" == 'future' ]]; then
-    # In the recent LLVM, "future" is based on pwr11 features,
-    # https://github.com/llvm/llvm-project/blob/llvmorg-23.1.0-rc1/llvm/lib/Target/PowerPC/PPC.td#L571
-    # but on the minimum external LLVM version of the oldest rustc version which we can use asm_experimental_arch
-    # on this target (see matrix.sh), "future" is based on pwr10 features.
-    # https://github.com/llvm/llvm-project/blob/llvmorg-12.0.0/llvm/lib/Target/PowerPC/PPC.td#L370
-    cfgs=$(rustc --print cfg --target "${target}" -C target-cpu=pwr10)
-  else
-    cfgs=$(rustc --print cfg --target "${target}" -C target-cpu="${cpu}")
-  fi
+  cfgs=$(rustc --print cfg --target "${target}" -C target-cpu="${cpu}")
   target_features=$(grep -E '^target_feature=' <<<"${cfgs}" || true)
   if [[ "${target_features}" == *"\"quadword-atomics\""* ]]; then
     powerpc_quadword_atomics+=("${cpu}")
   fi
-done < <(grep -E '^    ' <<<"${cpus}" | sed -E 's/^    //g; s/ .*//g; /^native$/d')
+done < <(grep -E '^    ' <<<"${cpus}" | sed -E 's/^    //g; s/ .*//g; /^(native|future)$/d')
 
 target=loongarch64-unknown-linux-gnu
 loongarch64_lam_bh=()

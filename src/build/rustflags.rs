@@ -26,7 +26,7 @@ impl<'a> Rustflags<'a> {
         // -Z allow-features=... is preferred over CARGO_UNSTABLE_ALLOW_FEATURES
         let mut allow_features = cargo_unstable_allow_features.map(|f| (false, &**f));
         let mut rustflags = rustflags.split('\x1f');
-        // https://github.com/rust-lang/rust/blob/67854e511de21d881bb16426996cd4259d44aa2e/compiler/rustc_session/src/config.rs#L1978
+        // https://github.com/rust-lang/rust/blob/1.100.0/compiler/rustc_session/src/config.rs#L2001
         while let Some(mut flag) = rustflags.next() {
             // rustc supports argfile via @<path> syntax, and it is accepted within rustflags, but
             // Cargo does not support it very well, and the fact that it is accepted might not be

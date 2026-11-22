@@ -127,9 +127,9 @@
     fun:_*alloc3vec14spec_from_iter*
     fun:from_iter<*8, core::iter::adapters::chain::Chain<core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*::{closure_env#*}>, core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*
     fun:collect<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*::{closure_env#*}>, core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*
-    fun:from_iter<*8, core::iter::adapters::chain::Chain<core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*::{closure_env#*}>, core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*
+    fun:*from_iter*
     fun:collect<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*::{closure_env#*}>, core::iter::adapters::flatten::FlatMap<core::slice::iter::Iter<alloc::vec::Vec<*8, alloc::alloc::Global>>, core::iter::adapters::copied::Copied<core::slice::iter::Iter<*8>>, portable_atomic::tests::test_atomic_*
-    fun:_*portable_atomic5tests14test_atomic_*
+    fun:*stress_*
     fun:{closure#*}
     fun:_*portable_atomic5tests14test_atomic_*
     fun:call_once<fn() -> core::result::Result<(), alloc::string::String>, ()>

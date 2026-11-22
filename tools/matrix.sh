@@ -138,7 +138,8 @@ targets=(
 # - LLVM 18 : stable 1.83 - 1.87, since https://github.com/rust-lang/rust/pull/130487
 # - LLVM 19 : stable 1.88 - 1.91, since https://github.com/rust-lang/rust/pull/139275
 # - LLVM 20 : stable 1.92 - 1.95, since https://github.com/rust-lang/rust/pull/145071
-# - LLVM 21 : stable 1.96 -     , since https://github.com/rust-lang/rust/pull/153684
+# - LLVM 21 : stable 1.96 - 1.100, since https://github.com/rust-lang/rust/pull/153684
+# - LLVM 22 : stable 1.101 -     , since https://github.com/rust-lang/rust/pull/163572
 toolchains=(
   1.56 # LLVM 13
   1.64 # LLVM 14
@@ -149,7 +150,7 @@ toolchains=(
   1.86 # LLVM 19
   1.90 # LLVM 20
   1.94 # LLVM 21
-  # 1.98 # LLVM 22
+  1.98 # LLVM 22
   stable
   beta
   nightly
@@ -263,9 +264,8 @@ add_matrix() {
     return
   fi
   case "${target}" in
-    *-windows-gnullvm) ;;
-    x86_64-pc-windows-msvc) ;;
-    x86_64*-windows* | i?86*-windows*) toolchain="${toolchain}-${target}" ;;
+    *-windows-gnullvm | x86_64-pc-windows-msvc) ;;
+    x86_64*-windows*) toolchain="${toolchain}-${target}" ;;
   esac
   local target_out="\"rust\": \"${toolchain}\""
   target_out+=",\"target\": \"${target}\""
@@ -296,7 +296,7 @@ for target in "${targets[@]}"; do
     x86_64*-apple-* | i?86*-apple-*) base_os=macos-15-intel ;;
     aarch64*-apple-* | arm*-apple-*) base_os=macos-latest ;;
     x86_64*-windows* | i?86*-windows*) base_os=windows-latest ;;
-    aarch64*-windows* | arm*-windows*) base_os=windows-11-arm ;;
+    aarch64*-windows* | arm*-windows* | thumb*-windows*) base_os=windows-11-arm ;;
   esac
   os="${base_os}"
   container="${base_container}"
@@ -453,7 +453,7 @@ for target in "${targets[@]}"; do
   esac
   # Test with cranelift backend.
   case "${target}" in
-    # https://github.com/rust-lang/rust/blob/1.93.0/src/bootstrap/src/utils/helpers.rs#L228
+    # https://github.com/rust-lang/rust/blob/1.100.0/src/bootstrap/src/utils/helpers.rs#L244
     # TODO(cranelift): s390x-unknown-linux-gnu: cranelift doesn't support asm for s390x yet
     x86_64-unknown-linux-gnu | aarch64-unknown-linux-gnu | riscv64gc-unknown-linux-gnu | x86_64-apple-darwin | aarch64-apple-darwin | x86_64-pc-windows-msvc)
       toolchain=nightly
