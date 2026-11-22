@@ -71,8 +71,8 @@ pub fn fence(order: Ordering) {
 
 cfg_core_atomic!({
     use super::core_atomic::{
-        AtomicI8, AtomicI16, AtomicI32, AtomicI64, AtomicIsize, AtomicPtr, AtomicU8, AtomicU16,
-        AtomicU32, AtomicU64, AtomicUsize,
+        AtomicI8, AtomicI16, AtomicI32, AtomicIsize, AtomicPtr, AtomicU8, AtomicU16, AtomicU32,
+        AtomicUsize,
     };
 
     macro_rules! atomic_not_neg {
@@ -114,36 +114,12 @@ cfg_core_atomic!({
             }
         };
     }
-    #[cfg(target_arch = "x86")]
-    macro_rules! atomic_not_neg_fallback {
-        ($atomic_type:ident) => {
-            impl $atomic_type {
-                #[inline]
-                pub(crate) fn not(&self, order: Ordering) {
-                    self.fetch_not(order);
-                }
-                #[inline]
-                pub(crate) fn neg(&self, order: Ordering) {
-                    self.fetch_neg(order);
-                }
-            }
-        };
-    }
-
     atomic_not_neg!(AtomicI8, "byte");
     atomic_not_neg!(AtomicU8, "byte");
     atomic_not_neg!(AtomicI16, "word");
     atomic_not_neg!(AtomicU16, "word");
     atomic_not_neg!(AtomicI32, "dword");
     atomic_not_neg!(AtomicU32, "dword");
-    #[cfg(target_arch = "x86_64")]
-    atomic_not_neg!(AtomicI64, "qword");
-    #[cfg(target_arch = "x86_64")]
-    atomic_not_neg!(AtomicU64, "qword");
-    #[cfg(target_arch = "x86")]
-    atomic_not_neg_fallback!(AtomicI64);
-    #[cfg(target_arch = "x86")]
-    atomic_not_neg_fallback!(AtomicU64);
     #[cfg(target_pointer_width = "32")]
     atomic_not_neg!(AtomicIsize, "dword");
     #[cfg(target_pointer_width = "32")]
@@ -251,14 +227,6 @@ cfg_core_atomic!({
     atomic_bit_opts!(AtomicU16, u16, ":x", "word");
     atomic_bit_opts!(AtomicI32, i32, ":e", "dword");
     atomic_bit_opts!(AtomicU32, u32, ":e", "dword");
-    #[cfg(target_arch = "x86_64")]
-    atomic_bit_opts!(AtomicI64, i64, "", "qword");
-    #[cfg(target_arch = "x86_64")]
-    atomic_bit_opts!(AtomicU64, u64, "", "qword");
-    #[cfg(target_arch = "x86")]
-    impl_default_bit_opts!(AtomicI64, i64);
-    #[cfg(target_arch = "x86")]
-    impl_default_bit_opts!(AtomicU64, u64);
     #[cfg(target_pointer_width = "32")]
     atomic_bit_opts!(AtomicIsize, isize, ":e", "dword");
     #[cfg(target_pointer_width = "32")]
@@ -271,6 +239,46 @@ cfg_core_atomic!({
     atomic_bit_opts!(AtomicUsize, usize, "", "qword");
     #[cfg(target_pointer_width = "64")]
     atomic_bit_opts!([T] AtomicPtr, usize, "", "qword");
+
+    // NB: Sync with 64-bit atomics in core_atomic.rs.
+    #[cfg(target_arch = "x86")]
+    #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_64)))]
+    #[cfg_attr(
+        not(portable_atomic_no_cfg_target_has_atomic),
+        cfg(any(
+            target_has_atomic = "64",
+            not(any(target_pointer_width = "16", target_pointer_width = "32")),
+        ))
+    )]
+    items!({
+        use super::core_atomic::{AtomicI64, AtomicU64};
+        macro_rules! atomic_not_neg_fallback {
+            ($atomic_type:ident) => {
+                impl $atomic_type {
+                    #[inline]
+                    pub(crate) fn not(&self, order: Ordering) {
+                        self.fetch_not(order);
+                    }
+                    #[inline]
+                    pub(crate) fn neg(&self, order: Ordering) {
+                        self.fetch_neg(order);
+                    }
+                }
+            };
+        }
+        atomic_not_neg_fallback!(AtomicI64);
+        atomic_not_neg_fallback!(AtomicU64);
+        impl_default_bit_opts!(AtomicI64, i64);
+        impl_default_bit_opts!(AtomicU64, u64);
+    });
+    #[cfg(target_arch = "x86_64")]
+    items!({
+        use super::core_atomic::{AtomicI64, AtomicU64};
+        atomic_not_neg!(AtomicI64, "qword");
+        atomic_not_neg!(AtomicU64, "qword");
+        atomic_bit_opts!(AtomicI64, i64, "", "qword");
+        atomic_bit_opts!(AtomicU64, u64, "", "qword");
+    });
 
     // For AtomicBool
     // LLVM 15 and older don't support generating `lock {and,xor}`.
