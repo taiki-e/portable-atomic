@@ -13,7 +13,7 @@ fn main() {
         let mut subarch =
             target.strip_prefix("arm").or_else(|| target.strip_prefix("thumb")).unwrap();
         subarch = subarch.strip_prefix("eb").unwrap_or(subarch); // ignore endianness
-        subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
+        subarch = subarch.split('-').next().unwrap(); // ignore vendor/os/env
         subarch = subarch.split('.').next().unwrap(); // ignore .base/.main suffix
         match subarch {
             "v4t" => println!("cargo:rustc-cfg=armv4t"),

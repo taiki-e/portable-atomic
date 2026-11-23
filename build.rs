@@ -469,7 +469,7 @@ fn main() {
                     strip_prefix(target, "arm").or_else(|| strip_prefix(target, "thumb"))
                 {
                     subarch = strip_prefix(subarch, "eb").unwrap_or(subarch); // ignore endianness
-                    subarch = subarch.split('-').next().unwrap(); // ignore vender/os/env
+                    subarch = subarch.split('-').next().unwrap(); // ignore vendor/os/env
                     let mut i = subarch.rsplitn(2, '.');
                     subarch = i.next().unwrap();
                     let mut suffix = "";
