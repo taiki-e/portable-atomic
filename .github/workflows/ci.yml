@@ -84,12 +84,6 @@ jobs:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
       - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends gcc libc6-dev
         if: matrix.container != ''
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
-      #   if: startsWith(matrix.os, 'ubuntu') || matrix.os == ''
-      # - run: brew install moreutils
-      #   if: startsWith(matrix.os, 'macos')
-      # - run: C:/msys64/usr/bin/pacman -S --noconfirm moreutils
-      #   if: startsWith(matrix.os, 'windows')
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
           # 0.4.8 fails with at least nightly-2023-05-09 to nightly-2024-01-05
@@ -1244,7 +1238,6 @@ jobs:
         with:
           tool: rust@nightly+miri,cargo-hack
           fallback: none
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: printf 'TARGET=--target=%s\n' "${TARGET}" >>"${GITHUB_ENV}"
         env:
           TARGET: ${{ matrix.target }}
@@ -1273,7 +1266,6 @@ jobs:
         with:
           tool: rust@nightly,cargo-hack
           fallback: none
-      # - run: sudo apt-get -o Acquire::Retries=10 -qq update && sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - run: |
           printf 'TARGET=x86_64-unknown-linux-gnuasan\n' >>"${GITHUB_ENV}"
           printf 'ASAN_OPTIONS=detect_stack_use_after_return=1\n' >>"${GITHUB_ENV}"
@@ -1341,7 +1333,6 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
           VALGRIND: ${{ matrix.arch && 'valgrind-cross' || 'valgrind' }}
-      # - run: apt-get -o Acquire::Retries=10 -qq update && apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends moreutils
       - uses: taiki-e/setup-cross-toolchain-action@12b7ad4acfa95a1476779d6c06699b96ec1691f8 # v1.42.0
         with:
           target: ${{ matrix.target }}
