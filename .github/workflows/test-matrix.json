@@ -350,11 +350,11 @@
       "target": "mipsel-unknown-linux-gnu"
     },
     {
-      "rust": "nightly-2026-08-05",
+      "rust": "nightly",
       "target": "mips64-unknown-linux-gnuabi64"
     },
     {
-      "rust": "nightly-2026-08-05",
+      "rust": "nightly",
       "target": "mips64el-unknown-linux-gnuabi64"
     },
     {

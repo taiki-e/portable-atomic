@@ -400,13 +400,6 @@ for target in "${targets[@]}"; do
           nightly) toolchain=nightly-2026-08-05 ;;
         esac
         ;;
-      mips64*)
-        case "${toolchain}" in
-          1.99) toolchain='' ;; # LLVM 23 bug https://github.com/llvm/llvm-project/issues/112010
-          # TODO(mips): LLVM 23 bug https://github.com/llvm/llvm-project/issues/112010
-          nightly) toolchain=nightly-2026-08-05 ;;
-        esac
-        ;;
     esac
     add_matrix
   done
