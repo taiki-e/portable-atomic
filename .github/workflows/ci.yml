@@ -1152,31 +1152,15 @@ jobs:
         env:
           RUSTFLAGS: -W warnings
         if: startsWith(matrix.rust, 'nightly') && !startsWith(matrix.rust, 'nightly-2022')
-      # syn 2.0.107 & quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
+      # quote 1.0.42 & proc-macro2 1.0.104 requires Rust 1.68.
       # unicode-ident 1.0.23 requires Rust 1.71.
-      # cortex-m-rt 0.7.6 requires Rust 1.85.
       - run: |
-          tests=(tests/no-std-qemu)
-          if [[ "${RUST}" == 'nightly'* ]]; then
-            tests+=(tests/avr)
-          fi
-          for t in "${tests[@]}"; do
-            (
-              cd -- "${t}"
-              cargo generate-lockfile
-              cargo update -p proc-macro2 --precise 1.0.103
-              cargo update -p quote --precise 1.0.41
-              cargo update -p unicode-ident --precise 1.0.22
-            )
-          done
-          (
-            cd -- tests/no-std-qemu
-            cargo update -p syn@2.0.119 --precise 2.0.106
-            cargo update -p cortex-m-rt --precise 0.7.5
-          )
-        env:
-          RUST: ${{ matrix.rust }}
-        if: startsWith(matrix.rust, '1.6') || startsWith(matrix.rust, '1.7') || startsWith(matrix.rust, '1.8') || startsWith(matrix.rust, 'nightly-2022')
+          cd -- tests/avr
+          cargo generate-lockfile
+          cargo update -p proc-macro2 --precise 1.0.103
+          cargo update -p quote --precise 1.0.41
+          cargo update -p unicode-ident --precise 1.0.22
+        if: startsWith(matrix.rust, 'nightly-2022')
       - run: tools/no-std.sh
         env:
           ALL_TARGETS_MUST_BE_AVAILABLE: ${{ matrix.rust == 'nightly' || '' }}
