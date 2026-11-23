@@ -44,14 +44,6 @@ jobs:
     with:
       clippy: false # covered by TESTS=1 ./tools/build.sh
       docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
-  codegen:
-    needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/gen.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
-    permissions:
-      contents: write # for creating branch for pr
-      pull-requests: read # for gh pr list
-    secrets:
-      PR_TOKEN_APP_PRIVATE_KEY: ${{ secrets.PR_TOKEN_APP_PRIVATE_KEY }}
   codeql:
     needs: tidy
     uses: taiki-e/github-actions/.github/workflows/codeql.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
