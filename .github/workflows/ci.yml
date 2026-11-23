@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   tidy:
-    uses: taiki-e/github-actions/.github/workflows/tidy.yml@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+    uses: taiki-e/github-actions/.github/workflows/tidy.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
     permissions:
       security-events: write # for github/codeql-action/*
     with:
@@ -46,15 +46,22 @@ jobs:
       docs-target: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,powerpc64le-unknown-linux-gnu,s390x-unknown-linux-gnu,armv5te-unknown-linux-gnueabi
   codegen:
     needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/gen.yml@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+    uses: taiki-e/github-actions/.github/workflows/gen.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
     permissions:
       contents: write # for creating branch for pr
       pull-requests: read # for gh pr list
     secrets:
       PR_TOKEN_APP_PRIVATE_KEY: ${{ secrets.PR_TOKEN_APP_PRIVATE_KEY }}
+  codeql:
+    needs: tidy
+    uses: taiki-e/github-actions/.github/workflows/codeql.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
+    permissions:
+      security-events: write # for github/codeql-action/*
+    with:
+      language: rust
   msrv:
     needs: tidy
-    uses: taiki-e/github-actions/.github/workflows/rust-msrv.yml@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+    uses: taiki-e/github-actions/.github/workflows/rust-msrv.yml@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
     with:
       # NB: sync with env.TEST_FEATURES
       # Exclude serde and critical-section features because the MSRV when it is enabled depends on the MSRV of them
@@ -1034,7 +1041,7 @@ jobs:
     timeout-minutes: 120 # TODO: nightly builds take a long time because there are too many targets
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+      - uses: taiki-e/github-actions/free-device-space@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
         if: matrix.rust == 'nightly'
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
@@ -1078,7 +1085,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
-      - uses: taiki-e/github-actions/free-device-space@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+      - uses: taiki-e/github-actions/free-device-space@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
         if: matrix.rust == 'nightly'
       - uses: taiki-e/install-action@07b4745e0c39a41822af610387492e3e53aa222b # v2.83.4
         with:
@@ -1337,7 +1344,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           runner: valgrind
-      - uses: taiki-e/github-actions/setup-docker@a2bc8ad241bd3c7fa2ba3239d7dca7a032a17095 # 2026.11.22
+      - uses: taiki-e/github-actions/setup-docker@af422d7af8ef63e0ea0d84510aff17254fef31c2 # 2026.11.23
         with:
           buildx: false
           qemu: ${{ matrix.arch }}
