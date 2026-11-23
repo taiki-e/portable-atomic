@@ -118,7 +118,7 @@ jobs:
           printf 'cfgs=%s\n' ",${cfgs//$'\n'/,}," >>"${GITHUB_OUTPUT}"
         env:
           TARGET: ${{ matrix.target }}
-      - uses: taiki-e/setup-cross-toolchain-action@be174937b799f896bac421e9f8250f4fff986a3c # v1.43.0
+      - uses: taiki-e/setup-cross-toolchain-action@0375eb1d01bea430aa3202965839a7092960a23b # v1.43.1
         with:
           target: ${{ matrix.target }}
           runner: ${{ matrix.container && 'native' || '' }}
@@ -541,7 +541,7 @@ jobs:
           tool: rust@${{ matrix.rust ||'nightly' }}+rust-src
           fallback: none
         if: matrix.toolchain != ''
-      - uses: taiki-e/setup-cross-toolchain-action@be174937b799f896bac421e9f8250f4fff986a3c # v1.43.0
+      - uses: taiki-e/setup-cross-toolchain-action@0375eb1d01bea430aa3202965839a7092960a23b # v1.43.1
         with:
           target: ${{ matrix.target }}@${{ matrix.toolchain }}
         if: matrix.toolchain != ''
@@ -643,8 +643,8 @@ jobs:
             done
             "$@"
           }
-          qemu_version=11.1.3
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 "https://github.com/taiki-e/qemu/releases/download/patched-${qemu_version}/qemu-system-x86_64-linux.tar.zst" \
+          qemu_version=11.1.3-patched.0
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 "https://github.com/taiki-e/qemu/releases/download/v${qemu_version}/qemu-system-x86_64-linux.tar.zst" \
             | tar xf - --zstd
           sudo cp -r -- qemu/. /usr/local/
           rm -rf -- ./qemu
@@ -698,7 +698,7 @@ jobs:
         with:
           tool: rust@nightly+rust-src
           fallback: none
-      - uses: taiki-e/setup-cross-toolchain-action@be174937b799f896bac421e9f8250f4fff986a3c # v1.43.0
+      - uses: taiki-e/setup-cross-toolchain-action@0375eb1d01bea430aa3202965839a7092960a23b # v1.43.1
         with:
           target: powerpc64-unknown-freebsd@${{ matrix.toolchain }}
       - run: |
@@ -1106,8 +1106,8 @@ jobs:
             retry sudo apt-get -o Acquire::Retries=10 -qq update
             retry sudo apt-get -o Acquire::Retries=10 -o Dpkg::Use-Pty=0 install -y --no-install-recommends "${apt_packages[@]}"
           fi
-          qemu_version=11.1.3
-          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 "https://github.com/taiki-e/qemu/releases/download/patched-${qemu_version}/qemu-system-x86_64-linux.tar.zst" \
+          qemu_version=11.1.3-patched.0
+          retry curl --proto '=https' --tlsv1.2 -fsSL --retry 10 "https://github.com/taiki-e/qemu/releases/download/v${qemu_version}/qemu-system-x86_64-linux.tar.zst" \
             | tar xf - --zstd
           sudo cp -r -- qemu/. /usr/local/
           rm -rf -- ./qemu
@@ -1330,7 +1330,7 @@ jobs:
         env:
           TARGET: ${{ matrix.target }}
           VALGRIND: ${{ matrix.arch && 'valgrind-cross' || 'valgrind' }}
-      - uses: taiki-e/setup-cross-toolchain-action@be174937b799f896bac421e9f8250f4fff986a3c # v1.43.0
+      - uses: taiki-e/setup-cross-toolchain-action@0375eb1d01bea430aa3202965839a7092960a23b # v1.43.1
         with:
           target: ${{ matrix.target }}
           runner: valgrind
