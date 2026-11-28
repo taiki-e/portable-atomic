@@ -43,9 +43,6 @@ Supported platforms:
   - aarch64 (uClibc-ng 1.0.22+ https://github.com/wbx-github/uclibc-ng/commit/dba942c80dc2cfa5768a856fff98e22a755fdd27)
   - arm (uClibc-ng 1.0.0+ https://github.com/wbx-github/uclibc-ng/tree/v1.0.0/libc/sysdeps/linux)
   (powerpc64 is not supported https://github.com/wbx-github/uclibc-ng/commit/d4d4f37fda7fa57e57132ff2f0d735ce7cc2178e)
-- Picolibc 1.4.6+ (through getauxval)
-  https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
-  The implementation always return 0 (as of 1.8.12): https://github.com/picolibc/picolibc/blob/1.8.12/libc/misc/getauxval.c
 - Android 4.3+ (API level 18+) (through getauxval)
   https://android.googlesource.com/platform/bionic.git/+/2c5153b043b44e9935a334ae9b2d5a4bc5258b40
   https://android.googlesource.com/platform/bionic.git/+/655e430b28d7404f763e7ebefe84fba5a387666d
@@ -74,11 +71,15 @@ Supported platforms:
   - arm (OpenBSD 6.0+ https://www.openbsd.org/60.html)
   - powerpc64 (OpenBSD 6.8+ https://www.openbsd.org/68.html)
 
-On L4Re which uses uClibc-ng, a dummy getauxval was added first in 2020 that always returns 0 (https://github.com/kernkonzept/l4re-core/commit/e88fa67198074d3e6b4983c5c8af1538e2089ff3),
-then implemented in 2024 (https://github.com/kernkonzept/l4re-core/commit/3ee2a50dd1b3bc22955e593004990887a0a5b4a3).
-However, getauxval(AT_HWCAP*) always returns 0 (as of 2025-12-25). (see tests/l4re test)
-On Redox, getauxval is available since 0.5.0 (https://github.com/redox-os/relibc/commit/f9f752d74c4f1f56a89c0fcdd5cab63d2380fe09),
-but the implementation always return 0 (as of 2026-08-08): https://github.com/redox-os/relibc/blob/49aeb9470a885030ed43a70d0b708f3caec19478/src/header/sys_auxv/mod.rs
+Other platforms that have getauxval but don't use this module:
+- On Trusty which uses musl, getauxval is available but getauxval(AT_HWCAP*) support is very limited
+  and only HWCAP2_MTE is exposed (as of 2026-11-25): https://android.googlesource.com/trusty/lk/trusty/%2B/refs/heads/main/lib/trusty/trusty_app.c
+- On L4Re which uses uClibc-ng, getauxval is available since 2020 (https://github.com/kernkonzept/l4re-core/commit/e88fa67198074d3e6b4983c5c8af1538e2089ff3),
+  but getauxval(AT_HWCAP*) always returns 0 (as of 2025-12-25). (see tests/l4re test)
+- On Redox, getauxval is available since 0.5.0 (https://github.com/redox-os/relibc/commit/f9f752d74c4f1f56a89c0fcdd5cab63d2380fe09),
+  but the implementation always return 0 (as of 2026-11-25): https://github.com/redox-os/relibc/blob/c222551930b0cc1aacf8d04b0b449e078de63ece/src/header/sys_auxv/mod.rs
+- On Picolibc, getauxval is available since 1.4.6 (https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31),
+  but the implementation always return 0 (as of 2026-11-25): https://github.com/picolibc/picolibc/blob/7128f2336dc20f42a1f22eaf02e88c713105a24b/libc/misc/getauxval.c
 
 On platforms that we can assume that getauxval/elf_aux_info is always available, we directly call
 them on except for musl with static linking. (At this time, we also retain compatibility with
@@ -190,9 +191,7 @@ mod os {
                 // https://gitlab.com/gnutools/glibc/-/blob/glibc-2.44/misc/sys/auxv.h
                 // https://git.musl-libc.org/cgit/musl/tree/include/sys/auxv.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
-                // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/sys/auxv.h
                 // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/auxv.h
-                // https://github.com/picolibc/picolibc/blob/1.8.12/libc/include/sys/auxv.h
                 #[cfg(any(
                     all(
                         target_os = "linux",
