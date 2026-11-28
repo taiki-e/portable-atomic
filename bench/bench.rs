@@ -403,7 +403,7 @@ mod bench {
         // bench_portable_atomic_intrinsics,
         bench_portable_atomic_seqlock_fallback,
         bench_portable_atomic_spinlock_fallback,
-        // Disable third-party implementation by default.
+        // Disable benchmarks for third-party implementation by default.
         // bench_atomic_cell,
         // bench_atomic_rs
     );
@@ -429,7 +429,7 @@ mod bench {
         bench_portable_atomic_arch,
         bench_portable_atomic_seqlock_fallback,
         bench_portable_atomic_spinlock_fallback,
-        // Disable third-party implementation by default.
+        // Disable benchmarks for third-party implementation by default.
         // bench_atomic_cell,
         // bench_atomic_rs
     );

@@ -460,7 +460,7 @@ mod tests {
     fn test_alternative() {
         use std::{mem, ptr};
 
-        use test_helper::sys;
+        use assert_sys::sys;
 
         use super::imp::ffi;
         use crate::utils::ffi::*;

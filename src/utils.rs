@@ -1204,16 +1204,16 @@ pub(crate) mod ffi {
     macro_rules! sys_type {
         ({$(
             $(#[$attr:meta])*
-            $vis:vis type $([$($windows_path:ident)::+])? $name:ident = $ty:ty;
+            $vis:vis type $name:ident = $ty:ty;
         )*}) => {
             $(
                 $(#[$attr])*
                 $vis type $name = $ty;
             )*
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            test_helper::static_assert_sys_type!($(
+            assert_sys::static_assert_sys_type!($(
                 $(#[$attr])*
-                type $([$($windows_path)::+])? $name;
+                type $name;
             )*);
         };
     }
@@ -1224,7 +1224,7 @@ pub(crate) mod ffi {
     macro_rules! sys_struct {
         ({$(
             $(#[$attr:meta])*
-            $vis:vis struct $([$($windows_path:ident)::+])? $name:ident {$(
+            $vis:vis struct $name:ident {$(
                 $(#[$field_attr:meta])*
                 $field_vis:vis $field_name:ident: $field_ty:ty,
             )*}
@@ -1243,9 +1243,9 @@ pub(crate) mod ffi {
                 )*}
             )*
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            test_helper::static_assert_sys_struct!($(
+            assert_sys::static_assert_sys_struct!($(
                 $(#[$attr])*
-                struct $([$($windows_path)::+])? $name {$(
+                struct $name {$(
                     $(#[$field_attr])*
                     $field_name: $field_ty,
                 )*}
@@ -1259,16 +1259,16 @@ pub(crate) mod ffi {
     macro_rules! sys_const {
         ({$(
             $(#[$attr:meta])*
-            $vis:vis const $([$($windows_path:ident)::+])? $name:ident: $ty:ty = $val:expr;
+            $vis:vis const $name:ident: $ty:ty = $val:expr;
         )*}) => {
             $(
                 $(#[$attr])*
                 $vis const $name: $ty = $val;
             )*
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            test_helper::static_assert_sys_const!($(
+            assert_sys::static_assert_sys_const!($(
                 $(#[$attr])*
-                const $([$($windows_path)::+])? $name: $ty;
+                const $name: $ty;
             )*);
         };
     }
@@ -1281,7 +1281,7 @@ pub(crate) mod ffi {
             $(#[$extern_attr:meta])*
             extern $abi:tt {$(
                 $(#[$fn_attr:meta])*
-                $vis:vis fn $([$($windows_path:ident)::+])? $name:ident(
+                $vis:vis fn $name:ident(
                     $($args:tt)*
                 ) $(-> $ret_ty:ty)?;
             )*}
@@ -1292,11 +1292,11 @@ pub(crate) mod ffi {
                 $vis fn $name($($args)*) $(-> $ret_ty)?;
             )*}
             #[cfg(any(test, portable_atomic_test_no_std_static_assert_ffi))]
-            test_helper::static_assert_sys_fn!(
+            assert_sys::static_assert_sys_fn!(
                 $(#[$extern_attr])*
                 extern $abi {$(
                     $(#[$fn_attr])*
-                    fn $([$($windows_path)::+])? $name($($args)*) $(-> $ret_ty)?;
+                    fn $name($($args)*) $(-> $ret_ty)?;
                 )*}
             );
         };

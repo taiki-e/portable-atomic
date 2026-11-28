@@ -127,7 +127,7 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
 mod tests {
     use std::{format, process::Command, str, string::String};
 
-    use test_helper::sys;
+    use assert_sys::sys;
 
     use super::*;
 

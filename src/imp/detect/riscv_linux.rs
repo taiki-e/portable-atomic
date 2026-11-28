@@ -162,7 +162,7 @@ fn _detect(mut info: CpuInfo) -> CpuInfo {
 )]
 #[cfg(test)]
 mod tests {
-    use test_helper::sys;
+    use assert_sys::sys;
 
     use super::*;
 

@@ -58,9 +58,9 @@ extern "C" {
     fn _atomic_u32_ffi_safety(_: AtomicU32);
     fn _atomic_i64_ffi_safety(_: AtomicI64);
     fn _atomic_u64_ffi_safety(_: AtomicU64);
-    #[rustversion::since(1.89)] // https://github.com/rust-lang/rust/pull/137306
+    #[cfg(not(portable_atomic_no_ffi_safe_i128))]
     fn _atomic_i128_ffi_safety(_: AtomicI128);
-    #[rustversion::since(1.89)] // https://github.com/rust-lang/rust/pull/137306
+    #[cfg(not(portable_atomic_no_ffi_safe_i128))]
     fn _atomic_u128_ffi_safety(_: AtomicU128);
     #[cfg(all(feature = "float", portable_atomic_unstable_f16))]
     fn _atomic_f16_ffi_safety(_: AtomicF16);
@@ -262,7 +262,7 @@ fn test_serde() {
         de::{Deserialize, Deserializer},
         ser::{Serialize, Serializer},
     };
-    use serde_test::{Token, assert_tokens};
+    use test_helper::serde_test::{Token, assert_tokens};
 
     #[derive(Debug)]
     struct DebugPartialEq<T>(T);

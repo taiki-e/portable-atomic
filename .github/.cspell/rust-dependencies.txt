@@ -4,5 +4,4 @@
 asmtest
 fastrand
 quickcheck
-rustversion
 sptr

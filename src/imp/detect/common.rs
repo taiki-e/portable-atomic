@@ -297,7 +297,7 @@ mod tests_common {
     // Assertions with core::ffi types are in crate::utils::ffi module.
     #[cfg(not(any(windows, target_arch = "x86", target_arch = "x86_64")))]
     const _: fn() = || {
-        use test_helper::sys;
+        use assert_sys::sys;
         let _: crate::utils::ffi::c_char = 0 as sys::c_char;
     };
 }

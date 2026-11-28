@@ -861,7 +861,7 @@ mod tests {
     #[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
     #[cfg(not(all(target_os = "linux", target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
     items!({
-        use test_helper::sys;
+        use assert_sys::sys;
 
         #[cfg(target_os = "freebsd")]
         use self::sys::Elf_Auxinfo as Elf_auxv_t;

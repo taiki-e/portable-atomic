@@ -17,29 +17,26 @@ include!("common.rs");
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 mod ffi {
     sys_type!({
-        pub(crate) type [Win32::System::Threading] PROCESSOR_FEATURE_ID = u32;
-        pub(crate) type [core] BOOL = i32;
+        pub(crate) type PROCESSOR_FEATURE_ID = u32;
+        pub(crate) type BOOL = i32;
     });
 
     sys_const!({
-        pub(crate) const [Win32::Foundation] FALSE: BOOL = 0;
+        pub(crate) const FALSE: BOOL = 0;
 
         // Defined in winnt.h of Windows SDK.
-        pub(crate) const [Win32::System::Threading]
-            PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 34;
+        pub(crate) const PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 34;
         #[cfg(test)]
-        pub(crate) const [Win32::System::Threading]
-            PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 45;
+        pub(crate) const PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE: PROCESSOR_FEATURE_ID = 45;
     });
-    // TODO: put in sys_const! once windows-sys updated.
+    // TODO: put in sys_const! once windows-bindgen updated.
     pub(crate) const PF_ARM_LSE2_AVAILABLE: PROCESSOR_FEATURE_ID = 62;
 
     sys_fn!({
         extern "system" {
             // https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-            pub(crate) fn [Win32::System::Threading] IsProcessorFeaturePresent(
-                ProcessorFeature: PROCESSOR_FEATURE_ID,
-            ) -> BOOL;
+            pub(crate) fn IsProcessorFeaturePresent(ProcessorFeature: PROCESSOR_FEATURE_ID)
+            -> BOOL;
         }
     });
 }

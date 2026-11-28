@@ -14,8 +14,7 @@ macro_rules! __test_atomic_common {
         use std::mem;
         #[test]
         fn assert_auto_traits() {
-            fn _assert<T: Send + Sync + Unpin + std::panic::UnwindSafe>() {}
-            _assert::<$atomic_type>();
+            test_helper::assert_value!($atomic_type: Send & Sync & Unpin & UnwindSafe);
         }
         #[test]
         fn alignment() {
@@ -44,9 +43,9 @@ macro_rules! __test_atomic_pub_common {
         #[test]
         fn assert_ref_unwind_safe() {
             #[cfg(not(all(portable_atomic_no_core_unwind_safe, not(feature = "std"))))]
-            static_assertions::assert_impl_all!($atomic_type: std::panic::RefUnwindSafe);
+            test_helper::assert_value!($atomic_type: RefUnwindSafe);
             #[cfg(all(portable_atomic_no_core_unwind_safe, not(feature = "std")))]
-            static_assertions::assert_not_impl_all!($atomic_type: std::panic::RefUnwindSafe);
+            test_helper::assert_value!($atomic_type: !RefUnwindSafe);
         }
     };
 }
